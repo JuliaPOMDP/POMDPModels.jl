@@ -1,6 +1,7 @@
 module POMDPModels
 
 using POMDPs
+using Distributions
 
 import POMDPs: n_states, n_actions, n_observations
 import POMDPs: states, states!, actions, actions!, observations, observations!
