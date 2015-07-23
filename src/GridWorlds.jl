@@ -32,7 +32,7 @@ end
 
 type GridWorldDistribution <: AbstractDistribution
     neighbors::Array{GridWorldState}
-    probablilities::Array{Float64} 
+    probabilities::Array{Float64} 
     mdp::GridWorld
 end
 function rand(d::GridWorldDistribution) 
@@ -42,7 +42,7 @@ end
 function rand!(s::GridWorldState, d::GridWorldDistribution)
     c = Categorical(d.probabilities)
     ns = d.neighbors[rand(c)]
-    s.x = ns.x; s.y = ns.y; s.bumped = nd.bumped; s.done = ns.done
+    s.x = ns.x; s.y = ns.y; s.bumped = ns.bumped; s.done = ns.done
     s
 end
 
@@ -125,7 +125,7 @@ function transition!(d::GridWorldDistribution, mdp::GridWorld, state::GridWorldS
 	y = state.y 
     
     neighbors = d.neighbors
-    probability = d.probablilities #misspelled probabilities 
+    probability = d.probabilities #misspelled probabilities 
     
     fill!(probability, 0.1)
     probability[5] = 0.0 
@@ -237,20 +237,20 @@ function rand!(action::GridWorldState, space::ActionSpace)
 end
 
 function states(mdp::GridWorld)
-	states = GridWorldState[] 
+	s = GridWorldState[] 
 	size_x = mdp.size_x
 	size_y = mdp.size_y
-    for x = 1:mdp.size_x, y = 1:mdp.size_y, b = 0:1
-        push!(states, GridWorldState(x,y,b))
+    for x = 1:mdp.size_x, y = 1:mdp.size_y, b = 0:1, d = 0:1
+        push!(s, GridWorldState(x,y,b,d))
     end
-    return StateSpace(states)
+    return StateSpace(s)
 end
 states!(space::StateSpace, mdp::GridWorld, state::GridWorldState) = space
 
 function actions(mdp::GridWorld)
-	actions = [GridWorldAction(:up), GridWorldAction(:down), 
+	acts = [GridWorldAction(:up), GridWorldAction(:down), 
 	GridWorldAction(:left), GridWorldAction(:right)]
-	return ActionSpace(actions)
+	return ActionSpace(acts)
 end
 function actions!(a::ActionSpace, mdp::GridWorld, state::GridWorldState)
     return a
