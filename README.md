@@ -1,4 +1,4 @@
-# POMDPModles
+# POMDPModels
 
 This package provides test models for POMDPs.jl.
 
