@@ -1,8 +1,11 @@
-type GridWorldState 
+type GridWorldState
 	x::Int64
 	y::Int64
     bumped::Bool
+    done::Bool
 end
+GridWorldState(x::Int64, y::Int64) = GridWorldState(x,y,false,false)
+
 
 ==(s1::GridWorldState,s2::GridWorldState) = s1.x == s2.x && s1.y == s2.y
 
@@ -18,7 +21,7 @@ function GridWorld(sx::Int64, sy::Int64;
                    penalty::Float64=-1.0)
     if isempty(rs)
         rs = [GridWorldState(5,5), GridWorldState(3,3), GridWorldState(2,2)]
-        rv = [100,-100,50]
+        rv = [10,-10,5]
     end
     return GridWorld(sx, sy, rs, rv, penalty)
 end
@@ -29,12 +32,23 @@ end
 
 type GridWorldDistribution <: AbstractDistribution
     neighbors::Array{GridWorldState}
-    probablilities::Array{Float64} 
+    probabilities::Array{Float64} 
     mdp::GridWorld
 end
+function rand(d::GridWorldDistribution) 
+    c = Categorical(d.probabilities)
+    return d.neighbors[rand(c)]
+end
+function rand!(s::GridWorldState, d::GridWorldDistribution)
+    c = Categorical(d.probabilities)
+    ns = d.neighbors[rand(c)]
+    s.x = ns.x; s.y = ns.y; s.bumped = ns.bumped; s.done = ns.done
+    s
+end
 
-create_state = GridWorldState(1, 1, false)
-create_action = GridWorldAction(:up)
+
+create_state(mdp::GridWorld) = GridWorldState(1, 1)
+create_action(mdp::GridWorld) = GridWorldAction(:up)
 
 n_states(mdp::GridWorld) = 2*mdp.size_x*mdp_size_y
 n_actions(mdp::GridWorld) = 4
@@ -48,12 +62,16 @@ function weight(d::GridWorldDistribution, i::Int64)
 end
 function create_transition(mdp::GridWorld)
     neighbors =  [GridWorldState(1,1) , GridWorldState(1,1) , GridWorldState(1,1) ,GridWorldState(1,1),GridWorldState(1,1)] 
-    probabilities = zeros(5)
+    probabilities = zeros(5) + 1/5.0
     return GridWorldDistribution(neighbors, probabilities, mdp) #d = create_transition(mdp)
 end
 
 #check for reward state
 function reward(mdp::GridWorld, state::GridWorldState, action::GridWorldAction) #deleted action
+    if state.done
+        return 0.0
+    end
+
 	r=0.0
 	reward_states = mdp.reward_states
 	reward_values = mdp.reward_values
@@ -107,7 +125,7 @@ function transition!(d::GridWorldDistribution, mdp::GridWorld, state::GridWorldS
 	y = state.y 
     
     neighbors = d.neighbors
-    probability = d.probablilities #misspelled probabilities 
+    probability = d.probabilities #misspelled probabilities 
     
     fill!(probability, 0.1)
     probability[5] = 0.0 
@@ -118,12 +136,21 @@ function transition!(d::GridWorldDistribution, mdp::GridWorld, state::GridWorldS
     neighbors[4].x = x; neighbors[4].y = y+1
     neighbors[5].x = x; neighbors[5].y = y
     for i = 1:5 neighbors[i].bumped = false end
-  
+    for i = 1:5 neighbors[i].done = false end 
+    reward_states = mdp.reward_states
+	n = length(reward_states)
+	for i = 1:n
+		if state == reward_states[i]
+			fill_probability!(probability, 1.0, 5)
+            neighbors[5].done = true
+            return d
+		end
+	end 
+
     if a == :right  
 		if !inbounds(mdp, neighbors[1])
 			fill_probability!(probability, 1.0, 5)
             neighbors[5].bumped = true
-            return probability, neighbors 
 		else
 			probability[1] = 0.7
 		end
@@ -132,7 +159,6 @@ function transition!(d::GridWorldDistribution, mdp::GridWorld, state::GridWorldS
 		if !inbounds(mdp, neighbors[2])
 			fill_probability!(probability, 1.0, 5)
             neighbors[5].bumped = true
-            return probability, neighbors
 		else
 			probability[2] = 0.7
 		end
@@ -141,7 +167,6 @@ function transition!(d::GridWorldDistribution, mdp::GridWorld, state::GridWorldS
 		if !inbounds(mdp, neighbors[3])
 			fill_probability!(probability, 1.0, 5)
             neighbors[5].bumped = true
-            return d
 		else
 			probability[3] = 0.7
 		end
@@ -150,7 +175,6 @@ function transition!(d::GridWorldDistribution, mdp::GridWorld, state::GridWorldS
 		if !inbounds(mdp, neighbors[4])
 			fill_probability!(probability, 1.0, 5)
             neighbors[5].bumped = true
-            return probability, neighbors
 		else
 			probability[4] = 0.7 
 		end
@@ -179,7 +203,7 @@ function transition!(d::GridWorldDistribution, mdp::GridWorld, state::GridWorldS
             end
         end
     end
-    return d
+    d
 end
 
 
@@ -213,20 +237,20 @@ function rand!(action::GridWorldState, space::ActionSpace)
 end
 
 function states(mdp::GridWorld)
-	states = GridWorldState[] 
+	s = GridWorldState[] 
 	size_x = mdp.size_x
 	size_y = mdp.size_y
-    for x = 1:mdp.size_x, y = 1:mdp.size_y, b = 0:1
-        push!(states, GridWorldState(x,y,b))
+    for x = 1:mdp.size_x, y = 1:mdp.size_y, b = 0:1, d = 0:1
+        push!(s, GridWorldState(x,y,b,d))
     end
-    return StateSpace(states)
+    return StateSpace(s)
 end
 states!(space::StateSpace, mdp::GridWorld, state::GridWorldState) = space
 
 function actions(mdp::GridWorld)
-	actions = [GridWorldAction(:up), GridWorldAction(:down), 
+	acts = [GridWorldAction(:up), GridWorldAction(:down), 
 	GridWorldAction(:left), GridWorldAction(:right)]
-	return ActionSpace(actions)
+	return ActionSpace(acts)
 end
 function actions!(a::ActionSpace, mdp::GridWorld, state::GridWorldState)
     return a
