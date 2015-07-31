@@ -4,8 +4,6 @@ using Distributions
 using POMDPToolbox
 =#
 
-# TODO implement update_belief!
-
 type BabyPOMDP <: POMDP
     r_feed::Float64
     r_hungry::Float64
@@ -29,17 +27,14 @@ type BabyAction
 end
 
 type BabyStateDistribution <: Belief
-    ishungry::Bernoulli
-
-    BabyStateDistribution() = new(Bernoulli(0.2))
-    BabyStateDistribution(p_ishungry::Float64) = new(Bernoulli(p_ishungry))
+    p_hungry::Float64 # probability of being hungry
 end
+BabyStateDistribution() = BabyStateDistribution(0.0)
 
 type BabyObservationDistribution <: AbstractDistribution
-    iscrying::Bernoulli
-
-    BabyObservationDistribution() = new(Bernoulli(0.1))
+    p_crying::Float64 # probability of crying
 end
+BabyObservationDistribution() = BabyObservationDistribution(0.0)
 
 
 create_state(::BabyPOMDP) = BabyState(false)
@@ -53,11 +48,11 @@ n_observations(::BabyPOMDP) = 2
 
 function transition!(d::BabyStateDistribution, pomdp::BabyPOMDP, s::BabyState, a::BabyAction)
     if !a.feed && s.hungry
-        d.ishungry = Bernoulli(1.0)
+        d.p_hungry = 1.0
     elseif a.feed 
-        d.ishungry = Bernoulli(0.0)
+        d.p_hungry = 0.0
     else
-        d.ishungry = Bernoulli(pomdp.p_become_hungry)
+        d.p_hungry = pomdp.p_become_hungry
     end
     d
 end
@@ -65,9 +60,9 @@ end
 
 function observation!(d::BabyObservationDistribution, pomdp::BabyPOMDP, s::BabyState, a::BabyAction)
     if s.hungry
-        d.iscrying = Bernoulli(pomdp.p_cry_when_hungry)
+        d.p_crying = pomdp.p_cry_when_hungry
     else
-        d.iscrying = Bernoulli(pomdp.p_cry_when_not_hungry)
+        d.p_crying = pomdp.p_cry_when_not_hungry
     end
     d
 end
@@ -84,15 +79,29 @@ function reward(pomdp::BabyPOMDP, s::BabyState, a::BabyAction)
 end
 
 function rand!(rng::AbstractRNG, s::BabyState, d::BabyStateDistribution)
-    # XXX does not use rng
-    s.hungry = rand(d.ishungry)
-    s
+    s.hungry = (rand(rng) <= d.p_hungry)
+    return s
 end
 
 function rand!(rng::AbstractRNG, o::BabyObservation, d::BabyObservationDistribution)
-    # XXX does not use rng
-    o.crying = rand(d.iscrying)
-    o
+    o.crying = (rand(rng) <= d.p_crying)
+    return o
+end
+
+function update_belief!(b::BabyStateDistribution, p::BabyPOMDP, a::BabyAction, o::BabyObservation)
+    # bayes rule
+    if a.feed
+        b.p_hungry = 0.0
+    else # did not feed
+        b.p_hungry += (1.0-b.p_hungry)*p.p_become_hungry # this is from the system dynamics
+        # bayes rule
+        if o.crying
+            b.p_hungry = (p.p_cry_when_hungry*b.p_hungry)/(p.p_cry_when_hungry*b.p_hungry + p.p_cry_when_not_hungry*(1.0-b.p_hungry))
+        else # not crying
+            b.p_hungry = ((1.0-p.p_cry_when_hungry)*b.p_hungry)/((1.0-p.p_cry_when_hungry)*b.p_hungry + (1.0-p.p_cry_when_not_hungry)*(1.0-b.p_hungry))
+        end
+    end
+    return b
 end
 
 dimensions(::BabyObservationDistribution) = 1
@@ -108,29 +117,30 @@ function actions!(acts::Vector{BabyAction}, ::BabyPOMDP, s::BabyState)
     acts[1:end] = ACTION_SET[1:end] 
 end
 
-create_interpolants(::BabyPOMDP) = Interpolants()
-
-function interpolants!(interpolants::Interpolants, d::BabyStateDistribution)
-    empty!(interpolants)
-    ph = params(d.ishungry)[1]
-    push!(interpolants, 1, (1-ph)) # hungry
-    push!(interpolants, 2, (ph)) # not hungry
-    interpolants
-end
-
-function interpolants!(interpolants::Interpolants, d::BabyObservationDistribution)
-    empty!(interpolants)
-    ph = params(d.iscrying)[1]
-    push!(interpolants, 1, (1-ph)) # crying
-    push!(interpolants, 2, (ph)) # not crying
-    interpolants
-end
-
-length(interps::Interpolants) = interps.length
-
-weight(interps::Interpolants, i::Int64) = interps.weights[i]
-
-index(interps::Interpolants, i::Int64) = interps.indices[i]
+# # interpolants don't work for now because I got rid of using Distributions.Bernoulli [This is my (Zach's) fault]
+# create_interpolants(::BabyPOMDP) = Interpolants()
+# 
+# function interpolants!(interpolants::Interpolants, d::BabyStateDistribution)
+#     empty!(interpolants)
+#     ph = params(d.ishungry)[1]
+#     push!(interpolants, 1, (1-ph)) # hungry
+#     push!(interpolants, 2, (ph)) # not hungry
+#     interpolants
+# end
+# 
+# function interpolants!(interpolants::Interpolants, d::BabyObservationDistribution)
+#     empty!(interpolants)
+#     ph = params(d.iscrying)[1]
+#     push!(interpolants, 1, (1-ph)) # crying
+#     push!(interpolants, 2, (ph)) # not crying
+#     interpolants
+# end
+# 
+# length(interps::Interpolants) = interps.length
+# 
+# weight(interps::Interpolants, i::Int64) = interps.weights[i]
+# 
+# index(interps::Interpolants, i::Int64) = interps.indices[i]
 
 function convert!(x::Vector{Float64}, state::BabyState)
     x[1] = float(state.hungry)
