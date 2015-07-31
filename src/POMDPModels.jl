@@ -1,13 +1,31 @@
 module POMDPModels
 
 using POMDPs
-using Distributions
+using Distributions 
+using POMDPToolbox
+import Base.rand
 
+#= # it appears that you have to import these all by name
 import POMDPs: n_states, n_actions, n_observations
 import POMDPs: states, states!, actions, actions!, observations, observations!
-import POMDPs: create_state, create_action, create_observation
-import POMDPs: create_transition, transition!, reward
-import POMDPs: rand, rand!, length, index, weight, domain
+import POMDPs: create_state, create_observation
+import POMDPs: create_transition_distribution, create_observation_distribution, transition!, reward
+import POMDPs: rand, rand!, length, index, weight, domain, isterminal
+=#
+
+# XXX this is not a complete list - it's only the ones needed to test simulate
+import POMDPs.create_state
+import POMDPs.create_observation
+import POMDPs.rand!
+import POMDPs.create_transition_distribution
+import POMDPs.create_observation_distribution
+import POMDPs.action
+import POMDPs.isterminal
+import POMDPs.reward
+import POMDPs.transition!
+import POMDPs.observation!
+import POMDPs.update_belief!
+import POMDPs.discount
 
 export
     # Grid World
@@ -15,6 +33,13 @@ export
     GridWorldState,
     GridWorldAction,
     GridWorldDistribution,
+    # CryingBabies
+    BabyPOMDP,
+    BabyState,
+    BabyObservation,
+    BabyAction,
+    BabyStateDistribution,
+    BabyObservationDistribution,
     # Commons
     n_states,
     n_actions,
@@ -36,10 +61,11 @@ export
     weight,
     domain,
     rand,
-    rand!
+    rand!,
+    isterminal
 
 include("GridWorlds.jl")
-#include("CryingBabies.jl")
+include("CryingBabies.jl")
 #include("TigerPOMDPs.jl")
 
 end # module
