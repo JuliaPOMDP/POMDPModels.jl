@@ -111,10 +111,14 @@ function states(::BabyPOMDP)
     [BabyState(i) for i = 0:1]
 end
 
-const ACTION_SET = [BabyAction(i) for i = 0:1]
+# const ACTION_SET = [BabyAction(i) for i = 0:1]
+
+function actions(::BabyPOMDP)
+    return [BabyAction(i) for i in 0:1]
+end
 
 function actions!(acts::Vector{BabyAction}, ::BabyPOMDP, s::BabyState)
-    acts[1:end] = ACTION_SET[1:end] 
+    acts[1:end] = [BabyAction(i) for i in 0:1] # ACTION_SET[1:end] 
 end
 
 # # interpolants don't work for now because I got rid of using Distributions.Bernoulli [This is my (Zach's) fault]

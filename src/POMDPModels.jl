@@ -1,9 +1,8 @@
 module POMDPModels
 
 using POMDPs
-using Distributions 
+# using Distributions # this takes a while to import. For various reasons, I (Zach) think we should avoid using Distributions.jl
 using POMDPToolbox
-import Base.rand
 
 #= # it appears that you have to import these all by name
 import POMDPs: n_states, n_actions, n_observations
@@ -16,7 +15,6 @@ import POMDPs: rand, rand!, length, index, weight, domain, isterminal
 # XXX this is not a complete list - it's only the ones needed to test simulate
 import POMDPs.create_state
 import POMDPs.create_observation
-import POMDPs.rand!
 import POMDPs.create_transition_distribution
 import POMDPs.create_observation_distribution
 import POMDPs.action
@@ -26,6 +24,9 @@ import POMDPs.transition!
 import POMDPs.observation!
 import POMDPs.update_belief!
 import POMDPs.discount
+import POMDPs.actions
+import Base.rand! # hmmm... is this right?
+import Base.rand
 
 export
     # Grid World
