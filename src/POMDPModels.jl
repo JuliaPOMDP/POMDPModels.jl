@@ -41,6 +41,9 @@ export
     BabyAction,
     BabyStateDistribution,
     BabyObservationDistribution,
+    Starve,
+    AlwaysFeed,
+    FeedWhenCrying,
     # Commons
     n_states,
     n_actions,

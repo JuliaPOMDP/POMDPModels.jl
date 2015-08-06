@@ -153,3 +153,27 @@ end
 
 discount(p::BabyPOMDP) = p.discount
 isterminal(::BabyState) = false
+
+# some example policies
+type Starve <: Policy
+end
+function action(::Starve, ::Belief)
+    return BabyAction(false); # Never feed :(
+end
+
+type AlwaysFeed <: Policy
+end
+function action(::AlwaysFeed, ::Belief)
+    return BabyAction(true);
+end
+
+# feed when the previous observation was crying - this is nearly optimal
+type FeedWhenCrying <: Policy
+end
+function action(::FeedWhenCrying, b::PreviousObservation)
+    if b.observation == nothing || b.observation.crying == false
+        return BabyAction(false)
+    else # is crying
+        return BabyAction(true)
+    end
+end
