@@ -36,4 +36,41 @@ r = simulate(problem, AlwaysFeed(), EmptyBelief(), eps=0.0001, initial_state=Bab
 r = simulate(problem, AlwaysFeed(), EmptyBelief(), eps=0.0001, initial_state=BabyState(true))
 @test_approx_eq_eps r -20.0 0.01
 
+# good policy - feed when the last observation was crying - this is *almost* optimal
+# from full state, reward should be -10.62
+n = 100000
+r_sum = @parallel (+) for i in 1:n
+    rng = MersenneTwister(i)
+    init_state = BabyState(false)
+    obs = create_observation(problem)
+    od = create_observation_distribution(problem)
+    observation!(od, problem, init_state, BabyAction(true))
+    rand!(rng, obs, od)
+    simulate(problem,
+             FeedWhenCrying(),
+             PreviousObservation(obs),
+             eps=0.0001,
+             rng=rng,
+             initial_state=init_state)
+end
+@test_approx_eq_eps r_sum/n -10.62 0.1
+
+# from hungry state, reward should be -22.5
+n = 100000
+r_sum = @parallel (+) for i in 1:n
+    rng = MersenneTwister(i)
+    init_state = BabyState(true)
+    obs = create_observation(problem)
+    od = create_observation_distribution(problem)
+    observation!(od, problem, init_state, BabyAction(true))
+    rand!(rng, obs, od)
+    simulate(problem,
+             FeedWhenCrying(),
+             PreviousObservation(obs),
+             eps=0.0001,
+             rng=rng,
+             initial_state=init_state)
+end
+@test_approx_eq_eps r_sum/n -22.50 0.1
+
 
