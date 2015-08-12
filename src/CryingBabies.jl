@@ -17,6 +17,8 @@ BabyPOMDP(r_feed, r_hungry) = BabyPOMDP(r_feed, r_hungry, 0.1, 0.8, 0.1, 0.9)
 type BabyState
     hungry::Bool
 end
+==(u::BabyState, v::BabyState) = u.hungry==v.hungry
+hash(s::BabyState) = hash(s.hungry)
 
 type BabyObservation 
     crying::Bool
@@ -28,7 +30,7 @@ type BabyAction
     feed::Bool
 end
 ==(u::BabyAction, v::BabyAction) = u.feed==v.feed
-hash(o::BabyAction) = hash(o.feed)
+hash(a::BabyAction) = hash(a.feed)
 
 type BabyStateDistribution <: Belief
     p_hungry::Float64 # probability of being hungry
