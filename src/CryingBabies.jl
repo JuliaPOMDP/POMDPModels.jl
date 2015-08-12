@@ -21,10 +21,14 @@ end
 type BabyObservation 
     crying::Bool
 end
+==(u::BabyObservation, v::BabyObservation) = u.crying==v.crying
+hash(o::BabyObservation) = hash(o.crying)
 
 type BabyAction
     feed::Bool
 end
+==(u::BabyAction, v::BabyAction) = u.feed==v.feed
+hash(o::BabyAction) = hash(o.feed)
 
 type BabyStateDistribution <: Belief
     p_hungry::Float64 # probability of being hungry
@@ -176,4 +180,7 @@ function action(::FeedWhenCrying, b::PreviousObservation)
     else # is crying
         return BabyAction(true)
     end
+end
+function action(::FeedWhenCrying, b::EmptyBelief)
+    return BabyAction(true)
 end

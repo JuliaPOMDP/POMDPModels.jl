@@ -27,6 +27,8 @@ import POMDPs.discount
 import POMDPs.actions
 import Base.rand! # hmmm... is this right?
 import Base.rand
+import Base.==
+import Base.hash
 
 export
     # Grid World
