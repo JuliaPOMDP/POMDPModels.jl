@@ -2,9 +2,10 @@ type TigerPOMDP <: POMDP
     r_listen::Float64
     r_findtiger::Float64
     r_escapetiger::Float64
+    discount_factor::Float64
 end
 function TigerPOMDP()
-    return TigerPOMDP(-1.0, -100.0, 10.0)
+    return TigerPOMDP(-1.0, -100.0, 10.0, 0.95)
 end
 
 type TigerState
@@ -155,4 +156,4 @@ function rand!(rng::AbstractRNG, o::TigerObservation, d::TigerObservationDistrib
     o
 end
 
-
+discount(pomdp::TigerPOMDP) = pomdp.discount_factor

@@ -34,6 +34,7 @@ import POMDPs: create_state, create_observation
 import POMDPs: reward, transition!, observation!
 import POMDPs: n_states, n_actions, n_observations
 import POMDPs: length, weight, index
+import POMDPs: discount
 
 import Base.rand! # hmmm... is this right?
 import Base.rand
@@ -90,7 +91,8 @@ export
     domain,
     rand,
     rand!,
-    isterminal
+    isterminal,
+    discount
 
 #include("GridWorlds.jl")
 include("CryingBabies.jl")
