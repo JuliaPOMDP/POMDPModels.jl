@@ -1,47 +1,3 @@
-module TigerPOMDPs
-
-using POMDPs
-using Distributions
-using POMDPToolbox
-
-import POMDPs: domain, states, actions, actions!, observations, observations!
-import POMDPs: create_transition, create_observation
-import POMDPs: reward, transition!, observation!
-import POMDPs: n_states, n_actions, n_observations
-import POMDPs: length, weight, index
-
-export 
-    TigerPOMDP,
-    TigerState,
-    TigerAction,
-    TigerObservation,
-    TransitionDistribution,
-    ObservationDistribution,
-    StateSpace,
-    ActionSpace,
-    ObsSpace,
-
-    states,
-    actions,
-    actions!,
-    observations,
-    observations!,
-    domain,
-    n_states,
-    n_actions,
-    n_observations,
-
-    create_transition,
-    create_observation,
-    transition!
-    observation!,
-    reward,
-
-    length,
-    weight,
-    index
-
-
 type TigerPOMDP <: POMDP
     r_listen::Float64
     r_findtiger::Float64
@@ -51,10 +7,12 @@ end
 type TigerState
     tigerleft::Bool
 end
+create_state(::TigerPOMDP) = TigerState(false)
 
 type TigerObservation
     obsleft::Bool
 end
+create_observation(::TigerPOMDP) = TigerObservation(false)
 
 # Incompatible until Julia 0.4: @enum TigerAction listen=1 openleft=2 openright=3
 
@@ -73,33 +31,33 @@ const listen = TigerAction(1)
 const openleft = TigerAction(2)
 const openright = TigerAction(3)
 
-abstract TigerDistribution <: AbstractDistribution
+abstract AbstractTigerDistribution <: AbstractDistribution
 
-type TransitionDistribution <: TigerDistribution
+type TigerStateDistribution <: AbstractTigerDistribution
     interps::Interpolants
 end
-function create_transition(::TigerPOMDP)
+function create_transition_distribution(::TigerPOMDP)
     interps = Interpolants(2)
     push!(interps, 1, 0.5)
     push!(interps, 2, 0.5)
-    d = TransitionDistribution(interps)
+    d = TigerStateDistribution(interps)
     d
 end
 
-type ObservationDistribution <: TigerDistribution
+type TigerObservationDistribution <: AbstractTigerDistribution
     interps::Interpolants
 end
-function create_observation(::TigerPOMDP)
+function create_observation_distribution(::TigerPOMDP)
     interps = Interpolants(2)
     push!(interps, 1, 0.5)
     push!(interps, 2, 0.5)
-    d = ObservationDistribution(interps)
+    d = TigerObservationDistribution(interps)
     d
 end
 
-Base.length(d::TigerDistribution) = d.interps.length
-weight(d::TigerDistribution, i::Int64) = d.interps.weights[i]
-index(d::TigerDistribution, i::Int64) = d.interps.indices[i]
+Base.length(d::AbstractTigerDistribution) = d.interps.length
+weight(d::AbstractTigerDistribution, i::Int64) = d.interps.weights[i]
+index(d::AbstractTigerDistribution, i::Int64) = d.interps.indices[i]
 
 n_states(::TigerPOMDP) = 2
 n_actions(::TigerPOMDP) = 3
@@ -107,7 +65,7 @@ n_observations(::TigerPOMDP) = 2
 
 
 # Resets the problem after opening door; does nothing after listening
-function transition!(d::TransitionDistribution, pomdp::TigerPOMDP, s::TigerState, a::TigerAction)
+function transition!(d::TigerStateDistribution, pomdp::TigerPOMDP, s::TigerState, a::TigerAction)
     interps = d.interps
     if a == openleft || a == openright
         fill!(interps.weights, 0.5)    
@@ -121,7 +79,7 @@ function transition!(d::TransitionDistribution, pomdp::TigerPOMDP, s::TigerState
     d
 end
 
-function observation!(d::ObservationDistribution, pomdp::TigerPOMDP, s::TigerState, a::TigerAction)
+function observation!(d::TigerObservationDistribution, pomdp::TigerPOMDP, s::TigerState, a::TigerAction)
     interps = d.interps
     if a == listen
         if s.tigerleft
@@ -160,27 +118,38 @@ function reward(pomdp::TigerPOMDP, s::TigerState, a::TigerAction)
 end
 
 
-abstract TigerSpace <: AbstractSpace
-
-type StateSpace <: TigerSpace
+type TigerStateSpace 
     states::Vector{TigerState}
 end
-states(::TigerPOMDP) = StateSpace([TigerState(true), TigerState(false)])
-domain(space::StateSpace) = space.states
+states(::TigerPOMDP) = TigerStateSpace([TigerState(true), TigerState(false)])
+domain(space::TigerStateSpace) = space.states
 
-type ActionSpace <: TigerSpace
+type TigerActionSpace 
     actions::Vector{TigerAction}
 end
-actions(::TigerPOMDP) = ActionSpace([listen, openleft, openright])
-actions!(acts::ActionSpace, ::TigerPOMDP, s::TigerState) = acts
-domain(space::ActionSpace) = space.actions
+actions(::TigerPOMDP) = TigerActionSpace([listen, openleft, openright])
+actions!(acts::TigerActionSpace, ::TigerPOMDP, s::TigerState) = acts
+domain(space::TigerActionSpace) = space.actions
 
-type ObsSpace <: TigerSpace
+type TigerObservationSpace 
     obs::Vector{TigerObservation}
 end
-observations(::TigerPOMDP) = ObsSpace([TigerObservation(true), TigerState(false)])
-observations!(obs::ObsSpace, ::TigerPOMDP, s::TigerState) = obs
-domain(space::ObsSpace) = space.obs
+observations(::TigerPOMDP) = TigerObservationSpace([TigerObservation(true), TigerState(false)])
+observations!(obs::TigerObservationSpace, ::TigerPOMDP, s::TigerState) = obs
+domain(space::TigerObservationSpace) = space.obs
+
+function rand!(rng::AbstractRNG, s::TigerState, d::TigerStateDistribution)
+    c = Categorical(d.interps.weights)     
+    sp = d.interps.indices[rand(c)]
+    sp == 1 ? (s.tigerleft=true) : (s.tigerleft=false)
+    s
+end
+
+function rand!(rng::AbstractRNG, o::TigerObservation, d::TigerObservationDistribution)
+    c = Categorical(d.interps.weights)     
+    op = d.interps.indices[rand(c)]
+    op == 1 ? (o.obsleft=true) : (o.obsleft=false)
+    o
+end
 
 
-end #module
