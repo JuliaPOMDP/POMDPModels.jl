@@ -3,6 +3,9 @@ type TigerPOMDP <: POMDP
     r_findtiger::Float64
     r_escapetiger::Float64
 end
+function TigerPOMDP()
+    return TigerPOMDP(-1.0, -100.0, 10.0)
+end
 
 type TigerState
     tigerleft::Bool
