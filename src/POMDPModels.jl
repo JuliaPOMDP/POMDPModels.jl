@@ -29,11 +29,12 @@ import POMDPs.discount
 import POMDPs.actions
 =#
 import POMDPs: domain, states, actions, actions!, observations, observation!
-import POMDPs: create_transition_distribution, create_observation_distribution
+import POMDPs: create_transition_distribution, create_observation_distribution, create_belief
 import POMDPs: create_state, create_observation
 import POMDPs: reward, transition!, observation!
 import POMDPs: n_states, n_actions, n_observations
 import POMDPs: length, weight, index
+import POMDPs: update_belief!
 import POMDPs: discount
 
 import Base.rand! # hmmm... is this right?
@@ -83,6 +84,7 @@ export
     create_observation,
     create_observation_distribution,
     create_transition_distribution,
+    create_belief,
     reward,
     transition!,
     length,
@@ -92,7 +94,8 @@ export
     rand,
     rand!,
     isterminal,
-    discount
+    discount,
+    update_belief!
 
 #include("GridWorlds.jl")
 include("CryingBabies.jl")

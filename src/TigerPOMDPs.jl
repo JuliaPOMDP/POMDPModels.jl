@@ -2,16 +2,23 @@ type TigerPOMDP <: POMDP
     r_listen::Float64
     r_findtiger::Float64
     r_escapetiger::Float64
+    p_listen_correctly::Float64
     discount_factor::Float64
 end
 function TigerPOMDP()
-    return TigerPOMDP(-1.0, -100.0, 10.0, 0.95)
+    return TigerPOMDP(-1.0, -100.0, 10.0, 0.85, 0.95)
 end
 
 type TigerState
     tigerleft::Bool
 end
-create_state(::TigerPOMDP) = TigerState(false)
+create_state(::TigerPOMDP) = TigerState(rand(0:1))
+
+type TigerBelief
+    tigerleft::Float64
+    tigerright::Float64
+end
+create_belief(::TigerPOMDP) = TigerBelief(0.5, 0.5)
 
 type TigerObservation
     obsleft::Bool
@@ -85,13 +92,14 @@ end
 
 function observation!(d::TigerObservationDistribution, pomdp::TigerPOMDP, s::TigerState, a::TigerAction)
     interps = d.interps
+    p = pomdp.p_listen_correctly
     if a == listen
         if s.tigerleft
-            interps.weights[1] = 0.85 
-            interps.weights[2] = 0.15 
+            interps.weights[1] = p 
+            interps.weights[2] = (1.0-p) 
         else
-            interps.weights[1] = 0.15
-            interps.weights[2] = 0.85 
+            interps.weights[1] = (1.0-p)
+            interps.weights[2] = p
         end
     else 
         fill!(interps.weights, 0.5)    
@@ -157,3 +165,26 @@ function rand!(rng::AbstractRNG, o::TigerObservation, d::TigerObservationDistrib
 end
 
 discount(pomdp::TigerPOMDP) = pomdp.discount_factor
+
+function update_belief!(b::TigerBelief, pomdp::TigerPOMDP, bold::TigerBelief, a::TigerAction, o::TigerObservation)
+    bl = bold.tigerleft
+    br = bold.tigerright
+    p = pomdp.p_listen_correctly
+    if a == listen
+        if o.obsleft 
+            bl *= p
+            br *= (1.0-p)
+        else
+            bl *= (1.0-p)
+            br *= p
+        end
+    else
+        bl = 0.5
+        br = 0.5
+    end
+    norm = bl+br
+    b.tigerleft = bl / norm
+    b.tigerright = br / norm
+    b
+end
+
