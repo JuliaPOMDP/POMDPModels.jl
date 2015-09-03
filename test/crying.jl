@@ -37,7 +37,7 @@ r = simulate(problem, AlwaysFeed(), EmptyBelief(), eps=0.0001, initial_state=Bab
 @test_approx_eq_eps r -60.0 0.01
 
 # good policy - feed when the last observation was crying - this is *almost* optimal
-# from full state, reward should be -10.62
+# from full state, reward should be -17.14
 n = 100000
 r_sum = @parallel (+) for i in 1:n
     rng = MersenneTwister(i)

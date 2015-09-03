@@ -183,6 +183,3 @@ function action(::FeedWhenCrying, b::PreviousObservation)
         return BabyAction(true)
     end
 end
-function action(::FeedWhenCrying, b::EmptyBelief)
-    return BabyAction(true)
-end

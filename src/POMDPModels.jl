@@ -36,6 +36,7 @@ import POMDPs: n_states, n_actions, n_observations
 import POMDPs: length, weight, index
 import POMDPs: update_belief!
 import POMDPs: discount
+import POMDPs: action
 
 import Base.rand! # hmmm... is this right?
 import Base.rand
