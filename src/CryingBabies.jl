@@ -183,3 +183,6 @@ function action(::FeedWhenCrying, b::PreviousObservation)
         return BabyAction(true)
     end
 end
+function action(::FeedWhenCrying, b::BabyStateDistribution)
+    return BabyAction(false)  
+end
