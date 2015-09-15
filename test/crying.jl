@@ -36,6 +36,8 @@ r = simulate(problem, AlwaysFeed(), EmptyBelief(), eps=0.0001, initial_state=Bab
 r = simulate(problem, AlwaysFeed(), EmptyBelief(), eps=0.0001, initial_state=BabyState(true))
 @test_approx_eq_eps r -60.0 0.01
 
+# println("finished easy tests")
+
 # good policy - feed when the last observation was crying - this is *almost* optimal
 # from full state, reward should be -17.14
 n = 100000
@@ -43,8 +45,7 @@ r_sum = @parallel (+) for i in 1:n
     rng = MersenneTwister(i)
     init_state = BabyState(false)
     obs = create_observation(problem)
-    od = create_observation_distribution(problem)
-    observation!(od, problem, init_state, BabyAction(true))
+    od = observation(problem, init_state, BabyAction(true))
     rand!(rng, obs, od)
     simulate(problem,
              FeedWhenCrying(),
@@ -52,6 +53,7 @@ r_sum = @parallel (+) for i in 1:n
              eps=0.0001,
              rng=rng,
              initial_state=init_state)
+    # println(i)
 end
 @test_approx_eq_eps r_sum/n -17.14 0.1
 
@@ -61,8 +63,7 @@ r_sum = @parallel (+) for i in 1:n
     rng = MersenneTwister(i)
     init_state = BabyState(true)
     obs = create_observation(problem)
-    od = create_observation_distribution(problem)
-    observation!(od, problem, init_state, BabyAction(true))
+    od = observation(problem, init_state, BabyAction(true))
     rand!(rng, obs, od)
     simulate(problem,
              FeedWhenCrying(),

@@ -28,15 +28,15 @@ import POMDPs.update_belief!
 import POMDPs.discount
 import POMDPs.actions
 =#
-import POMDPs: domain, states, actions, actions!, observations, observation!
+import POMDPs: domain, states, actions, actions, observations, observation
 import POMDPs: create_transition_distribution, create_observation_distribution, create_belief
 import POMDPs: create_state, create_observation
-import POMDPs: reward, transition!, observation!
+import POMDPs: reward, transition, observation
 import POMDPs: n_states, n_actions, n_observations
 import POMDPs: length, weight, index
-import POMDPs: update_belief!
+import POMDPs: belief
 import POMDPs: discount
-import POMDPs: action
+import POMDPs: action, create_action
 
 import Base.rand! # hmmm... is this right?
 import Base.rand
