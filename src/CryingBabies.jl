@@ -98,7 +98,6 @@ function rand!(rng::AbstractRNG, o::BabyObservation, d::BabyObservationDistribut
 end
 
 function belief(p::BabyPOMDP, old::BabyStateDistribution, a::BabyAction, o::BabyObservation, b::BabyStateDistribution=create_belief(p))
-    # bayes rule
     if a.feed
         b.p_hungry = 0.0
     else # did not feed
