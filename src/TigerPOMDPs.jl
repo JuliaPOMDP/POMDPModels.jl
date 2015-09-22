@@ -19,6 +19,7 @@ type TigerBelief
     tigerright::Float64
 end
 create_belief(::TigerPOMDP) = TigerBelief(0.5, 0.5)
+initial_belief(::TigerPOMDP) = TigerBelief(0.5, 0.5)
 
 type TigerObservation
     obsleft::Bool
@@ -70,13 +71,24 @@ Base.length(d::AbstractTigerDistribution) = d.interps.length
 weight(d::AbstractTigerDistribution, i::Int64) = d.interps.weights[i]
 index(d::AbstractTigerDistribution, i::Int64) = d.interps.indices[i]
 
+function pdf(d::TigerStateDistribution, s::TigerState)
+    probs = d.interps.weights
+    s.tigerleft ? (return probs[1]) : (return probs[2])
+end
+
+function pdf(d::TigerObservationDistribution, o::TigerObservation)
+    probs = d.interps.weights
+    o.obsleft ? (return probs[1]) : (return probs[2])
+end
+
 n_states(::TigerPOMDP) = 2
 n_actions(::TigerPOMDP) = 3
 n_observations(::TigerPOMDP) = 2
 
 
 # Resets the problem after opening door; does nothing after listening
-function transition!(d::TigerStateDistribution, pomdp::TigerPOMDP, s::TigerState, a::TigerAction)
+#function transition!(d::TigerStateDistribution, pomdp::TigerPOMDP, s::TigerState, a::TigerAction)
+function transition(pomdp::TigerPOMDP, s::TigerState, a::TigerAction, d::AbstractTigerDistribution=create_transition_distribution(pomdp))
     interps = d.interps
     if a == openleft || a == openright
         fill!(interps.weights, 0.5)    
@@ -90,7 +102,8 @@ function transition!(d::TigerStateDistribution, pomdp::TigerPOMDP, s::TigerState
     d
 end
 
-function observation!(d::TigerObservationDistribution, pomdp::TigerPOMDP, s::TigerState, a::TigerAction)
+#function observation!(d::TigerObservationDistribution, pomdp::TigerPOMDP, s::TigerState, a::TigerAction)
+function observation(pomdp::TigerPOMDP, s::TigerState, a::TigerAction, d::TigerObservationDistribution=create_observation_distribution(pomdp))
     interps = d.interps
     p = pomdp.p_listen_correctly
     if a == listen

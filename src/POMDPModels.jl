@@ -10,6 +10,7 @@ module POMDPModels
 using POMDPs
 using POMDPToolbox
 
+<<<<<<< Updated upstream
 import POMDPs: domain, states, actions, actions, observations, observation
 import POMDPs: create_transition_distribution, create_observation_distribution, create_belief
 import POMDPs: create_state, create_observation
@@ -62,7 +63,7 @@ export
     actions,
     actions!,
     observations,
-    observation!,
+    observation,
     create_action,
     create_state,
     create_observation,
@@ -70,7 +71,7 @@ export
     create_transition_distribution,
     create_belief,
     reward,
-    transition!,
+    transition,
     length,
     index,
     weight,
@@ -79,7 +80,11 @@ export
     rand!,
     isterminal,
     discount,
-    update_belief!
+    initial_belief,
+    create_belief,
+    belief,
+    update_belief!,
+    pdf
 
 #include("GridWorlds.jl")
 include("CryingBabies.jl")

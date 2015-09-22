@@ -1,3 +1,13 @@
+#################################################################
+# This file implements the grid world problem as an MDP.
+# In the problem, the agent is tasked with navigating in a
+# stochatic environemnt. For example, when the agent chooses
+# to go right, it may not always go right, but may go up, down
+# or left with some probability. The agent's goal is to reach the
+# reward states. The states with a positive reward are terminal,
+# while the state with a negative reward are not.
+#################################################################
+
 type GridWorldState
 	x::Int64
 	y::Int64
