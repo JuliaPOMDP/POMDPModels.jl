@@ -10,7 +10,6 @@ module POMDPModels
 using POMDPs
 using POMDPToolbox
 
-<<<<<<< Updated upstream
 import POMDPs: domain, states, actions, actions, observations, observation
 import POMDPs: create_transition_distribution, create_observation_distribution, create_belief
 import POMDPs: create_state, create_observation
