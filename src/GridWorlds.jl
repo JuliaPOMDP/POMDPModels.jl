@@ -8,6 +8,8 @@
 # while the states with a negative reward are not.
 #################################################################
 
+using POMDPDistributions
+
 # state of the agent in grid world
 type GridWorldState
 	x::Int64 # x position
