@@ -10,16 +10,15 @@ module POMDPModels
 using POMDPs
 using POMDPToolbox
 
-import POMDPs: domain, states, actions, actions, observations, observation
-import POMDPs: create_transition_distribution, create_observation_distribution, create_belief
-import POMDPs: create_state, create_observation
-import POMDPs: reward, transition, observation
-import POMDPs: n_states, n_actions, n_observations
-import POMDPs: length, weight, index
+import POMDPs: n_states, n_actions, n_observations # space sizes for discrete problems
+import POMDPs: discount, states, actions, observations # model functions
+import POMDPs: transition, observation, reward, isterminal # model functions
+import POMDPs: create_state, create_action, create_observation # s,a,o initialization
+import POMDPs: length, index, weight # discrete distribution functions
+import POMDPs: rand!, pdf # common distribution functions
+import POMDPs: domain # space functions
+import POMDPs: create_transition_distribution, create_observation_distribution, create_belief, initial_belief 
 import POMDPs: belief
-import POMDPs: discount
-import POMDPs: action, create_action
-import POMDPs: pdf
 
 import Base.rand! 
 import Base.rand
@@ -39,10 +38,10 @@ export
     TigerActionSpace,
     TigerObservationSpace,
     # Grid World
-    #GridWorld,
-    #GridWorldState,
-    #GridWorldAction,
-    #GridWorldDistribution,
+    GridWorld,
+    GridWorldState,
+    GridWorldAction,
+    GridWorldDistribution,
     # CryingBabies
     BabyPOMDP,
     BabyState,
@@ -85,7 +84,7 @@ export
     update_belief!,
     pdf
 
-#include("GridWorlds.jl")
+include("GridWorlds.jl")
 include("CryingBabies.jl")
 include("TigerPOMDPs.jl")
 
