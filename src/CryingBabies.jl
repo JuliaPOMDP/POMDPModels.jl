@@ -121,7 +121,7 @@ end
 
 # const ACTION_SET = [BabyAction(i) for i = 0:1]
 
-function actions(::BabyPOMDP)
+function actions(::BabyPOMDP, s::BabyState=BabyState(true), aa::Array{BabyAction,1}=BabyAction[])
     return [BabyAction(i) for i in 0:1]
 end
 
