@@ -11,7 +11,7 @@
 using POMDPDistributions
 
 # state of the agent in grid world
-type GridWorldState
+type GridWorldState <: State
 	x::Int64 # x position
 	y::Int64 # y position
     bumped::Bool # bumped the wall or not in previous step
@@ -20,7 +20,12 @@ end
 # simpler constructor
 GridWorldState(x::Int64, y::Int64) = GridWorldState(x,y,false,false)
 # for state comparison
-==(s1::GridWorldState,s2::GridWorldState) = s1.x == s2.x && s1.y == s2.y
+==(s1::GridWorldState,s2::GridWorldState) = s1.x == s2.x && s1.y == s2.y && s1.bumped == s2.bumper && s1.done == s2.done
+posequal(s1::GridWorldState, s2::GridWorldState) = s1.x == s2.x && s1.y == s2.y
+
+function hash(s::GridWorldState, h::Uint64 = zero(Uint64))
+    return hash(s.x, hash(s.y, hash(s.bumped, hash(s.done, h))))
+end
 
 # the grid world mdp type
 type GridWorld <: POMDP
@@ -41,7 +46,7 @@ function GridWorld(sx::Int64, sy::Int64;
     return GridWorld(sx, sy, rs, rv, penalty, discount_factor)
 end
 
-type GridWorldAction 
+immutable GridWorldAction <: Action
     direction::Symbol
 end 
 
@@ -90,7 +95,7 @@ function reward(mdp::GridWorld, state::GridWorldState, action::GridWorldAction) 
 	reward_values = mdp.reward_values
 	n = length(reward_states)
 	for i = 1:n
-		if state == reward_states[i]
+		if posequal(state, reward_states[i]) 
 			r += reward_values[i]
 		end
 	end 
@@ -158,7 +163,8 @@ function transition(mdp::GridWorld, state::GridWorldState, action::GridWorldActi
     reward_values = mdp.reward_values
 	n = length(reward_states)
 	for i = 1:n
-		if state == reward_states[i] && reward_values[i] > 0.0
+		#if state == reward_states[i] && reward_values[i] > 0.0
+		if posequal(state, reward_states[i]) && reward_values[i] > 0.0
 			fill_probability!(probability, 1.0, 5)
             neighbors[5].done = true
             return d
