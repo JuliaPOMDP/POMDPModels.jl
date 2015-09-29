@@ -20,6 +20,9 @@ import POMDPs: domain # space functions
 import POMDPs: create_transition_distribution, create_observation_distribution, create_belief, initial_belief 
 import POMDPs: belief
 
+# for example policies
+import POMDPs: Policy, create_policy, action
+
 import Base.rand! 
 import Base.rand
 import Base.==
