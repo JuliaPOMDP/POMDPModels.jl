@@ -153,7 +153,7 @@ type TigerActionSpace
     actions::Vector{TigerAction}
 end
 actions(::TigerPOMDP) = TigerActionSpace([listen, openleft, openright])
-actions!(acts::TigerActionSpace, ::TigerPOMDP, s::TigerState) = acts
+actions(::TigerPOMDP, s::TigerState, acts::TigerActionSpace) = acts
 domain(space::TigerActionSpace) = space.actions
 
 type TigerObservationSpace 
