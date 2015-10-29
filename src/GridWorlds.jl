@@ -10,6 +10,10 @@
 
 using POMDPDistributions
 
+
+#################################################################
+# States and Actions
+#################################################################
 # state of the agent in grid world
 type GridWorldState <: State
 	x::Int64 # x position
@@ -20,13 +24,20 @@ end
 # simpler constructor
 GridWorldState(x::Int64, y::Int64) = GridWorldState(x,y,false,false)
 # for state comparison
-==(s1::GridWorldState,s2::GridWorldState) = s1.x == s2.x && s1.y == s2.y && s1.bumped == s2.bumper && s1.done == s2.done
+==(s1::GridWorldState,s2::GridWorldState) = s1.x == s2.x && s1.y == s2.y && s1.bumped == s2.bumped && s1.done == s2.done
+# for hashing states in dictionaries in Monte Carlo Tree Search
 posequal(s1::GridWorldState, s2::GridWorldState) = s1.x == s2.x && s1.y == s2.y
+hash(s::GridWorldState, h::Uint64 = zero(Uint64)) = hash(s.x, hash(s.y, hash(s.bumped, hash(s.done, h))))
 
-function hash(s::GridWorldState, h::Uint64 = zero(Uint64))
-    return hash(s.x, hash(s.y, hash(s.bumped, hash(s.done, h))))
-end
+# action taken by the agent indeicates desired travel direction
+type GridWorldAction <: Action
+    direction::Symbol
+end 
 
+
+#################################################################
+# Grid World MDP
+#################################################################
 # the grid world mdp type
 type GridWorld <: POMDP
 	size_x::Int64 # x size of the grid
@@ -34,37 +45,113 @@ type GridWorld <: POMDP
 	reward_states::Vector{GridWorldState} # the states in which agent recieves reward
 	reward_values::Vector{Float64} # reward values for those states
     bounds_penalty::Float64 # penalty for bumping the wall
+    tprob::Float64 # probability of transitioning to the desired state
     discount_factor::Float64 # disocunt factor
 end
-function GridWorld(sx::Int64, sy::Int64; 
-                   rs::Vector{GridWorldState}=GridWorldState[], rv::Vector{Float64}=Float64[],
-                   penalty::Float64=-1.0, discount_factor::Float64=0.9)
-    if isempty(rs)
-        rs = [GridWorldState(5,5), GridWorldState(3,3), GridWorldState(2,2)]
-        rv = [10,-10,5]
-    end
-    return GridWorld(sx, sy, rs, rv, penalty, discount_factor)
+# we use key worded arguments so we can change any of the values we pass in 
+function GridWorld(;sx::Int64=10, # size_x
+                    sy::Int64=10, # size_y
+                    rs::Vector{GridWorldState}=[GridWorldState(4,3), GridWorldState(4,6), GridWorldState(9,3), GridWorldState(8,8)],
+                    rv::Vector{Float64}=[-10.,-5,10,3], 
+                    penalty::Float64=-1.0, # bounds penalty
+                    tp::Float64=0.7, # tprob
+                    discount_factor::Float64=0.9)
+    return GridWorld(sx, sy, rs, rv, penalty, tp, discount_factor)
 end
 
-immutable GridWorldAction <: Action
-    direction::Symbol
-end 
+
+#################################################################
+# State and Action Spaces
+#################################################################
+# state space
+type StateSpace <: AbstractSpace
+    states::Vector{GridWorldState}
+end
+# action space
+type ActionSpace <: AbstractSpace
+    actions::Vector{GridWorldAction}
+end
+# returns the state space
+function states(mdp::GridWorld)
+	s = GridWorldState[] 
+	size_x = mdp.size_x
+	size_y = mdp.size_y
+    #for x = 1:mdp.size_x, y = 1:mdp.size_y, b = 0:1, d = 0:1
+    for d = 0:1, b = 0:1, y = 1:mdp.size_y, x = 1:mdp.size_x
+        push!(s, GridWorldState(x,y,b,d))
+    end
+    return StateSpace(s)
+end
+# returns the action space
+function actions(mdp::GridWorld)
+	acts = [GridWorldAction(:up), GridWorldAction(:down), 
+	GridWorldAction(:left), GridWorldAction(:right)]
+	return ActionSpace(acts)
+end
+POMDPs.actions(mdp::GridWorld, s::GridWorldState, as::ActionSpace) = as;
+
+# domain returns an iterator over states or action (arrays in this case)
+domain(space::StateSpace) = space.states
+domain(space::ActionSpace) = space.actions
+
+# sampling and mutating methods
+rand(space::StateSpace) = space.states[rand(1:end)]
+function rand!(state::GridWorldState, space::StateSpace)
+    state = space.states[rand(1:end)]    
+    state
+end
+rand(space::ActionSpace) = space.actions[rand(1:end)]
+function rand!(action::GridWorldState, space::ActionSpace)
+    action = space.actions[rand(1:end)]    
+    action
+end
+states!(space::StateSpace, mdp::GridWorld, state::GridWorldState) = space
+function actions(mdp::GridWorld)
+	acts = [GridWorldAction(:up), GridWorldAction(:down), 
+	GridWorldAction(:left), GridWorldAction(:right)]
+	return ActionSpace(acts)
+end
+
+
+#################################################################
+# Distributions
+#################################################################
 
 type GridWorldDistribution <: AbstractDistribution
     neighbors::Array{GridWorldState}
-    probabilities::Array{Float64} 
-    mdp::GridWorld
+    probs::Array{Float64} 
+    cat::Categorical
 end
-function rand(d::GridWorldDistribution) 
-    c = Categorical(d.probabilities)
-    return d.neighbors[rand(c)]
+
+function create_transition_distribution(mdp::GridWorld)
+    # can have at most five neighbors in grid world
+    neighbors =  [GridWorldState(i,i) for i = 1:5]
+    probabilities = zeros(5) + 1.0/5.0
+    cat = Categorical(5)
+    return GridWorldDistribution(neighbors, probabilities, cat)
 end
-function rand!(s::GridWorldState, d::GridWorldDistribution)
-    c = Categorical(d.probabilities)
-    ns = d.neighbors[rand(c)]
-    s.x = ns.x; s.y = ns.y; s.bumped = ns.bumped; s.done = ns.done
-    s
+
+# returns an iterator over the distirubtion
+function POMDPs.domain(d::GridWorldDistribution)
+    return d.neighbors
+end;
+
+function pdf(d::GridWorldDistribution, s::GridWorldState)
+    for (i, sp) in enumerate(d.neighbors)
+        if s == sp
+            return d.probs[i]
+        end
+    end   
+    return 0.0
 end
+
+function rand!(rng::AbstractRNG, s::GridWorldState, d::GridWorldDistribution)
+    set_prob!(d.cat, d.probs) # fill the Categorical distribution with our state probabilities
+    ns = d.neighbors[rand(rng, d.cat)] # sample a neighbor state according to the distribution c
+    s.x = ns.x; s.y = ns.y; s.bumped = ns.bumped; s.done = ns.done # fill s with values from ns
+    return s # return the pointer to s
+end
+
 
 create_state(mdp::GridWorld) = GridWorldState(1, 1)
 create_action(mdp::GridWorld) = GridWorldAction(:up)
@@ -72,18 +159,9 @@ create_action(mdp::GridWorld) = GridWorldAction(:up)
 n_states(mdp::GridWorld) = 4*mdp.size_x*mdp.size_y
 n_actions(mdp::GridWorld) = 4
 
-Base.length(d::GridWorldDistribution) = length(d.neighbors)
-function index(d::GridWorldDistribution, i::Int64)
-    return s2i(d.mdp, d.neighbors[i]) 
-end
-function weight(d::GridWorldDistribution, i::Int64)
-    return d.probabilities[i] 
-end
-function create_transition_distribution(mdp::GridWorld)
-    neighbors =  [GridWorldState(1,1) , GridWorldState(1,1) , GridWorldState(1,1) ,GridWorldState(1,1),GridWorldState(1,1)] 
-    probabilities = zeros(5) + 1/5.0
-    return GridWorldDistribution(neighbors, probabilities, mdp) #d = create_transition(mdp)
-end
+
+
+
 
 #check for reward state
 function reward(mdp::GridWorld, state::GridWorldState, action::GridWorldAction) #deleted action
@@ -138,7 +216,7 @@ function transition(mdp::GridWorld, state::GridWorldState, action::GridWorldActi
 	y = state.y 
     
     neighbors = d.neighbors
-    probability = d.probabilities 
+    probability = d.probs
     
     fill!(probability, 0.1)
     probability[5] = 0.0 
@@ -242,50 +320,5 @@ function s2i(mdp::GridWorld, state::GridWorldState)
 end 
 
 
-
-type StateSpace <: AbstractSpace
-    states::Vector{GridWorldState}
-end
-
-type ActionSpace <: AbstractSpace
-    actions::Vector{GridWorldAction}
-end
-
-domain(space::StateSpace) = space.states
-domain(space::ActionSpace) = space.actions
-
-rand(space::StateSpace) = space.states[rand(1:end)]
-function rand!(state::GridWorldState, space::StateSpace)
-    state = space.states[rand(1:end)]    
-    state
-end
-
-rand(space::ActionSpace) = space.actions[rand(1:end)]
-function rand!(action::GridWorldState, space::ActionSpace)
-    action = space.actions[rand(1:end)]    
-    action
-end
-
-function states(mdp::GridWorld)
-	s = GridWorldState[] 
-	size_x = mdp.size_x
-	size_y = mdp.size_y
-    #for x = 1:mdp.size_x, y = 1:mdp.size_y, b = 0:1, d = 0:1
-    for d = 0:1, b = 0:1, y = 1:mdp.size_y, x = 1:mdp.size_x
-        push!(s, GridWorldState(x,y,b,d))
-    end
-    return StateSpace(s)
-end
-states!(space::StateSpace, mdp::GridWorld, state::GridWorldState) = space
-
-function actions(mdp::GridWorld)
-	acts = [GridWorldAction(:up), GridWorldAction(:down), 
-	GridWorldAction(:left), GridWorldAction(:right)]
-	return ActionSpace(acts)
-end
-#function actions(a::ActionSpace, mdp::GridWorld, state::GridWorldState)
-function actions(mdp::GridWorld, state::GridWorldState, a::ActionSpace=create_action(mdp))
-    return a
-end
 
 discount(mdp::GridWorld) = mdp.discount_factor
