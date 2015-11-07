@@ -47,6 +47,7 @@ BabyObservationDistribution() = BabyObservationDistribution(0.0)
 type BabyBeliefUpdater <: BeliefUpdater
     problem::BabyPOMDP
 end
+updater(problem::BabyPOMDP) = BabyBeliefUpdater(problem)
 
 create_state(::BabyPOMDP) = BabyState(false)
 create_observation(::BabyPOMDP) = BabyObservation(false)
@@ -59,7 +60,7 @@ n_states(::BabyPOMDP) = 2
 n_actions(::BabyPOMDP) = 2
 n_observations(::BabyPOMDP) = 2
 
-function transition(pomdp::BabyPOMDP, s::BabyState, a::BabyAction, d::BabyStateDistribution=create_belief(pomdp))
+function transition(pomdp::BabyPOMDP, s::BabyState, a::BabyAction, d::BabyStateDistribution=BabyStateDistribution())
     if !a.feed && s.hungry
         d.p_hungry = 1.0
     elseif a.feed 
@@ -70,8 +71,8 @@ function transition(pomdp::BabyPOMDP, s::BabyState, a::BabyAction, d::BabyStateD
     return d
 end
 
-function observation(pomdp::BabyPOMDP, s::BabyState, a::BabyAction, d::BabyObservationDistribution=create_observation_distribution(pomdp))
-    if s.hungry
+function observation(pomdp::BabyPOMDP, s::BabyState, a::BabyAction, sp::BabyState, d::BabyObservationDistribution=create_observation_distribution(pomdp))
+    if sp.hungry
         d.p_crying = pomdp.p_cry_when_hungry
     else
         d.p_crying = pomdp.p_cry_when_not_hungry
@@ -100,7 +101,7 @@ function rand!(rng::AbstractRNG, o::BabyObservation, d::BabyObservationDistribut
     return o
 end
 
-function update(bu::BabyBeliefUpdater, old::BabyStateDistribution, a::BabyAction, o::BabyObservation, b::BabyStateDistribution=create_belief(p))
+function update(bu::BabyBeliefUpdater, old::BabyStateDistribution, a::BabyAction, o::BabyObservation, b::BabyStateDistribution=BabyStateDistribution())
     p = bu.problem
     if a.feed
         b.p_hungry = 0.0
