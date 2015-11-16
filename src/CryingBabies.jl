@@ -16,19 +16,19 @@ type BabyPOMDP <: POMDP
 end
 BabyPOMDP(r_feed, r_hungry) = BabyPOMDP(r_feed, r_hungry, 0.1, 0.8, 0.1, 0.9)
 
-type BabyState
+type BabyState <: State
     hungry::Bool
 end
 ==(u::BabyState, v::BabyState) = u.hungry==v.hungry
 hash(s::BabyState) = hash(s.hungry)
 
-type BabyObservation 
+type BabyObservation <: Observation
     crying::Bool
 end
 ==(u::BabyObservation, v::BabyObservation) = u.crying==v.crying
 hash(o::BabyObservation) = hash(o.crying)
 
-type BabyAction
+type BabyAction <: Action
     feed::Bool
 end
 ==(u::BabyAction, v::BabyAction) = u.feed==v.feed
@@ -44,19 +44,23 @@ type BabyObservationDistribution <: AbstractDistribution
 end
 BabyObservationDistribution() = BabyObservationDistribution(0.0)
 
+type BabyBeliefUpdater <: BeliefUpdater
+    problem::BabyPOMDP
+end
+updater(problem::BabyPOMDP) = BabyBeliefUpdater(problem)
 
 create_state(::BabyPOMDP) = BabyState(false)
 create_observation(::BabyPOMDP) = BabyObservation(false)
 create_action(::BabyPOMDP) = BabyAction(false)
 create_transition_distribution(::BabyPOMDP) = BabyStateDistribution()
 create_observation_distribution(::BabyPOMDP) = BabyObservationDistribution()
-create_belief(::BabyPOMDP) = BabyStateDistribution()
+create_belief(::BabyBeliefUpdater) = BabyStateDistribution()
 
 n_states(::BabyPOMDP) = 2
 n_actions(::BabyPOMDP) = 2
 n_observations(::BabyPOMDP) = 2
 
-function transition(pomdp::BabyPOMDP, s::BabyState, a::BabyAction, d::BabyStateDistribution=create_belief(pomdp))
+function transition(pomdp::BabyPOMDP, s::BabyState, a::BabyAction, d::BabyStateDistribution=BabyStateDistribution())
     if !a.feed && s.hungry
         d.p_hungry = 1.0
     elseif a.feed 
@@ -67,8 +71,8 @@ function transition(pomdp::BabyPOMDP, s::BabyState, a::BabyAction, d::BabyStateD
     return d
 end
 
-function observation(pomdp::BabyPOMDP, s::BabyState, a::BabyAction, d::BabyObservationDistribution=create_observation_distribution(pomdp))
-    if s.hungry
+function observation(pomdp::BabyPOMDP, s::BabyState, a::BabyAction, sp::BabyState, d::BabyObservationDistribution=create_observation_distribution(pomdp))
+    if sp.hungry
         d.p_crying = pomdp.p_cry_when_hungry
     else
         d.p_crying = pomdp.p_cry_when_not_hungry
@@ -97,7 +101,8 @@ function rand!(rng::AbstractRNG, o::BabyObservation, d::BabyObservationDistribut
     return o
 end
 
-function belief(p::BabyPOMDP, old::BabyStateDistribution, a::BabyAction, o::BabyObservation, b::BabyStateDistribution=create_belief(p))
+function update(bu::BabyBeliefUpdater, old::BabyStateDistribution, a::BabyAction, o::BabyObservation, b::BabyStateDistribution=BabyStateDistribution())
+    p = bu.problem
     if a.feed
         b.p_hungry = 0.0
     else # did not feed
@@ -161,27 +166,30 @@ function convert!(x::Vector{Float64}, state::BabyState)
 end
 
 discount(p::BabyPOMDP) = p.discount
-isterminal(::BabyState) = false
+# isterminal(::BabyPOMDP, ::BabyState) = false
 
 # some example policies
 type Starve <: Policy
 end
-function action(::BabyPOMDP, ::Starve, ::Belief, a=BabyAction(false))
+function action(::Starve, ::Belief, a=BabyAction(false))
     a.feed = false
     return a # Never feed :(
 end
+updater(::Starve) = EmptyUpdater()
 
 type AlwaysFeed <: Policy
 end
-function action(::BabyPOMDP, ::AlwaysFeed, ::Belief, a=BabyAction(true))
+function action(::AlwaysFeed, ::Belief, a=BabyAction(true))
     a.feed = true
     return a
 end
+updater(::AlwaysFeed) = EmptyUpdater()
 
 # feed when the previous observation was crying - this is nearly optimal
 type FeedWhenCrying <: Policy
 end
-function action(::BabyPOMDP, ::FeedWhenCrying, b::PreviousObservation, a=BabyAction(false))
+updater(::FeedWhenCrying) = PreviousObservationUpdater()
+function action(::FeedWhenCrying, b::PreviousObservation, a=BabyAction(false))
     if b.observation == nothing || b.observation.crying == false
         a.feed = false
         return a
@@ -190,7 +198,7 @@ function action(::BabyPOMDP, ::FeedWhenCrying, b::PreviousObservation, a=BabyAct
         return a
     end
 end
-function action(::BabyPOMDP, ::FeedWhenCrying, b::BabyStateDistribution, a=BabyAction(false))
+function action(::FeedWhenCrying, b::BabyStateDistribution, a=BabyAction(false))
     a.feed = false
     return a  
 end
