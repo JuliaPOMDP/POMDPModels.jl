@@ -101,7 +101,7 @@ function rand!(state::GridWorldState, space::StateSpace)
     state
 end
 rand(space::ActionSpace) = space.actions[rand(1:end)]
-function rand!(action::GridWorldState, space::ActionSpace)
+function rand!(action::GridWorldAction, space::ActionSpace)
     action = space.actions[rand(1:end)]    
     action
 end
