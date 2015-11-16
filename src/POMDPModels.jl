@@ -85,7 +85,8 @@ export
     create_belief,
     belief,
     update_belief!,
-    pdf
+    pdf,
+    getindex
 
 include("GridWorlds.jl")
 include("CryingBabies.jl")

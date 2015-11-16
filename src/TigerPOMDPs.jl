@@ -14,10 +14,15 @@ type TigerState
 end
 create_state(::TigerPOMDP) = TigerState(rand(0:1))
 
-type TigerBelief
+type TigerBelief <: Belief
     tigerleft::Float64
     tigerright::Float64
 end
+
+function Base.getindex(b::TigerBelief, i::Int64)
+    i == 1 ? (return b.tigerleft) : (return b.tigerright)
+end
+
 create_belief(::TigerPOMDP) = TigerBelief(0.5, 0.5)
 initial_belief(::TigerPOMDP) = TigerBelief(0.5, 0.5)
 
