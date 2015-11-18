@@ -14,17 +14,17 @@ type TigerState
 end
 create_state(::TigerPOMDP) = TigerState(rand(0:1))
 
-type TigerBelief <: Belief
-    tigerleft::Float64
-    tigerright::Float64
-end
+#type TigerBelief <: Belief
+#    tigerleft::Float64
+#    tigerright::Float64
+#end
+#function Base.getindex(b::TigerBelief, i::Int64)
+#    i == 1 ? (return b.tigerleft) : (return b.tigerright)
+#end
+#Base.length(b::TigerBelief) = 2
 
-function Base.getindex(b::TigerBelief, i::Int64)
-    i == 1 ? (return b.tigerleft) : (return b.tigerright)
-end
-
-create_belief(::TigerPOMDP) = TigerBelief(0.5, 0.5)
-initial_belief(::TigerPOMDP) = TigerBelief(0.5, 0.5)
+create_belief(::TigerPOMDP) = DiscreteBelief(2)
+initial_belief(::TigerPOMDP) = DiscreteBelief(2)
 
 type TigerObservation
     obsleft::Bool
@@ -92,7 +92,6 @@ n_observations(::TigerPOMDP) = 2
 
 
 # Resets the problem after opening door; does nothing after listening
-#function transition!(d::TigerStateDistribution, pomdp::TigerPOMDP, s::TigerState, a::TigerAction)
 function transition(pomdp::TigerPOMDP, s::TigerState, a::TigerAction, d::AbstractTigerDistribution=create_transition_distribution(pomdp))
     interps = d.interps
     if a == openleft || a == openright
@@ -107,7 +106,6 @@ function transition(pomdp::TigerPOMDP, s::TigerState, a::TigerAction, d::Abstrac
     d
 end
 
-#function observation!(d::TigerObservationDistribution, pomdp::TigerPOMDP, s::TigerState, a::TigerAction)
 function observation(pomdp::TigerPOMDP, s::TigerState, a::TigerAction, d::TigerObservationDistribution=create_observation_distribution(pomdp))
     interps = d.interps
     p = pomdp.p_listen_correctly
@@ -184,9 +182,9 @@ end
 
 discount(pomdp::TigerPOMDP) = pomdp.discount_factor
 
-function update_belief!(b::TigerBelief, pomdp::TigerPOMDP, bold::TigerBelief, a::TigerAction, o::TigerObservation)
-    bl = bold.tigerleft
-    br = bold.tigerright
+function update_belief!(b::DiscreteBelief, pomdp::TigerPOMDP, bold::DiscreteBelief, a::TigerAction, o::TigerObservation)
+    bl = bold[1]
+    br = bold[2]
     p = pomdp.p_listen_correctly
     if a == listen
         if o.obsleft 
@@ -201,8 +199,8 @@ function update_belief!(b::TigerBelief, pomdp::TigerPOMDP, bold::TigerBelief, a:
         br = 0.5
     end
     norm = bl+br
-    b.tigerleft = bl / norm
-    b.tigerright = br / norm
+    b[1] = bl / norm
+    b[2] = br / norm
     b
 end
 
