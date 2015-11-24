@@ -47,6 +47,7 @@ type GridWorld <: POMDP
 	reward_values::Vector{Float64} # reward values for those states
     bounds_penalty::Float64 # penalty for bumping the wall
     tprob::Float64 # probability of transitioning to the desired state
+    terminals::Set{GridWorldState}
     discount_factor::Float64 # disocunt factor
 end
 # we use key worded arguments so we can change any of the values we pass in 
@@ -56,8 +57,14 @@ function GridWorld(;sx::Int64=10, # size_x
                     rv::Vector{Float64}=[-10.,-5,10,3], 
                     penalty::Float64=-1.0, # bounds penalty
                     tp::Float64=0.7, # tprob
-                    discount_factor::Float64=0.9)
-    return GridWorld(sx, sy, rs, rv, penalty, tp, discount_factor)
+                    discount_factor::Float64=0.95)
+    terminals = Set{GridWorldState}()
+    for (i,v) in enumerate(rv)
+        if v > 0.0
+            push!(terminals, rs[i])
+        end
+    end
+    return GridWorld(sx, sy, rs, rv, penalty, tp, terminals, discount_factor)
 end
 
 
@@ -97,13 +104,13 @@ domain(space::ActionSpace) = space.actions
 
 # sampling and mutating methods
 rand(space::StateSpace) = space.states[rand(1:end)]
-function rand!(state::GridWorldState, space::StateSpace)
-    state = space.states[rand(1:end)]    
+function rand!(rng::AbstractRNG, state::GridWorldState, space::StateSpace)
+    state = space.states[rand(rng, 1:end)]    
     state
 end
 rand(space::ActionSpace) = space.actions[rand(1:end)]
-function rand!(action::GridWorldAction, space::ActionSpace)
-    action = space.actions[rand(1:end)]    
+function rand!(rng::AbstractRNG, action::GridWorldAction, space::ActionSpace)
+    action = space.actions[rand(rng, 1:end)]    
     action
 end
 states!(space::StateSpace, mdp::GridWorld, state::GridWorldState) = space
@@ -159,9 +166,6 @@ create_action(mdp::GridWorld) = GridWorldAction(:up)
 
 n_states(mdp::GridWorld) = 4*mdp.size_x*mdp.size_y
 n_actions(mdp::GridWorld) = 4
-
-
-
 
 
 #check for reward state
@@ -321,5 +325,8 @@ function s2i(mdp::GridWorld, state::GridWorldState)
 end 
 
 
+function isterminal(mdp::GridWorld, s::GridWorldState)
+    s.done ? (return true) : (return false)
+end
 
 discount(mdp::GridWorld) = mdp.discount_factor
