@@ -315,9 +315,9 @@ function index(mdp::GridWorld, s::GridWorldState)
 end
 
 function s2i(mdp::GridWorld, state::GridWorldState)
-    sb = int(state.bumped + 1)
-    sd = int(state.done + 1)
-    return sub2ind([mdp.size_x, mdp.size_y, 2, 2], [state.x, state.y, sb, sd])
+    sb = Int(state.bumped + 1)
+    sd = Int(state.done + 1)
+    return sub2ind((mdp.size_x, mdp.size_y, 2, 2), state.x, state.y, sb, sd)
 end 
 
 
