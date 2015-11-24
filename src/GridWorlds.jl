@@ -10,6 +10,7 @@
 
 using POMDPDistributions
 
+typealias Uint64 UInt64
 
 #################################################################
 # States and Actions
