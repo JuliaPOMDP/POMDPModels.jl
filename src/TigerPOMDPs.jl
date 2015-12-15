@@ -162,7 +162,7 @@ domain(space::TigerActionSpace) = space.actions
 type TigerObservationSpace 
     obs::Vector{TigerObservation}
 end
-observations(::TigerPOMDP) = TigerObservationSpace([TigerObservation(true), TigerState(false)])
+observations(::TigerPOMDP) = TigerObservationSpace([TigerObservation(true), TigerObservation(false)])
 observations!(obs::TigerObservationSpace, ::TigerPOMDP, s::TigerState) = obs
 domain(space::TigerObservationSpace) = space.obs
 
