@@ -129,7 +129,7 @@ end
 type BabyActionSpace end
 domain(::BabyActionSpace) = [BabyAction(i) for i in 0:1]
 rand!(rng::AbstractRNG, a::BabyAction, as::BabyActionSpace) = (a.feed=rand(rng, Bool); return a)
-actions(::BabyPOMDP, s::BabyState=BabyState(true), as::BabyActionSpace=BabyActionSpace()) = as
+actions(::BabyPOMDP, s=BabyState(true), as::BabyActionSpace=BabyActionSpace()) = as
 
 # # needs to be updated after interface changes
 # function actions!(acts::Vector{BabyAction}, ::BabyPOMDP, s::BabyState)
