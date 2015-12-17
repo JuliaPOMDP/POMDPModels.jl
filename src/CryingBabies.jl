@@ -80,7 +80,7 @@ function observation(pomdp::BabyPOMDP, s::BabyState, a::BabyAction, sp::BabyStat
     return d
 end
 
-function reward(pomdp::BabyPOMDP, s::BabyState, a::BabyAction)
+function reward(pomdp::BabyPOMDP, s::BabyState, a::BabyAction, sp::BabyState)
     r = 0.0
     if s.hungry
         r += pomdp.r_hungry
@@ -126,9 +126,10 @@ end
 
 # const ACTION_SET = [BabyAction(i) for i = 0:1]
 
-function actions(::BabyPOMDP, s::BabyState=BabyState(true), aa::Array{BabyAction,1}=BabyAction[])
-    return [BabyAction(i) for i in 0:1]
-end
+type BabyActionSpace end
+domain(::BabyActionSpace) = [BabyAction(i) for i in 0:1]
+rand!(rng::AbstractRNG, a::BabyAction, as::BabyActionSpace) = (a.feed=rand(rng, Bool); return a)
+actions(::BabyPOMDP, s::BabyState=BabyState(true), as::BabyActionSpace=BabyActionSpace()) = as
 
 # # needs to be updated after interface changes
 # function actions!(acts::Vector{BabyAction}, ::BabyPOMDP, s::BabyState)

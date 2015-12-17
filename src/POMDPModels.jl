@@ -52,6 +52,7 @@ export
     BabyAction,
     BabyStateDistribution,
     BabyObservationDistribution,
+    BabyBeliefUpdater,
     Starve,
     AlwaysFeed,
     FeedWhenCrying,
