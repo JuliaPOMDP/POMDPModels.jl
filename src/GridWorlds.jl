@@ -10,8 +10,6 @@
 
 using POMDPDistributions
 
-typealias Uint64 UInt64
-
 #################################################################
 # States and Actions
 #################################################################
@@ -28,7 +26,7 @@ GridWorldState(x::Int64, y::Int64) = GridWorldState(x,y,false,false)
 ==(s1::GridWorldState,s2::GridWorldState) = s1.x == s2.x && s1.y == s2.y && s1.bumped == s2.bumped && s1.done == s2.done
 # for hashing states in dictionaries in Monte Carlo Tree Search
 posequal(s1::GridWorldState, s2::GridWorldState) = s1.x == s2.x && s1.y == s2.y
-hash(s::GridWorldState, h::Uint64 = zero(Uint64)) = hash(s.x, hash(s.y, hash(s.bumped, hash(s.done, h))))
+hash(s::GridWorldState, h::UInt64 = zero(UInt64)) = hash(s.x, hash(s.y, hash(s.bumped, hash(s.done, h))))
 
 # action taken by the agent indeicates desired travel direction
 type GridWorldAction <: Action
@@ -84,7 +82,6 @@ function states(mdp::GridWorld)
 	s = GridWorldState[] 
 	size_x = mdp.size_x
 	size_y = mdp.size_y
-    #for x = 1:mdp.size_x, y = 1:mdp.size_y, b = 0:1, d = 0:1
     for d = 0:1, b = 0:1, y = 1:mdp.size_y, x = 1:mdp.size_x
         push!(s, GridWorldState(x,y,b,d))
     end
