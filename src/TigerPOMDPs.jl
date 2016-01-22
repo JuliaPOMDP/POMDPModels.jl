@@ -42,6 +42,8 @@ immutable TigerAction <: Enum
     end
 end
 
+create_action = TigerAction(1)
+
 ==(x::TigerAction, y::TigerAction) = x.val == y.val
 
 const listen = TigerAction(1)
