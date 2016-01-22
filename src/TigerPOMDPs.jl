@@ -42,7 +42,7 @@ immutable TigerAction <: Enum
     end
 end
 
-create_action = TigerAction(1)
+create_action(::TigerPOMDP) = TigerAction(1)
 
 ==(x::TigerAction, y::TigerAction) = x.val == y.val
 
