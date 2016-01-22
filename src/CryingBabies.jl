@@ -127,7 +127,7 @@ end
 # const ACTION_SET = [BabyAction(i) for i = 0:1]
 
 type BabyActionSpace end
-domain(::BabyActionSpace) = [BabyAction(i) for i in 0:1]
+iterator(::BabyActionSpace) = [BabyAction(i) for i in 0:1]
 rand!(rng::AbstractRNG, a::BabyAction, as::BabyActionSpace) = (a.feed=rand(rng, Bool); return a)
 actions(::BabyPOMDP, s=BabyState(true), as::BabyActionSpace=BabyActionSpace()) = as
 
