@@ -16,7 +16,7 @@ import POMDPs: transition, observation, reward, isterminal # model functions
 import POMDPs: create_state, create_action, create_observation # s,a,o initialization
 import POMDPs: length, index, weight # discrete distribution functions
 import POMDPs: rand!, pdf # common distribution functions
-import POMDPs: iterator, domain # space functions
+import POMDPs: iterator, domain, dimensions # space functions
 import POMDPs: create_transition_distribution, create_observation_distribution, create_belief, initial_belief 
 import POMDPs: update, updater
 
@@ -88,6 +88,7 @@ export
     belief,
     update_belief!,
     pdf,
+    dimensions,
     getindex
 
 include("GridWorlds.jl")

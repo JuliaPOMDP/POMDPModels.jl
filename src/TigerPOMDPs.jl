@@ -9,7 +9,7 @@ function TigerPOMDP()
     return TigerPOMDP(-1.0, -100.0, 10.0, 0.85, 0.95)
 end
 
-type TigerState
+type TigerState <: State
     tigerleft::Bool
 end
 create_state(::TigerPOMDP) = TigerState(rand(0:1))
@@ -26,15 +26,14 @@ create_state(::TigerPOMDP) = TigerState(rand(0:1))
 create_belief(::TigerPOMDP) = DiscreteBelief(2)
 initial_belief(::TigerPOMDP) = DiscreteBelief(2)
 
-type TigerObservation
+type TigerObservation <: Observation
     obsleft::Bool
 end
 create_observation(::TigerPOMDP) = TigerObservation(false)
 
 # Incompatible until Julia 0.4: @enum TigerAction listen=1 openleft=2 openright=3
 
-abstract Enum
-immutable TigerAction <: Enum
+immutable TigerAction <: Action
     val::Int
     function TigerAction(i::Integer)
         @assert 1 <= i <= 3
@@ -43,6 +42,7 @@ immutable TigerAction <: Enum
 end
 
 create_action(::TigerPOMDP) = TigerAction(1)
+
 
 ==(x::TigerAction, y::TigerAction) = x.val == y.val
 
@@ -148,25 +148,36 @@ function reward(pomdp::TigerPOMDP, s::TigerState, a::TigerAction)
 end
 
 
-type TigerStateSpace 
+type TigerStateSpace <: AbstractSpace
     states::Vector{TigerState}
 end
 states(::TigerPOMDP) = TigerStateSpace([TigerState(true), TigerState(false)])
 domain(space::TigerStateSpace) = space.states
+iterator(space::TigerStateSpace) = space.states
+dimensions(::TigerStateSpace) = 1
+function rand!(rng::AbstractRNG, s::TigerState, space::TigerStateSpace)
+    p = rand(rng)
+    p > 0.5 ? (s.tigerleft = true) : (s.tigerleft = false)
+    return s
+end
 
-type TigerActionSpace 
+type TigerActionSpace <: AbstractSpace
     actions::Vector{TigerAction}
 end
 actions(::TigerPOMDP) = TigerActionSpace([listen, openleft, openright])
 actions(::TigerPOMDP, s::TigerState, acts::TigerActionSpace) = acts
 domain(space::TigerActionSpace) = space.actions
+iterator(space::TigerActionSpace) = space.actions
+dimensions(::TigerActionSpace) = 1
 
-type TigerObservationSpace 
+type TigerObservationSpace <: AbstractSpace
     obs::Vector{TigerObservation}
 end
 observations(::TigerPOMDP) = TigerObservationSpace([TigerObservation(true), TigerObservation(false)])
 observations!(obs::TigerObservationSpace, ::TigerPOMDP, s::TigerState) = obs
 domain(space::TigerObservationSpace) = space.obs
+iterator(space::TigerObservationSpace) = space.obs
+dimensions(::TigerObservationSpace) = 1
 
 function rand!(rng::AbstractRNG, s::TigerState, d::TigerStateDistribution)
     c = Categorical(d.interps.weights)     
