@@ -95,9 +95,9 @@ function actions(mdp::GridWorld)
 end
 POMDPs.actions(mdp::GridWorld, s::GridWorldState, as::ActionSpace) = as;
 
-# domain returns an iterator over states or action (arrays in this case)
-domain(space::StateSpace) = space.states
-domain(space::ActionSpace) = space.actions
+# returns an iterator over states or action (arrays in this case)
+iterator(space::StateSpace) = space.states
+iterator(space::ActionSpace) = space.actions
 
 # sampling and mutating methods
 rand(space::StateSpace) = space.states[rand(1:end)]
@@ -137,7 +137,7 @@ function create_transition_distribution(mdp::GridWorld)
 end
 
 # returns an iterator over the distirubtion
-function POMDPs.domain(d::GridWorldDistribution)
+function POMDPs.iterator(d::GridWorldDistribution)
     return d.neighbors
 end;
 
