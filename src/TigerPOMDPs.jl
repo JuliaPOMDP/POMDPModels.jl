@@ -153,6 +153,7 @@ type TigerStateSpace <: AbstractSpace
 end
 states(::TigerPOMDP) = TigerStateSpace([TigerState(true), TigerState(false)])
 domain(space::TigerStateSpace) = space.states
+iterator(space::TigerStateSpace) = space.states
 dimensions(::TigerStateSpace) = 1
 
 type TigerActionSpace <: AbstractSpace
@@ -161,6 +162,7 @@ end
 actions(::TigerPOMDP) = TigerActionSpace([listen, openleft, openright])
 actions(::TigerPOMDP, s::TigerState, acts::TigerActionSpace) = acts
 domain(space::TigerActionSpace) = space.actions
+iterator(space::TigerActionSpace) = space.actions
 dimensions(::TigerActionSpace) = 1
 
 type TigerObservationSpace <: AbstractSpace
@@ -169,6 +171,7 @@ end
 observations(::TigerPOMDP) = TigerObservationSpace([TigerObservation(true), TigerObservation(false)])
 observations!(obs::TigerObservationSpace, ::TigerPOMDP, s::TigerState) = obs
 domain(space::TigerObservationSpace) = space.obs
+iterator(space::TigerObservationSpace) = space.obs
 dimensions(::TigerObservationSpace) = 1
 
 function rand!(rng::AbstractRNG, s::TigerState, d::TigerStateDistribution)
