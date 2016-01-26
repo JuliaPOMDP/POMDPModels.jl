@@ -155,6 +155,11 @@ states(::TigerPOMDP) = TigerStateSpace([TigerState(true), TigerState(false)])
 domain(space::TigerStateSpace) = space.states
 iterator(space::TigerStateSpace) = space.states
 dimensions(::TigerStateSpace) = 1
+function rand!(rng::AbstractRNG, s::TigerState, space::TigerStateSpace)
+    p = rand(rng)
+    p > 0.5 ? (s.tigerleft = true) : (s.tigerleft = false)
+    return s
+end
 
 type TigerActionSpace <: AbstractSpace
     actions::Vector{TigerAction}
