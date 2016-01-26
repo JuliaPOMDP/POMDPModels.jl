@@ -9,7 +9,7 @@ function TigerPOMDP()
     return TigerPOMDP(-1.0, -100.0, 10.0, 0.85, 0.95)
 end
 
-type TigerState
+type TigerState <: State
     tigerleft::Bool
 end
 create_state(::TigerPOMDP) = TigerState(rand(0:1))
@@ -26,15 +26,14 @@ create_state(::TigerPOMDP) = TigerState(rand(0:1))
 create_belief(::TigerPOMDP) = DiscreteBelief(2)
 initial_belief(::TigerPOMDP) = DiscreteBelief(2)
 
-type TigerObservation
+type TigerObservation <: Observation
     obsleft::Bool
 end
 create_observation(::TigerPOMDP) = TigerObservation(false)
 
 # Incompatible until Julia 0.4: @enum TigerAction listen=1 openleft=2 openright=3
 
-abstract Enum
-immutable TigerAction <: Enum
+immutable TigerAction <: Action
     val::Int
     function TigerAction(i::Integer)
         @assert 1 <= i <= 3
@@ -43,6 +42,7 @@ immutable TigerAction <: Enum
 end
 
 create_action(::TigerPOMDP) = TigerAction(1)
+
 
 ==(x::TigerAction, y::TigerAction) = x.val == y.val
 
