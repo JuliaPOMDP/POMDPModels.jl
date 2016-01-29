@@ -15,7 +15,7 @@ import POMDPs: discount, states, actions, observations # model functions
 import POMDPs: transition, observation, reward, isterminal # model functions
 import POMDPs: create_state, create_action, create_observation # s,a,o initialization
 import POMDPs: length, index, weight # discrete distribution functions
-import POMDPs: rand!, pdf # common distribution functions
+import POMDPs: rand!, rand, pdf # common distribution functions # TODO: should get rid of rand! once it stabilizes
 import POMDPs: iterator, domain, dimensions # space functions
 import POMDPs: create_transition_distribution, create_observation_distribution, create_belief, initial_belief 
 import POMDPs: update, updater

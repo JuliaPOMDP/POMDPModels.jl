@@ -105,6 +105,8 @@ function rand!(rng::AbstractRNG, state::GridWorldState, space::StateSpace)
     state = space.states[rand(rng, 1:end)]    
     state
 end
+
+rand(rng::AbstractRNG, space::ActionSpace) = space.actions[rand(rng,1:end)]
 rand(space::ActionSpace) = space.actions[rand(1:end)]
 function rand!(rng::AbstractRNG, action::GridWorldAction, space::ActionSpace)
     action = space.actions[rand(rng, 1:end)]    
@@ -150,11 +152,16 @@ function pdf(d::GridWorldDistribution, s::GridWorldState)
     return 0.0
 end
 
+# TODO these should be cleaned up once rand() stabilizes in pomdps
 function rand!(rng::AbstractRNG, s::GridWorldState, d::GridWorldDistribution)
     set_prob!(d.cat, d.probs) # fill the Categorical distribution with our state probabilities
     ns = d.neighbors[rand(rng, d.cat)] # sample a neighbor state according to the distribution c
     s.x = ns.x; s.y = ns.y; s.bumped = ns.bumped; s.done = ns.done # fill s with values from ns
     return s # return the pointer to s
+end
+function rand(rng::AbstractRNG, d::GridWorldDistribution)
+    set_prob!(d.cat, d.probs) # fill the Categorical distribution with our state probabilities
+    d.neighbors[rand(rng, d.cat)] # sample a neighbor state according to the distribution c
 end
 
 
@@ -166,7 +173,7 @@ n_actions(mdp::GridWorld) = 4
 
 
 #check for reward state
-function reward(mdp::GridWorld, state::GridWorldState, action::GridWorldAction) #deleted action
+function reward(mdp::GridWorld, state::GridWorldState, action::GridWorldAction, sp::GridWorldState)
     if state.done
         return 0.0
     end
@@ -184,7 +191,6 @@ function reward(mdp::GridWorld, state::GridWorldState, action::GridWorldAction) 
     end
 	return r
 end
-
 
 #checking boundries- x,y --> points of current state
 function inbounds(mdp::GridWorld,x::Int64,y::Int64)
