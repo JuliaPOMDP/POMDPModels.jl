@@ -106,7 +106,10 @@ function rand!(rng::AbstractRNG, state::GridWorldState, space::StateSpace)
     state
 end
 
-rand(rng::AbstractRNG, space::ActionSpace) = space.actions[rand(rng,1:end)]
+function rand(rng::AbstractRNG, space::ActionSpace, a::GridWorldAction=GridWorldAction(:up))
+    a.direction = space.actions[rand(rng,1:end)].direction
+    return a
+end
 rand(space::ActionSpace) = space.actions[rand(1:end)]
 function rand!(rng::AbstractRNG, action::GridWorldAction, space::ActionSpace)
     action = space.actions[rand(rng, 1:end)]    
