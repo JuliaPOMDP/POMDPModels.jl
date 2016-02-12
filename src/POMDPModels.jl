@@ -15,10 +15,11 @@ import POMDPs: discount, states, actions, observations # model functions
 import POMDPs: transition, observation, reward, isterminal # model functions
 import POMDPs: create_state, create_action, create_observation # s,a,o initialization
 import POMDPs: length, index, weight # discrete distribution functions
-import POMDPs: rand!, rand, pdf # common distribution functions # TODO: should get rid of rand! once it stabilizes
-import POMDPs: iterator, domain, dimensions # space functions
+import POMDPs: rand, pdf # common distribution functions
+import POMDPs: iterator, dimensions # space functions
 import POMDPs: create_transition_distribution, create_observation_distribution, create_belief, initial_belief 
 import POMDPs: update, updater
+import POMDPs: upperbound
 
 # for example policies
 import POMDPs: Policy, create_policy, action
@@ -77,7 +78,7 @@ export
     length,
     index,
     weight,
-    domain,
+    #domain,
     iterator,
     rand,
     rand!,
@@ -89,6 +90,7 @@ export
     update_belief!,
     pdf,
     dimensions,
+    upperbound,
     getindex
 
 include("GridWorlds.jl")

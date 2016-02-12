@@ -173,6 +173,14 @@ function rand(rng::AbstractRNG, d::GridWorldDistribution, s::GridWorldState=Grid
     sample = d.neighbors[rand(rng, d.cat)] # sample a neighbor state according to the distribution c
     copy!(s, sample)
 end
+function rand(rng::AbstractRNG, d::GridWorldDistribution, s::GridWorldState)
+    set_prob!(d.cat, d.probs) # fill the Categorical distribution with our state probabilities
+    d.neighbors[rand(rng, d.cat)] # sample a neighbor state according to the distribution c
+end
+function rand(rng::AbstractRNG, d::GridWorldDistribution)
+    set_prob!(d.cat, d.probs) # fill the Categorical distribution with our state probabilities
+    d.neighbors[rand(rng, d.cat)] # sample a neighbor state according to the distribution c
+end
 
 
 create_state(mdp::GridWorld) = GridWorldState(1, 1)
