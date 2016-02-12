@@ -96,20 +96,24 @@ end
 POMDPs.actions(mdp::GridWorld, s::GridWorldState, as::ActionSpace) = as;
 
 # domain returns an iterator over states or action (arrays in this case)
-domain(space::StateSpace) = space.states
-domain(space::ActionSpace) = space.actions
+iterator(space::StateSpace) = space.states
+iterator(space::ActionSpace) = space.actions
 
 # sampling and mutating methods
 rand(space::StateSpace) = space.states[rand(1:end)]
-function rand!(rng::AbstractRNG, state::GridWorldState, space::StateSpace)
+#rand(rng::AbstractRNG, space::StateSpace) = space.states[rand(rng, 1:end)]
+function rand(rng::AbstractRNG, space::StateSpace, state::GridWorldState)
     state = space.states[rand(rng, 1:end)]    
     state
 end
+
 rand(space::ActionSpace) = space.actions[rand(1:end)]
-function rand!(rng::AbstractRNG, action::GridWorldAction, space::ActionSpace)
+function rand(rng::AbstractRNG, space::ActionSpace, action::GridWorldAction)
     action = space.actions[rand(rng, 1:end)]    
     action
 end
+rand(rng::AbstractRNG, space::ActionSpace) = space.actions[rand(rng, 1:end)]
+
 states!(space::StateSpace, mdp::GridWorld, state::GridWorldState) = space
 function actions(mdp::GridWorld)
 	acts = [GridWorldAction(:up), GridWorldAction(:down), 
@@ -137,7 +141,7 @@ function create_transition_distribution(mdp::GridWorld)
 end
 
 # returns an iterator over the distirubtion
-function POMDPs.domain(d::GridWorldDistribution)
+function POMDPs.iterator(d::GridWorldDistribution)
     return d.neighbors
 end;
 
@@ -150,7 +154,7 @@ function pdf(d::GridWorldDistribution, s::GridWorldState)
     return 0.0
 end
 
-function rand!(rng::AbstractRNG, s::GridWorldState, d::GridWorldDistribution)
+function rand(rng::AbstractRNG, d::GridWorldDistribution, s::GridWorldState)
     set_prob!(d.cat, d.probs) # fill the Categorical distribution with our state probabilities
     ns = d.neighbors[rand(rng, d.cat)] # sample a neighbor state according to the distribution c
     s.x = ns.x; s.y = ns.y; s.bumped = ns.bumped; s.done = ns.done # fill s with values from ns
@@ -166,7 +170,7 @@ n_actions(mdp::GridWorld) = 4
 
 
 #check for reward state
-function reward(mdp::GridWorld, state::GridWorldState, action::GridWorldAction) #deleted action
+function reward(mdp::GridWorld, state::GridWorldState, action::GridWorldAction, statep::GridWorldState) #deleted action
     if state.done
         return 0.0
     end

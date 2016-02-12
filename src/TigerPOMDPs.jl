@@ -13,15 +13,7 @@ type TigerState <: State
     tigerleft::Bool
 end
 create_state(::TigerPOMDP) = TigerState(rand(0:1))
-
-#type TigerBelief <: Belief
-#    tigerleft::Float64
-#    tigerright::Float64
-#end
-#function Base.getindex(b::TigerBelief, i::Int64)
-#    i == 1 ? (return b.tigerleft) : (return b.tigerright)
-#end
-#Base.length(b::TigerBelief) = 2
+index(::TigerPOMDP, s::TigerState) = (Int64(s.tigerleft) + 1)
 
 create_belief(::TigerPOMDP) = DiscreteBelief(2)
 initial_belief(::TigerPOMDP) = DiscreteBelief(2)
@@ -30,6 +22,10 @@ type TigerObservation <: Observation
     obsleft::Bool
 end
 create_observation(::TigerPOMDP) = TigerObservation(false)
+
+# hash on obs for dicts
+==(o1::TigerObservation, o2::TigerObservation) = (o1.obsleft == o2.obsleft)
+hash(o::TigerObservation) = hash(o.obsleft)
 
 # Incompatible until Julia 0.4: @enum TigerAction listen=1 openleft=2 openright=3
 
@@ -146,16 +142,16 @@ function reward(pomdp::TigerPOMDP, s::TigerState, a::TigerAction)
     end
     return r
 end
+reward(pomdp::TigerPOMDP, s::TigerState, a::TigerAction, sp::TigerState) = reward(pomdp, s, a)
 
 
 type TigerStateSpace <: AbstractSpace
     states::Vector{TigerState}
 end
 states(::TigerPOMDP) = TigerStateSpace([TigerState(true), TigerState(false)])
-domain(space::TigerStateSpace) = space.states
 iterator(space::TigerStateSpace) = space.states
 dimensions(::TigerStateSpace) = 1
-function rand!(rng::AbstractRNG, s::TigerState, space::TigerStateSpace)
+function rand(rng::AbstractRNG, space::TigerStateSpace, s::TigerState)
     p = rand(rng)
     p > 0.5 ? (s.tigerleft = true) : (s.tigerleft = false)
     return s
@@ -166,32 +162,40 @@ type TigerActionSpace <: AbstractSpace
 end
 actions(::TigerPOMDP) = TigerActionSpace([listen, openleft, openright])
 actions(::TigerPOMDP, s::TigerState, acts::TigerActionSpace) = acts
-domain(space::TigerActionSpace) = space.actions
 iterator(space::TigerActionSpace) = space.actions
 dimensions(::TigerActionSpace) = 1
+function rand(rng::AbstractRNG, space::TigerActionSpace, a::TigerAction)
+    p = rand(rng, 1:3)
+    return TigerAction(p)
+end
 
 type TigerObservationSpace <: AbstractSpace
     obs::Vector{TigerObservation}
 end
 observations(::TigerPOMDP) = TigerObservationSpace([TigerObservation(true), TigerObservation(false)])
 observations!(obs::TigerObservationSpace, ::TigerPOMDP, s::TigerState) = obs
-domain(space::TigerObservationSpace) = space.obs
 iterator(space::TigerObservationSpace) = space.obs
 dimensions(::TigerObservationSpace) = 1
 
-function rand!(rng::AbstractRNG, s::TigerState, d::TigerStateDistribution)
+function rand(rng::AbstractRNG, d::TigerStateDistribution, s::TigerState)
     c = Categorical(d.interps.weights)     
     sp = d.interps.indices[rand(c)]
     sp == 1 ? (s.tigerleft=true) : (s.tigerleft=false)
     s
 end
 
-function rand!(rng::AbstractRNG, o::TigerObservation, d::TigerObservationDistribution)
+function rand(rng::AbstractRNG, d::TigerObservationDistribution, o::TigerObservation)
     c = Categorical(d.interps.weights)     
     op = d.interps.indices[rand(c)]
     op == 1 ? (o.obsleft=true) : (o.obsleft=false)
     o
 end
+
+
+function upperbound(pomdp::TigerPOMDP, s::TigerState)
+    return pomdp.r_escapetiger 
+end
+
 
 discount(pomdp::TigerPOMDP) = pomdp.discount_factor
 
@@ -216,4 +220,6 @@ function update_belief!(b::DiscreteBelief, pomdp::TigerPOMDP, bold::DiscreteBeli
     b[2] = br / norm
     b
 end
+
+
 
