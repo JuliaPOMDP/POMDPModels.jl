@@ -27,12 +27,14 @@ GridWorldState(x::Int64, y::Int64) = GridWorldState(x,y,false,false)
 # for hashing states in dictionaries in Monte Carlo Tree Search
 posequal(s1::GridWorldState, s2::GridWorldState) = s1.x == s2.x && s1.y == s2.y
 hash(s::GridWorldState, h::UInt64 = zero(UInt64)) = hash(s.x, hash(s.y, hash(s.bumped, hash(s.done, h))))
+Base.copy!(dest::GridWorldState, src::GridWorldState) = (dest.x=src.x; dest.y=src.y; dest.bumped=src.bumped; dest.done=src.done; return dest)
 
 # action taken by the agent indeicates desired travel direction
 type GridWorldAction <: Action
     direction::Symbol
 end 
-
+==(u::GridWorldAction, v::GridWorldAction) = u.direction == v.direction
+hash(a::GridWorldAction, h::UInt) = hash(a.direction, h)
 
 #################################################################
 # Grid World MDP
@@ -100,6 +102,10 @@ iterator(space::StateSpace) = space.states
 iterator(space::ActionSpace) = space.actions
 
 # sampling and mutating methods
+function rand(rng::AbstractRNG, space::StateSpace, s::GridWorldState=GridWorldState(0,0))
+    state = space.states[rand(rng, 1:end)]
+    copy!(s, state)
+end
 rand(space::StateSpace) = space.states[rand(1:end)]
 function rand!(rng::AbstractRNG, state::GridWorldState, space::StateSpace)
     state = space.states[rand(rng, 1:end)]    
@@ -162,9 +168,10 @@ function rand!(rng::AbstractRNG, s::GridWorldState, d::GridWorldDistribution)
     s.x = ns.x; s.y = ns.y; s.bumped = ns.bumped; s.done = ns.done # fill s with values from ns
     return s # return the pointer to s
 end
-function rand(rng::AbstractRNG, d::GridWorldDistribution)
+function rand(rng::AbstractRNG, d::GridWorldDistribution, s::GridWorldState=GridWorldState(0,0))
     set_prob!(d.cat, d.probs) # fill the Categorical distribution with our state probabilities
-    d.neighbors[rand(rng, d.cat)] # sample a neighbor state according to the distribution c
+    sample = d.neighbors[rand(rng, d.cat)] # sample a neighbor state according to the distribution c
+    copy!(s, sample)
 end
 
 
