@@ -55,6 +55,8 @@ create_action(::BabyPOMDP) = BabyAction(false)
 create_transition_distribution(::BabyPOMDP) = BabyStateDistribution()
 create_observation_distribution(::BabyPOMDP) = BabyObservationDistribution()
 create_belief(::BabyBeliefUpdater) = BabyStateDistribution()
+create_belief(::BabyPOMDP) = BabyStateDistribution()
+initial_belief(::BabyPOMDP) = BabyStateDistribution(0.0)
 
 n_states(::BabyPOMDP) = 2
 n_actions(::BabyPOMDP) = 2
