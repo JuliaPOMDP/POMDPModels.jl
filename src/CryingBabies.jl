@@ -113,6 +113,7 @@ action(::AlwaysFeed, ::Belief, a=true) = true
 updater(::AlwaysFeed) = EmptyUpdater()
 
 # feed when the previous observation was crying - this is nearly optimal
+#=
 type FeedWhenCrying <: Policy end
 updater(::FeedWhenCrying) = PreviousObservationUpdater()
 function action(::FeedWhenCrying, b::PreviousObservation, a=false)
@@ -123,3 +124,4 @@ function action(::FeedWhenCrying, b::PreviousObservation, a=false)
     end
 end
 # action(::FeedWhenCrying, b::BabyStateDistribution, a=false) = false
+=#

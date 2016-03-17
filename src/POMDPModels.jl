@@ -13,7 +13,6 @@ using POMDPToolbox
 import POMDPs: n_states, n_actions, n_observations # space sizes for discrete problems
 import POMDPs: discount, states, actions, observations # model functions
 import POMDPs: transition, observation, reward, isterminal # model functions
-import POMDPs: create_state, create_action, create_observation # s,a,o initialization
 import POMDPs: length, index, weight # discrete distribution functions
 import POMDPs: rand, pdf # common distribution functions
 import POMDPs: iterator, dimensions # space functions
@@ -48,9 +47,6 @@ export
     GridWorldDistribution,
     # CryingBabies
     BabyPOMDP,
-    BabyState,
-    BabyObservation,
-    BabyAction,
     BabyStateDistribution,
     BabyObservationDistribution,
     BabyBeliefUpdater,
@@ -62,14 +58,9 @@ export
     n_actions,
     n_observations,
     states,
-    states!,
     actions,
-    actions!,
     observations,
     observation,
-    create_action,
-    create_state,
-    create_observation,
     create_observation_distribution,
     create_transition_distribution,
     create_belief,
@@ -81,7 +72,6 @@ export
     #domain,
     iterator,
     rand,
-    rand!,
     isterminal,
     discount,
     initial_belief,
