@@ -69,8 +69,8 @@ function reward(pomdp::BabyPOMDP, s::Bool, a::Bool, sp::Bool)
     return r
 end
 
-rand(rng::AbstractRNG, d::BabyStateDistribution, s::Bool=false) = (rand(rng) <= d.p_hungry)
-rand(rng::AbstractRNG, d::BabyObservationDistribution, o::Bool=false) = (rand(rng) <= d.p_crying)
+rand(rng::AbstractRNG, d::BabyStateDistribution, s::Bool=false) = rand(rng) <= d.p_hungry
+rand(rng::AbstractRNG, d::BabyObservationDistribution, o::Bool=false) = rand(rng) <= d.p_crying
 
 function update(bu::BabyBeliefUpdater, old::BabyStateDistribution, a::Bool, o::Bool, b::BabyStateDistribution=BabyStateDistribution())
     p = bu.problem
@@ -113,15 +113,12 @@ action(::AlwaysFeed, ::Belief, a=true) = true
 updater(::AlwaysFeed) = EmptyUpdater()
 
 # feed when the previous observation was crying - this is nearly optimal
-#=
 type FeedWhenCrying <: Policy end
-updater(::FeedWhenCrying) = PreviousObservationUpdater()
-function action(::FeedWhenCrying, b::PreviousObservation, a=false)
-    if b.observation == nothing || b.observation == false # not crying
+updater(::FeedWhenCrying) = PreviousObservationUpdater{Bool}()
+function action(::FeedWhenCrying, b::PreviousObservation{Bool}, a=false)
+    if get(b.observation, false) == false # not crying (or null)
         return false
     else # is crying
         return true
     end
 end
-# action(::FeedWhenCrying, b::BabyStateDistribution, a=false) = false
-=#
