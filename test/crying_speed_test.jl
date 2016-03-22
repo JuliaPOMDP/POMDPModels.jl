@@ -20,8 +20,10 @@ using ProfileView
 
 Profile.clear()
 
+rngs = [MersenneTwister(i) for i in 1:n]
+
 @profile @time for i in 1:n
-    rng = MersenneTwister(i)
+    rng = rngs[i]
     init_state = BabyState(false)
     od = observation(problem, init_state, BabyAction(false), init_state)
     obs = rand(rng, od)
