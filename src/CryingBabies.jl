@@ -101,7 +101,6 @@ states(::BabyPOMDP) = BoolSpace()
 actions(::BabyPOMDP, s::Bool=true, as::BoolSpace=BoolSpace()) = as
 
 discount(p::BabyPOMDP) = p.discount
-# isterminal(::BabyPOMDP, ::BabyState) = false
 
 # some example policies
 type Starve <: Policy end

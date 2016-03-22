@@ -14,7 +14,7 @@ using POMDPDistributions
 # States and Actions
 #################################################################
 # state of the agent in grid world
-type GridWorldState <: State
+immutable GridWorldState <: State
 	x::Int64 # x position
 	y::Int64 # y position
     bumped::Bool # bumped the wall or not in previous step
@@ -30,7 +30,7 @@ hash(s::GridWorldState, h::UInt64 = zero(UInt64)) = hash(s.x, hash(s.y, hash(s.b
 Base.copy!(dest::GridWorldState, src::GridWorldState) = (dest.x=src.x; dest.y=src.y; dest.bumped=src.bumped; dest.done=src.done; return dest)
 
 # action taken by the agent indeicates desired travel direction
-type GridWorldAction <: Action
+immutable GridWorldAction <: Action
     direction::Symbol
 end 
 ==(u::GridWorldAction, v::GridWorldAction) = u.direction == v.direction
@@ -40,7 +40,7 @@ hash(a::GridWorldAction, h::UInt) = hash(a.direction, h)
 # Grid World MDP
 #################################################################
 # the grid world mdp type
-type GridWorld <: POMDP
+type GridWorld <: MDP{GridWorldState, GridWorldAction}
 	size_x::Int64 # x size of the grid
 	size_y::Int64 # y size of the grid
 	reward_states::Vector{GridWorldState} # the states in which agent recieves reward
@@ -72,11 +72,11 @@ end
 # State and Action Spaces
 #################################################################
 # state space
-type StateSpace <: AbstractSpace
+type GridWorldStateSpace <: AbstractSpace
     states::Vector{GridWorldState}
 end
 # action space
-type ActionSpace <: AbstractSpace
+type GridWorldActionSpace <: AbstractSpace
     actions::Vector{GridWorldAction}
 end
 # returns the state space
@@ -107,27 +107,12 @@ function rand(rng::AbstractRNG, space::StateSpace, s::GridWorldState=GridWorldSt
     copy!(s, state)
 end
 rand(space::StateSpace) = space.states[rand(1:end)]
-function rand!(rng::AbstractRNG, state::GridWorldState, space::StateSpace)
-    state = space.states[rand(rng, 1:end)]    
-    state
-end
 
 function rand(rng::AbstractRNG, space::ActionSpace, a::GridWorldAction=GridWorldAction(:up))
     a.direction = space.actions[rand(rng,1:end)].direction
     return a
 end
 rand(space::ActionSpace) = space.actions[rand(1:end)]
-function rand!(rng::AbstractRNG, action::GridWorldAction, space::ActionSpace)
-    action = space.actions[rand(rng, 1:end)]    
-    action
-end
-states!(space::StateSpace, mdp::GridWorld, state::GridWorldState) = space
-function actions(mdp::GridWorld)
-	acts = [GridWorldAction(:up), GridWorldAction(:down), 
-	GridWorldAction(:left), GridWorldAction(:right)]
-	return ActionSpace(acts)
-end
-
 
 #################################################################
 # Distributions
@@ -150,7 +135,7 @@ end
 # returns an iterator over the distirubtion
 function POMDPs.iterator(d::GridWorldDistribution)
     return d.neighbors
-end;
+end
 
 function pdf(d::GridWorldDistribution, s::GridWorldState)
     for (i, sp) in enumerate(d.neighbors)
@@ -162,26 +147,21 @@ function pdf(d::GridWorldDistribution, s::GridWorldState)
 end
 
 # TODO these should be cleaned up once rand() stabilizes in pomdps
-function rand!(rng::AbstractRNG, s::GridWorldState, d::GridWorldDistribution)
-    set_prob!(d.cat, d.probs) # fill the Categorical distribution with our state probabilities
-    ns = d.neighbors[rand(rng, d.cat)] # sample a neighbor state according to the distribution c
-    s.x = ns.x; s.y = ns.y; s.bumped = ns.bumped; s.done = ns.done # fill s with values from ns
-    return s # return the pointer to s
-end
 function rand(rng::AbstractRNG, d::GridWorldDistribution, s::GridWorldState=GridWorldState(0,0))
     set_prob!(d.cat, d.probs) # fill the Categorical distribution with our state probabilities
     sample = d.neighbors[rand(rng, d.cat)] # sample a neighbor state according to the distribution c
-    copy!(s, sample)
 end
+#= # Don't need these, right?
 function rand(rng::AbstractRNG, d::GridWorldDistribution, s::GridWorldState)
     set_prob!(d.cat, d.probs) # fill the Categorical distribution with our state probabilities
     d.neighbors[rand(rng, d.cat)] # sample a neighbor state according to the distribution c
+    copy!(s, sample)
 end
 function rand(rng::AbstractRNG, d::GridWorldDistribution)
     set_prob!(d.cat, d.probs) # fill the Categorical distribution with our state probabilities
     d.neighbors[rand(rng, d.cat)] # sample a neighbor state according to the distribution c
 end
-
+=#
 
 create_state(mdp::GridWorld) = GridWorldState(1, 1)
 create_action(mdp::GridWorld) = GridWorldAction(:up)
