@@ -93,6 +93,10 @@ function reward(pomdp::BabyPOMDP, s::BabyState, a::BabyAction, sp::BabyState)
     return r
 end
 
+function rand(rng::AbstractRNG, d::BabyObservationDistribution, o::BabyObservation=BabyObservation(false))
+    rand!(rng, o, d)
+end
+
 function rand!(rng::AbstractRNG, s::BabyState, d::BabyStateDistribution)
     s.hungry = (rand(rng) <= d.p_hungry)
     return s
