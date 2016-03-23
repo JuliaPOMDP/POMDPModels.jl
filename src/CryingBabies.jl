@@ -13,6 +13,13 @@ type BabyPOMDP <: POMDP{Bool, Bool, Bool}
 end
 BabyPOMDP(r_feed, r_hungry) = BabyPOMDP(r_feed, r_hungry, 0.1, 0.8, 0.1, 0.9)
 
+# TODO: this should be moved to POMDPDistributions.jl
+type BoolDistribution
+    p::Float64 # probability of true
+end
+BoolDistribution() = BoolDistribution(0.0)
+
+#=
 type BabyStateDistribution <: Belief{Bool}
     p_hungry::Float64 # probability of being hungry
 end
@@ -22,38 +29,47 @@ type BabyObservationDistribution <: AbstractDistribution{Bool}
     p_crying::Float64 # probability of crying
 end
 BabyObservationDistribution() = BabyObservationDistribution(0.0)
+=#
 
 type BabyBeliefUpdater <: BeliefUpdater{Bool, Bool, Bool}
     problem::BabyPOMDP
 end
 updater(problem::BabyPOMDP) = BabyBeliefUpdater(problem)
 
+create_transition_distribution(::BabyPOMDP) = BoolDistribution()
+create_observation_distribution(::BabyPOMDP) = BoolDistribution()
+create_belief(::BabyBeliefUpdater) = BoolDistribution()
+create_belief(::BabyPOMDP) = BoolDistribution()
+initial_belief(::BabyPOMDP) = BoolDistribution(0.0)
+
+#=
 create_transition_distribution(::BabyPOMDP) = BabyStateDistribution()
 create_observation_distribution(::BabyPOMDP) = BabyObservationDistribution()
 create_belief(::BabyBeliefUpdater) = BabyStateDistribution()
 create_belief(::BabyPOMDP) = BabyStateDistribution()
 initial_belief(::BabyPOMDP) = BabyStateDistribution(0.0)
+=#
 
 n_states(::BabyPOMDP) = 2
 n_actions(::BabyPOMDP) = 2
 n_observations(::BabyPOMDP) = 2
 
-function transition(pomdp::BabyPOMDP, s::Bool, a::Bool, d::BabyStateDistribution=BabyStateDistribution())
+function transition(pomdp::BabyPOMDP, s::Bool, a::Bool, d::BoolDistribution=BoolDistribution())
     if !a && s # don't feed when hungry
-        d.p_hungry = 1.0
+        d.p = 1.0
     elseif a # feed
-        d.p_hungry = 0.0
+        d.p = 0.0
     else # don't feed when not hungry
-        d.p_hungry = pomdp.p_become_hungry
+        d.p = pomdp.p_become_hungry
     end
     return d
 end
 
-function observation(pomdp::BabyPOMDP, s::Bool, a::Bool, sp::Bool, d::BabyObservationDistribution=create_observation_distribution(pomdp))
+function observation(pomdp::BabyPOMDP, s::Bool, a::Bool, sp::Bool, d::BoolDistribution=create_observation_distribution(pomdp))
     if sp # hungry
-        d.p_crying = pomdp.p_cry_when_hungry
+        d.p = pomdp.p_cry_when_hungry
     else
-        d.p_crying = pomdp.p_cry_when_not_hungry
+        d.p = pomdp.p_cry_when_not_hungry
     end
     return d
 end
@@ -69,27 +85,25 @@ function reward(pomdp::BabyPOMDP, s::Bool, a::Bool, sp::Bool)
     return r
 end
 
-rand(rng::AbstractRNG, d::BabyStateDistribution, s::Bool=false) = rand(rng) <= d.p_hungry
-rand(rng::AbstractRNG, d::BabyObservationDistribution, o::Bool=false) = rand(rng) <= d.p_crying
+rand(rng::AbstractRNG, d::BoolDistribution, s::Bool=false) = rand(rng) <= d.p
 
-function update(bu::BabyBeliefUpdater, old::BabyStateDistribution, a::Bool, o::Bool, b::BabyStateDistribution=BabyStateDistribution())
+function update(bu::BabyBeliefUpdater, old::BoolDistribution, a::Bool, o::Bool, b::BoolDistribution=BoolDistribution())
     p = bu.problem
     if a # feed
-        b.p_hungry = 0.0
+        b.p = 0.0
     else # did not feed
-        b.p_hungry = old.p_hungry + (1.0-old.p_hungry)*p.p_become_hungry # this is from the system dynamics
+        b.p = old.p + (1.0-old.p)*p.p_become_hungry # this is from the system dynamics
         # bayes rule
         if o # crying
-            b.p_hungry = (p.p_cry_when_hungry*b.p_hungry)/(p.p_cry_when_hungry*b.p_hungry + p.p_cry_when_not_hungry*(1.0-b.p_hungry))
+            b.p = (p.p_cry_when_hungry*b.p)/(p.p_cry_when_hungry*b.p + p.p_cry_when_not_hungry*(1.0-b.p))
         else # not crying
-            b.p_hungry = ((1.0-p.p_cry_when_hungry)*b.p_hungry)/((1.0-p.p_cry_when_hungry)*b.p_hungry + (1.0-p.p_cry_when_not_hungry)*(1.0-b.p_hungry))
+            b.p = ((1.0-p.p_cry_when_hungry)*b.p)/((1.0-p.p_cry_when_hungry)*b.p + (1.0-p.p_cry_when_not_hungry)*(1.0-b.p))
         end
     end
     return b
 end
 
-dimensions(::BabyObservationDistribution) = 1
-dimensions(::BabyStateDistribution) = 1
+dimensions(::BoolDistribution) = 1
 
 type BoolSpace <: AbstractSpace{Bool} end
 iterator(bs::BoolSpace) = bs

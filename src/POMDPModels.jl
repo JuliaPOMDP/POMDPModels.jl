@@ -47,8 +47,7 @@ export
     GridWorldDistribution,
     # CryingBabies
     BabyPOMDP,
-    BabyStateDistribution,
-    BabyObservationDistribution,
+    BoolDistribution,
     BabyBeliefUpdater,
     Starve,
     AlwaysFeed,
