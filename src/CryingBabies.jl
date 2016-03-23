@@ -19,18 +19,6 @@ type BoolDistribution
 end
 BoolDistribution() = BoolDistribution(0.0)
 
-#=
-type BabyStateDistribution <: Belief{Bool}
-    p_hungry::Float64 # probability of being hungry
-end
-BabyStateDistribution() = BabyStateDistribution(0.0)
-
-type BabyObservationDistribution <: AbstractDistribution{Bool}
-    p_crying::Float64 # probability of crying
-end
-BabyObservationDistribution() = BabyObservationDistribution(0.0)
-=#
-
 type BabyBeliefUpdater <: BeliefUpdater{Bool, Bool, Bool}
     problem::BabyPOMDP
 end
@@ -41,14 +29,6 @@ create_observation_distribution(::BabyPOMDP) = BoolDistribution()
 create_belief(::BabyBeliefUpdater) = BoolDistribution()
 create_belief(::BabyPOMDP) = BoolDistribution()
 initial_belief(::BabyPOMDP) = BoolDistribution(0.0)
-
-#=
-create_transition_distribution(::BabyPOMDP) = BabyStateDistribution()
-create_observation_distribution(::BabyPOMDP) = BabyObservationDistribution()
-create_belief(::BabyBeliefUpdater) = BabyStateDistribution()
-create_belief(::BabyPOMDP) = BabyStateDistribution()
-initial_belief(::BabyPOMDP) = BabyStateDistribution(0.0)
-=#
 
 n_states(::BabyPOMDP) = 2
 n_actions(::BabyPOMDP) = 2
