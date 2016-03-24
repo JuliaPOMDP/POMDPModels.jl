@@ -82,8 +82,7 @@ export
     upperbound,
     getindex
 
-# commenting out GridWorlds and Tiger so that I can focus on CryingBabies initially
-# include("GridWorlds.jl")
+include("GridWorlds.jl")
 include("CryingBabies.jl")
 # include("TigerPOMDPs.jl")
 
