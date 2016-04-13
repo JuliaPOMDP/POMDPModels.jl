@@ -14,7 +14,7 @@ end
 BabyPOMDP(r_feed, r_hungry) = BabyPOMDP(r_feed, r_hungry, 0.1, 0.8, 0.1, 0.9)
 
 # TODO: this should be moved to POMDPDistributions.jl
-type BoolDistribution
+type BoolDistribution <: Belief{Bool}
     p::Float64 # probability of true
 end
 BoolDistribution() = BoolDistribution(0.0)
