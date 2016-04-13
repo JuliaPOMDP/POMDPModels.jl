@@ -93,6 +93,7 @@ Base.next(::BoolSpace, st::Int) = (st==0, st+1)
 
 states(::BabyPOMDP) = BoolSpace()
 actions(::BabyPOMDP, s::Bool=true, as::BoolSpace=BoolSpace()) = as
+actions(::BabyPOMDP, b::BoolDistribution, as::BoolSpace=BoolSpace()) = as
 
 discount(p::BabyPOMDP) = p.discount
 
