@@ -14,7 +14,7 @@ end
 BabyPOMDP(r_feed, r_hungry) = BabyPOMDP(r_feed, r_hungry, 0.1, 0.8, 0.1, 0.9)
 
 # TODO: this should be moved to POMDPDistributions.jl
-type BoolDistribution
+type BoolDistribution <: Belief{Bool}
     p::Float64 # probability of true
 end
 BoolDistribution() = BoolDistribution(0.0)
@@ -93,6 +93,7 @@ Base.next(::BoolSpace, st::Int) = (st==0, st+1)
 
 states(::BabyPOMDP) = BoolSpace()
 actions(::BabyPOMDP, s::Bool=true, as::BoolSpace=BoolSpace()) = as
+actions(::BabyPOMDP, b::BoolDistribution, as::BoolSpace=BoolSpace()) = as
 
 discount(p::BabyPOMDP) = p.discount
 

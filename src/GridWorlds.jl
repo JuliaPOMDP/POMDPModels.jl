@@ -71,6 +71,8 @@ function GridWorld(;sx::Int64=10, # size_x
     return GridWorld(sx, sy, rs, rv, penalty, tp, terminals, discount_factor)
 end
 
+create_state(::GridWorld) = GridWorldState()
+create_action(::GridWorld) = GridWorldAction()
 
 #################################################################
 # State and Action Spaces
