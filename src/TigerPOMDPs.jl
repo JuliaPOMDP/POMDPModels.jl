@@ -1,87 +1,38 @@
-type TigerPOMDP <: POMDP
+type TigerPOMDP <: POMDP{Bool, Int64, Bool}
     r_listen::Float64
     r_findtiger::Float64
     r_escapetiger::Float64
     p_listen_correctly::Float64
     discount_factor::Float64
 end
-function TigerPOMDP()
-    return TigerPOMDP(-1.0, -100.0, 10.0, 0.85, 0.95)
-end
+TigerPOMDP() = TigerPOMDP(-1.0, -100.0, 10.0, 0.85, 0.95)
 
-type TigerState <: State
-    tigerleft::Bool
-end
-create_state(::TigerPOMDP) = TigerState(rand(0:1))
-index(::TigerPOMDP, s::TigerState) = (Int64(s.tigerleft) + 1)
+create_state(::TigerPOMDP) = zero(Bool)
+create_observation(::TigerPOMDP) = zero(Bool)
+create_action(::TigerPOMDP) = zero(Int64)
+index(::TigerPOMDP, s::Bool) = Int64(s) + 1
 
 create_belief(::TigerPOMDP) = DiscreteBelief(2)
 initial_belief(::TigerPOMDP) = DiscreteBelief(2)
 
-type TigerObservation <: Observation
-    obsleft::Bool
+const listen = 0
+const openleft = 1
+const openright = 2
+
+type TigerDistribution <: AbstractDistribution
+    p::Float64
 end
-create_observation(::TigerPOMDP) = TigerObservation(false)
+TigerDistribution() = TigerDistribution(0.5)
 
-# hash on obs for dicts
-==(o1::TigerObservation, o2::TigerObservation) = (o1.obsleft == o2.obsleft)
-hash(o::TigerObservation) = hash(o.obsleft)
+create_transition_distribution(::TigerPOMDP) = TigerDistribution()
+create_observation_distribution(::TigerPOMDP) = TigerDistribution()
 
-# Incompatible until Julia 0.4: @enum TigerAction listen=1 openleft=2 openright=3
+#Base.length(d::AbstractTigerDistribution) = d.interps.length
+#weight(d::AbstractTigerDistribution, i::Int64) = d.interps.weights[i]
+#index(d::AbstractTigerDistribution, i::Int64) = d.interps.indices[i]
 
-immutable TigerAction <: Action
-    val::Int
-    function TigerAction(i::Integer)
-        @assert 1 <= i <= 3
-        new(i)
-    end
-end
-
-create_action(::TigerPOMDP) = TigerAction(1)
-
-
-==(x::TigerAction, y::TigerAction) = x.val == y.val
-
-const listen = TigerAction(1)
-const openleft = TigerAction(2)
-const openright = TigerAction(3)
-
-abstract AbstractTigerDistribution <: AbstractDistribution
-
-type TigerStateDistribution <: AbstractTigerDistribution
-    interps::Interpolants
-end
-function create_transition_distribution(::TigerPOMDP)
-    interps = Interpolants(2)
-    push!(interps, 1, 0.5)
-    push!(interps, 2, 0.5)
-    d = TigerStateDistribution(interps)
-    d
-end
-
-type TigerObservationDistribution <: AbstractTigerDistribution
-    interps::Interpolants
-end
-function create_observation_distribution(::TigerPOMDP)
-    interps = Interpolants(2)
-    push!(interps, 1, 0.5)
-    push!(interps, 2, 0.5)
-    d = TigerObservationDistribution(interps)
-    d
-end
-
-Base.length(d::AbstractTigerDistribution) = d.interps.length
-weight(d::AbstractTigerDistribution, i::Int64) = d.interps.weights[i]
-index(d::AbstractTigerDistribution, i::Int64) = d.interps.indices[i]
-
-function pdf(d::TigerStateDistribution, s::TigerState)
-    probs = d.interps.weights
-    s.tigerleft ? (return probs[1]) : (return probs[2])
-end
-
-function pdf(d::TigerObservationDistribution, o::TigerObservation)
-    probs = d.interps.weights
-    o.obsleft ? (return probs[1]) : (return probs[2])
+function pdf(d::TigerDistribution, so::Bool)
+    so ? (return d.p) : (return 1.0-d.p)
 end
 
 n_states(::TigerPOMDP) = 2
@@ -90,121 +41,93 @@ n_observations(::TigerPOMDP) = 2
 
 
 # Resets the problem after opening door; does nothing after listening
-function transition(pomdp::TigerPOMDP, s::TigerState, a::TigerAction, d::AbstractTigerDistribution=create_transition_distribution(pomdp))
-    interps = d.interps
-    if a == openleft || a == openright
-        fill!(interps.weights, 0.5)    
-    elseif s.tigerleft
-        interps.weights[1] = 1.0
-        interps.weights[2] = 0.0
+function transition(pomdp::TigerPOMDP, s::Bool, a::Int64, d::TigerDistribution=create_transition_distribution(pomdp))
+    if a == 1 || a == 2
+        d.p = 0.5
+    elseif s
+        d.p = 1.0
     else
-        interps.weights[1] = 0.0
-        interps.weights[2] = 1.0
+        d.p = 0.0
     end
     d
 end
 
-function observation(pomdp::TigerPOMDP, s::TigerState, a::TigerAction, d::TigerObservationDistribution=create_observation_distribution(pomdp))
-    interps = d.interps
-    p = pomdp.p_listen_correctly
-    if a == listen
-        if s.tigerleft
-            interps.weights[1] = p 
-            interps.weights[2] = (1.0-p) 
-        else
-            interps.weights[1] = (1.0-p)
-            interps.weights[2] = p
-        end
+function observation(pomdp::TigerPOMDP, s::Bool, a::Int64, d::TigerDistribution=create_observation_distribution(pomdp))
+    pc = pomdp.p_listen_correctly
+    if a == 0
+        s ? (d.p = pc) : (d.p = 1.0-pc)
     else 
-        fill!(interps.weights, 0.5)    
+        d.p = 0.5
     end
     d
 end
 
-function reward(pomdp::TigerPOMDP, s::TigerState, a::TigerAction)
+function reward(pomdp::TigerPOMDP, s::Bool, a::Int64)
     r = 0.0
-    if a == listen
-        r += pomdp.r_listen
+    a == 0 ? (r+=pomdp.r_listen) : (nothing)
+    if a == 1
+        s ? (r += pomdp.r_findtiger) : (r += pomdp.r_escapetiger)
     end
-    if a == openleft
-        if s.tigerleft
-            r += pomdp.r_findtiger
-        else
-            r += pomdp.r_escapetiger
-        end
-    end
-    if a == openright
-        if s.tigerleft
-            r += pomdp.r_escapetiger
-        else
-            r += pomdp.r_findtiger
-        end
+    if a == 2
+        s ? (r += pomdp.r_escapetiger) : (r += pomdp.r_findtiger)
     end
     return r
 end
-reward(pomdp::TigerPOMDP, s::TigerState, a::TigerAction, sp::TigerState) = reward(pomdp, s, a)
+reward(pomdp::TigerPOMDP, s::Bool, a::Int64, sp::Bool) = reward(pomdp, s, a)
 
 
 type TigerStateSpace <: AbstractSpace
-    states::Vector{TigerState}
+    states::Vector{Bool}
 end
-states(::TigerPOMDP) = TigerStateSpace([TigerState(true), TigerState(false)])
+states(::TigerPOMDP) = TigerStateSpace([true, false])
 iterator(space::TigerStateSpace) = space.states
 dimensions(::TigerStateSpace) = 1
-function rand(rng::AbstractRNG, space::TigerStateSpace, s::TigerState)
+function rand(rng::AbstractRNG, space::TigerStateSpace, s::Bool)
     p = rand(rng)
-    p > 0.5 ? (s.tigerleft = true) : (s.tigerleft = false)
-    return s
+    p > 0.5 ? (return true) : (return false)
 end
 
 type TigerActionSpace <: AbstractSpace
-    actions::Vector{TigerAction}
+    actions::Vector{Int64}
 end
-actions(::TigerPOMDP) = TigerActionSpace([listen, openleft, openright])
-actions(::TigerPOMDP, s::TigerState, acts::TigerActionSpace) = acts
+actions(::TigerPOMDP) = TigerActionSpace([0,1,2,])
+actions(pomdp::TigerPOMDP, s::Bool, acts::TigerActionSpace=actions(pomdp)) = acts
 iterator(space::TigerActionSpace) = space.actions
 dimensions(::TigerActionSpace) = 1
-function rand(rng::AbstractRNG, space::TigerActionSpace, a::TigerAction)
-    p = rand(rng, 1:3)
-    return TigerAction(p)
+function rand(rng::AbstractRNG, space::TigerActionSpace, a::Int64)
+    a = rand(rng, 0:2)
+    return a
 end
 
 type TigerObservationSpace <: AbstractSpace
-    obs::Vector{TigerObservation}
+    obs::Vector{Bool}
 end
-observations(::TigerPOMDP) = TigerObservationSpace([TigerObservation(true), TigerObservation(false)])
-observations!(obs::TigerObservationSpace, ::TigerPOMDP, s::TigerState) = obs
+observations(::TigerPOMDP) = TigerObservationSpace([true, false])
+observations(::TigerPOMDP, s::Bool, obs::TigerObservationSpace=observations(pomdp)) = obs
 iterator(space::TigerObservationSpace) = space.obs
 dimensions(::TigerObservationSpace) = 1
 
-function rand(rng::AbstractRNG, d::TigerStateDistribution, s::TigerState)
-    c = Categorical(d.interps.weights)     
-    sp = d.interps.indices[rand(c)]
-    sp == 1 ? (s.tigerleft=true) : (s.tigerleft=false)
-    s
-end
-
-function rand(rng::AbstractRNG, d::TigerObservationDistribution, o::TigerObservation)
-    c = Categorical(d.interps.weights)     
-    op = d.interps.indices[rand(c)]
-    op == 1 ? (o.obsleft=true) : (o.obsleft=false)
-    o
-end
+rand(rng::AbstractRNG, d::TigerDistribution, s::Bool) = rand(rng) <= d.p
 
 
-function upperbound(pomdp::TigerPOMDP, s::TigerState)
+function upperbound(pomdp::TigerPOMDP, s::Bool)
     return pomdp.r_escapetiger 
 end
 
 
 discount(pomdp::TigerPOMDP) = pomdp.discount_factor
 
-function update_belief!(b::DiscreteBelief, pomdp::TigerPOMDP, bold::DiscreteBelief, a::TigerAction, o::TigerObservation)
+type TigerBeliefUpdater <: BeliefUpdater{Bool, Int64, Bool}
+    pomdp::TigerPOMDP
+end
+
+
+function update(bu::TigerBeliefUpdater, bold::DiscreteBelief, a::Int64, o::Bool, b::DiscreteBelief=create_belief(bu.pomdp))
     bl = bold[1]
     br = bold[2]
-    p = pomdp.p_listen_correctly
-    if a == listen
-        if o.obsleft 
+    p = bu.pomdp.p_listen_correctly
+    if a == 0
+        if o
             bl *= p
             br *= (1.0-p)
         else

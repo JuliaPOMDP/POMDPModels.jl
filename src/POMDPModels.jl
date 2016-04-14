@@ -31,15 +31,11 @@ import Base.hash
 export
     # Tiger
     TigerPOMDP,
-    TigerState,
-    TigerAction,
-    TigerObservation,
-    AbstractTigerDistribution,
-    TigerStateDistribution,
-    TigerObservationDistribution,
+    TigerDistribution,
     TigerStateSpace,
     TigerActionSpace,
     TigerObservationSpace,
+    TigerBeliefUpdater,
     # Grid World
     GridWorld,
     GridWorldState,
@@ -76,7 +72,7 @@ export
     initial_belief,
     create_belief,
     belief,
-    update_belief!,
+    update,
     pdf,
     dimensions,
     upperbound,
@@ -84,6 +80,6 @@ export
 
 include("GridWorlds.jl")
 include("CryingBabies.jl")
-# include("TigerPOMDPs.jl")
+include("TigerPOMDPs.jl")
 
 end # module
