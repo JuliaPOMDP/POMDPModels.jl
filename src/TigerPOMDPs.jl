@@ -119,7 +119,7 @@ end
 
 discount(pomdp::TigerPOMDP) = pomdp.discount_factor
 
-type TigerBeliefUpdater <: BeliefUpdater{Bool, Int64, Bool}
+type TigerBeliefUpdater <: BeliefUpdater
     pomdp::TigerPOMDP
 end
 
