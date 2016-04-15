@@ -11,6 +11,7 @@ using POMDPs
 using POMDPToolbox
 
 import POMDPs: n_states, n_actions, n_observations # space sizes for discrete problems
+import POMDPs: state_index, action_index, obs_index
 import POMDPs: discount, states, actions, observations # model functions
 import POMDPs: transition, observation, reward, isterminal # model functions
 import POMDPs: length, index, weight # discrete distribution functions
@@ -53,6 +54,9 @@ export
     n_states,
     n_actions,
     n_observations,
+    state_index,
+    action_index,
+    observation_index,
     states,
     actions,
     observations,

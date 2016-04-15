@@ -93,7 +93,7 @@ function states(mdp::GridWorld)
     for d = 0:1, b = 0:1, y = 1:mdp.size_y, x = 1:mdp.size_x
         push!(s, GridWorldState(x,y,b,d))
     end
-    return StateSpace(s)
+    return GridWorldStateSpace(s)
 end
 # returns the action space
 function actions(mdp::GridWorld, s=nothing)
@@ -310,7 +310,7 @@ function transition(mdp::GridWorld, state::GridWorldState, action::GridWorldActi
 end
 
 
-function index(mdp::GridWorld, s::GridWorldState)
+function state_index(mdp::GridWorld, s::GridWorldState)
     return s2i(mdp, s)
 end
 

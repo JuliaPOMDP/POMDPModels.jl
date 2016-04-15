@@ -10,7 +10,7 @@ TigerPOMDP() = TigerPOMDP(-1.0, -100.0, 10.0, 0.85, 0.95)
 create_state(::TigerPOMDP) = zero(Bool)
 create_observation(::TigerPOMDP) = zero(Bool)
 create_action(::TigerPOMDP) = zero(Int64)
-index(::TigerPOMDP, s::Bool) = Int64(s) + 1
+state_index(::TigerPOMDP, s::Bool) = Int64(s) + 1
 
 create_belief(::TigerPOMDP) = DiscreteBelief(2)
 initial_belief(::TigerPOMDP) = DiscreteBelief(2)
@@ -21,8 +21,10 @@ const openright = 2
 
 type TigerDistribution <: AbstractDistribution
     p::Float64
+    it::Vector{Bool}
 end
-TigerDistribution() = TigerDistribution(0.5)
+TigerDistribution() = TigerDistribution(0.5, [true, false])
+iterator(d::TigerDistribution) = d.it
 
 create_transition_distribution(::TigerPOMDP) = TigerDistribution()
 create_observation_distribution(::TigerPOMDP) = TigerDistribution()
