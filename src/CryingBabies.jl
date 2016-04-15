@@ -14,11 +14,14 @@ end
 BabyPOMDP(r_feed, r_hungry) = BabyPOMDP(r_feed, r_hungry, 0.1, 0.8, 0.1, 0.9)
 
 # TODO: this should be moved to POMDPDistributions.jl
-type BoolDistribution <: Belief{Bool}
+type BoolDistribution <: AbstractDistribution{Bool}
     p::Float64 # probability of true
 end
 BoolDistribution() = BoolDistribution(0.0)
 
+type BabyExactBelief <: Belief
+    p::Float64 # probability of hungry
+end
 type BabyBeliefUpdater <: BeliefUpdater{Bool, Bool, Bool}
     problem::BabyPOMDP
 end
@@ -67,7 +70,7 @@ end
 
 rand(rng::AbstractRNG, d::BoolDistribution, s::Bool=false) = rand(rng) <= d.p
 
-function update(bu::BabyBeliefUpdater, old::BoolDistribution, a::Bool, o::Bool, b::BoolDistribution=BoolDistribution())
+function update(bu::BabyBeliefUpdater, old::BabyExactBelief, a::Bool, o::Bool, b::BabyExactBelief=BabyExactBelief(0.0))
     p = bu.problem
     if a # feed
         b.p = 0.0
@@ -90,6 +93,7 @@ iterator(bs::BoolSpace) = bs
 Base.start(::BoolSpace) = 0
 Base.done(::BoolSpace, st::Int) = st > 1
 Base.next(::BoolSpace, st::Int) = (st==0, st+1)
+rand(rng::AbstractRNG, bs::BoolSpace, b::Bool=true) = rand(rng, Bool)
 
 states(::BabyPOMDP) = BoolSpace()
 actions(::BabyPOMDP, s::Bool=true, as::BoolSpace=BoolSpace()) = as
