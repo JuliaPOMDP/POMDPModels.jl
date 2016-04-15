@@ -1,12 +1,9 @@
-#=
-using POMDPs
-using Distributions
-using POMDPToolbox
-=#
+# Crying baby problem described in DMU book
+# State: hungry = true; not hungry = false
+# Action: feed = true; do nothing = false
+# Observation: crying = true; not crying = false
 
-# TODO: this might be better implemented with immutable states, actions, and observations
-
-type BabyPOMDP <: POMDP
+type BabyPOMDP <: POMDP{Bool, Bool, Bool}
     r_feed::Float64
     r_hungry::Float64
     p_become_hungry::Float64
@@ -16,196 +13,110 @@ type BabyPOMDP <: POMDP
 end
 BabyPOMDP(r_feed, r_hungry) = BabyPOMDP(r_feed, r_hungry, 0.1, 0.8, 0.1, 0.9)
 
-type BabyState <: State
-    hungry::Bool
+# TODO: this should be moved to POMDPDistributions.jl
+type BoolDistribution <: AbstractDistribution{Bool}
+    p::Float64 # probability of true
 end
-==(u::BabyState, v::BabyState) = u.hungry==v.hungry
-hash(s::BabyState) = hash(s.hungry)
+BoolDistribution() = BoolDistribution(0.0)
 
-type BabyObservation <: Observation
-    crying::Bool
+type BabyExactBelief <: Belief
+    p::Float64 # probability of hungry
 end
-==(u::BabyObservation, v::BabyObservation) = u.crying==v.crying
-hash(o::BabyObservation) = hash(o.crying)
-
-type BabyAction <: Action
-    feed::Bool
-end
-==(u::BabyAction, v::BabyAction) = u.feed==v.feed
-hash(a::BabyAction) = hash(a.feed)
-
-type BabyStateDistribution <: Belief
-    p_hungry::Float64 # probability of being hungry
-end
-BabyStateDistribution() = BabyStateDistribution(0.0)
-
-type BabyObservationDistribution <: AbstractDistribution
-    p_crying::Float64 # probability of crying
-end
-BabyObservationDistribution() = BabyObservationDistribution(0.0)
-
 type BabyBeliefUpdater <: BeliefUpdater
     problem::BabyPOMDP
 end
 updater(problem::BabyPOMDP) = BabyBeliefUpdater(problem)
 
-create_state(::BabyPOMDP) = BabyState(false)
-create_observation(::BabyPOMDP) = BabyObservation(false)
-create_action(::BabyPOMDP) = BabyAction(false)
-create_transition_distribution(::BabyPOMDP) = BabyStateDistribution()
-create_observation_distribution(::BabyPOMDP) = BabyObservationDistribution()
-create_belief(::BabyBeliefUpdater) = BabyStateDistribution()
-create_belief(::BabyPOMDP) = BabyStateDistribution()
-initial_belief(::BabyPOMDP) = BabyStateDistribution(0.0)
+create_transition_distribution(::BabyPOMDP) = BoolDistribution()
+create_observation_distribution(::BabyPOMDP) = BoolDistribution()
+create_belief(::BabyBeliefUpdater) = BabyExactBelief()
+create_belief(::BabyPOMDP) = BabyExactBelief()
+initial_belief(::BabyPOMDP) = BabyExactBelief(0.0)
 
 n_states(::BabyPOMDP) = 2
 n_actions(::BabyPOMDP) = 2
 n_observations(::BabyPOMDP) = 2
 
-function transition(pomdp::BabyPOMDP, s::BabyState, a::BabyAction, d::BabyStateDistribution=BabyStateDistribution())
-    if !a.feed && s.hungry
-        d.p_hungry = 1.0
-    elseif a.feed 
-        d.p_hungry = 0.0
-    else
-        d.p_hungry = pomdp.p_become_hungry
+function transition(pomdp::BabyPOMDP, s::Bool, a::Bool, d::BoolDistribution=BoolDistribution())
+    if !a && s # don't feed when hungry
+        d.p = 1.0
+    elseif a # feed
+        d.p = 0.0
+    else # don't feed when not hungry
+        d.p = pomdp.p_become_hungry
     end
     return d
 end
 
-function observation(pomdp::BabyPOMDP, s::BabyState, a::BabyAction, sp::BabyState, d::BabyObservationDistribution=create_observation_distribution(pomdp))
-    if sp.hungry
-        d.p_crying = pomdp.p_cry_when_hungry
+function observation(pomdp::BabyPOMDP, s::Bool, a::Bool, sp::Bool, d::BoolDistribution=create_observation_distribution(pomdp))
+    if sp # hungry
+        d.p = pomdp.p_cry_when_hungry
     else
-        d.p_crying = pomdp.p_cry_when_not_hungry
+        d.p = pomdp.p_cry_when_not_hungry
     end
     return d
 end
 
-function reward(pomdp::BabyPOMDP, s::BabyState, a::BabyAction, sp::BabyState)
+function reward(pomdp::BabyPOMDP, s::Bool, a::Bool, sp::Bool)
     r = 0.0
-    if s.hungry
+    if s # hungry
         r += pomdp.r_hungry
     end
-    if a.feed
+    if a # feed
         r += pomdp.r_feed
     end
     return r
 end
 
-function rand(rng::AbstractRNG, d::BabyObservationDistribution, o::BabyObservation=BabyObservation(false))
-    rand!(rng, o, d)
-end
+rand(rng::AbstractRNG, d::Union{BoolDistribution,BabyExactBelief}, s::Bool=false) = rand(rng) <= d.p
 
-function rand!(rng::AbstractRNG, s::BabyState, d::BabyStateDistribution)
-    s.hungry = (rand(rng) <= d.p_hungry)
-    return s
-end
-
-function rand!(rng::AbstractRNG, o::BabyObservation, d::BabyObservationDistribution)
-    o.crying = (rand(rng) <= d.p_crying)
-    return o
-end
-
-function update(bu::BabyBeliefUpdater, old::BabyStateDistribution, a::BabyAction, o::BabyObservation, b::BabyStateDistribution=BabyStateDistribution())
+function update(bu::BabyBeliefUpdater, old::BabyExactBelief, a::Bool, o::Bool, b::BabyExactBelief=BabyExactBelief(0.0))
     p = bu.problem
-    if a.feed
-        b.p_hungry = 0.0
+    if a # feed
+        b.p = 0.0
     else # did not feed
-        b.p_hungry = old.p_hungry + (1.0-old.p_hungry)*p.p_become_hungry # this is from the system dynamics
+        b.p = old.p + (1.0-old.p)*p.p_become_hungry # this is from the system dynamics
         # bayes rule
-        if o.crying
-            b.p_hungry = (p.p_cry_when_hungry*b.p_hungry)/(p.p_cry_when_hungry*b.p_hungry + p.p_cry_when_not_hungry*(1.0-b.p_hungry))
+        if o # crying
+            b.p = (p.p_cry_when_hungry*b.p)/(p.p_cry_when_hungry*b.p + p.p_cry_when_not_hungry*(1.0-b.p))
         else # not crying
-            b.p_hungry = ((1.0-p.p_cry_when_hungry)*b.p_hungry)/((1.0-p.p_cry_when_hungry)*b.p_hungry + (1.0-p.p_cry_when_not_hungry)*(1.0-b.p_hungry))
+            b.p = ((1.0-p.p_cry_when_hungry)*b.p)/((1.0-p.p_cry_when_hungry)*b.p + (1.0-p.p_cry_when_not_hungry)*(1.0-b.p))
         end
     end
     return b
 end
 
-dimensions(::BabyObservationDistribution) = 1
-dimensions(::BabyStateDistribution) = 1
+dimensions(::BoolDistribution) = 1
 
-function states(::BabyPOMDP)
-    [BabyState(i) for i = 0:1]
-end
+type BoolSpace <: AbstractSpace{Bool} end
+iterator(bs::BoolSpace) = bs
+Base.start(::BoolSpace) = 0
+Base.done(::BoolSpace, st::Int) = st > 1
+Base.next(::BoolSpace, st::Int) = (st==0, st+1)
+rand(rng::AbstractRNG, bs::BoolSpace, b::Bool=true) = rand(rng, Bool)
 
-# const ACTION_SET = [BabyAction(i) for i = 0:1]
-
-type BabyActionSpace end
-iterator(::BabyActionSpace) = [BabyAction(i) for i in 0:1]
-rand!(rng::AbstractRNG, a::BabyAction, as::BabyActionSpace) = (a.feed=rand(rng, Bool); return a)
-actions(::BabyPOMDP, s=BabyState(true), as::BabyActionSpace=BabyActionSpace()) = as
-
-# # needs to be updated after interface changes
-# function actions!(acts::Vector{BabyAction}, ::BabyPOMDP, s::BabyState)
-#     acts[1:end] = [BabyAction(i) for i in 0:1] # ACTION_SET[1:end] 
-# end
-
-# # interpolants don't work for now because I got rid of using Distributions.Bernoulli [This is my (Zach's) fault]
-# create_interpolants(::BabyPOMDP) = Interpolants()
-# 
-# function interpolants!(interpolants::Interpolants, d::BabyStateDistribution)
-#     empty!(interpolants)
-#     ph = params(d.ishungry)[1]
-#     push!(interpolants, 1, (1-ph)) # hungry
-#     push!(interpolants, 2, (ph)) # not hungry
-#     interpolants
-# end
-# 
-# function interpolants!(interpolants::Interpolants, d::BabyObservationDistribution)
-#     empty!(interpolants)
-#     ph = params(d.iscrying)[1]
-#     push!(interpolants, 1, (1-ph)) # crying
-#     push!(interpolants, 2, (ph)) # not crying
-#     interpolants
-# end
-# 
-# length(interps::Interpolants) = interps.length
-# 
-# weight(interps::Interpolants, i::Int64) = interps.weights[i]
-# 
-# index(interps::Interpolants, i::Int64) = interps.indices[i]
-
-function convert!(x::Vector{Float64}, state::BabyState)
-    x[1] = float(state.hungry)
-    x
-end
+states(::BabyPOMDP) = BoolSpace()
+actions(::BabyPOMDP, s::Bool=true, as::BoolSpace=BoolSpace()) = as
+actions(::BabyPOMDP, b::BabyExactBelief, as::BoolSpace=BoolSpace()) = as
 
 discount(p::BabyPOMDP) = p.discount
-# isterminal(::BabyPOMDP, ::BabyState) = false
 
 # some example policies
-type Starve <: Policy
-end
-function action(::Starve, ::Belief, a=BabyAction(false))
-    a.feed = false
-    return a # Never feed :(
-end
+type Starve <: Policy end
+action(::Starve, ::Belief, a=false) = false
 updater(::Starve) = EmptyUpdater()
 
-type AlwaysFeed <: Policy
-end
-function action(::AlwaysFeed, ::Belief, a=BabyAction(true))
-    a.feed = true
-    return a
-end
+type AlwaysFeed <: Policy end
+action(::AlwaysFeed, ::Belief, a=true) = true
 updater(::AlwaysFeed) = EmptyUpdater()
 
 # feed when the previous observation was crying - this is nearly optimal
-type FeedWhenCrying <: Policy
-end
-updater(::FeedWhenCrying) = PreviousObservationUpdater()
-function action(::FeedWhenCrying, b::PreviousObservation, a=BabyAction(false))
-    if b.observation == nothing || b.observation.crying == false
-        a.feed = false
-        return a
+type FeedWhenCrying <: Policy end
+updater(::FeedWhenCrying) = PreviousObservationUpdater{Bool}()
+function action(::FeedWhenCrying, b::PreviousObservation{Bool}, a=false)
+    if get(b.observation, false) == false # not crying (or null)
+        return false
     else # is crying
-        a.feed = true
-        return a
+        return true
     end
-end
-function action(::FeedWhenCrying, b::BabyStateDistribution, a=BabyAction(false))
-    a.feed = false
-    return a  
 end

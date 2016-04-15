@@ -11,12 +11,13 @@ using POMDPs
 using POMDPToolbox
 
 import POMDPs: n_states, n_actions, n_observations # space sizes for discrete problems
+import POMDPs: state_index, action_index, obs_index
 import POMDPs: discount, states, actions, observations # model functions
 import POMDPs: transition, observation, reward, isterminal # model functions
-import POMDPs: create_state, create_action, create_observation # s,a,o initialization
 import POMDPs: length, index, weight # discrete distribution functions
 import POMDPs: rand, pdf # common distribution functions
 import POMDPs: iterator, dimensions # space functions
+import POMDPs: create_state, create_action, create_observation
 import POMDPs: create_transition_distribution, create_observation_distribution, create_belief, initial_belief 
 import POMDPs: update, updater
 import POMDPs: upperbound
@@ -32,15 +33,11 @@ import Base.hash
 export
     # Tiger
     TigerPOMDP,
-    TigerState,
-    TigerAction,
-    TigerObservation,
-    AbstractTigerDistribution,
-    TigerStateDistribution,
-    TigerObservationDistribution,
+    TigerDistribution,
     TigerStateSpace,
     TigerActionSpace,
     TigerObservationSpace,
+    TigerBeliefUpdater,
     # Grid World
     GridWorld,
     GridWorldState,
@@ -48,11 +45,7 @@ export
     GridWorldDistribution,
     # CryingBabies
     BabyPOMDP,
-    BabyState,
-    BabyObservation,
-    BabyAction,
-    BabyStateDistribution,
-    BabyObservationDistribution,
+    BoolDistribution,
     BabyBeliefUpdater,
     Starve,
     AlwaysFeed,
@@ -61,15 +54,13 @@ export
     n_states,
     n_actions,
     n_observations,
+    state_index,
+    action_index,
+    observation_index,
     states,
-    states!,
     actions,
-    actions!,
     observations,
     observation,
-    create_action,
-    create_state,
-    create_observation,
     create_observation_distribution,
     create_transition_distribution,
     create_belief,
@@ -81,13 +72,12 @@ export
     #domain,
     iterator,
     rand,
-    rand!,
     isterminal,
     discount,
     initial_belief,
     create_belief,
     belief,
-    update_belief!,
+    update,
     pdf,
     dimensions,
     upperbound,
