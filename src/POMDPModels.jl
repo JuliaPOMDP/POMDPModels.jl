@@ -30,6 +30,8 @@ import Base.rand
 import Base.==
 import Base.hash
 
+import GenerativeModels: initial_state
+
 export
     # Tiger
     TigerPOMDP,

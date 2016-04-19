@@ -6,6 +6,6 @@ problem = GridWorld()
 
 policy = RandomPolicy(problem)
 
-sim = MDPRolloutSimulator(MersenneTwister(1))
+sim = RolloutSimulator(MersenneTwister(1))
 
 simulate(sim, problem, policy, GridWorldState(1,1))

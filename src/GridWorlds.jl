@@ -326,3 +326,5 @@ function isterminal(mdp::GridWorld, s::GridWorldState)
 end
 
 discount(mdp::GridWorld) = mdp.discount_factor
+
+initial_state(mdp::GridWorld, rng::AbstractRNG) = GridWorldState(rand(rng, 1:mdp.size_x), rand(rng, 1:mdp.size_y))

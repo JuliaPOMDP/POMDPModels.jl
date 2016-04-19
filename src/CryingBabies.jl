@@ -30,7 +30,7 @@ updater(problem::BabyPOMDP) = BabyBeliefUpdater(problem)
 
 create_transition_distribution(::BabyPOMDP) = BoolDistribution()
 create_observation_distribution(::BabyPOMDP) = BoolDistribution()
-create_belief(::BabyBeliefUpdater) = BabyExactBelief()
+create_belief(::BabyBeliefUpdater) = BabyExactBelief(0.0)
 create_belief(::BabyPOMDP) = BabyExactBelief(0.0)
 initial_belief(::BabyPOMDP) = BabyExactBelief(0.0)
 
