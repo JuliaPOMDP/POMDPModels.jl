@@ -12,6 +12,7 @@ type BabyPOMDP <: POMDP{Bool, Bool, Bool}
     discount::Float64
 end
 BabyPOMDP(r_feed, r_hungry) = BabyPOMDP(r_feed, r_hungry, 0.1, 0.8, 0.1, 0.9)
+BabyPOMDP() = BabyPOMDP(-5., -10.)
 
 # TODO: this should be moved to POMDPDistributions.jl
 type BoolDistribution <: AbstractDistribution{Bool}
@@ -30,7 +31,7 @@ updater(problem::BabyPOMDP) = BabyBeliefUpdater(problem)
 create_transition_distribution(::BabyPOMDP) = BoolDistribution()
 create_observation_distribution(::BabyPOMDP) = BoolDistribution()
 create_belief(::BabyBeliefUpdater) = BabyExactBelief()
-create_belief(::BabyPOMDP) = BabyExactBelief()
+create_belief(::BabyPOMDP) = BabyExactBelief(0.0)
 initial_belief(::BabyPOMDP) = BabyExactBelief(0.0)
 
 n_states(::BabyPOMDP) = 2
