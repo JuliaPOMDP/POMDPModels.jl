@@ -20,10 +20,10 @@ type BoolDistribution <: AbstractDistribution{Bool}
 end
 BoolDistribution() = BoolDistribution(0.0)
 
-type BabyExactBelief <: Belief
+type BabyExactBelief <: AbstractDistribution 
     p::Float64 # probability of hungry
 end
-type BabyBeliefUpdater <: BeliefUpdater
+type BabyBeliefUpdater <: Updater{BabyExactBelief}
     problem::BabyPOMDP
 end
 updater(problem::BabyPOMDP) = BabyBeliefUpdater(problem)
@@ -31,8 +31,8 @@ updater(problem::BabyPOMDP) = BabyBeliefUpdater(problem)
 create_transition_distribution(::BabyPOMDP) = BoolDistribution()
 create_observation_distribution(::BabyPOMDP) = BoolDistribution()
 create_belief(::BabyBeliefUpdater) = BabyExactBelief(0.0)
-create_belief(::BabyPOMDP) = BabyExactBelief(0.0)
-initial_belief(::BabyPOMDP) = BabyExactBelief(0.0)
+#create_belief(::BabyPOMDP) = BabyExactBelief(0.0)
+initial_state_distribution(::BabyPOMDP) = BabyExactBelief(0.0)
 
 n_states(::BabyPOMDP) = 2
 n_actions(::BabyPOMDP) = 2
@@ -104,11 +104,11 @@ discount(p::BabyPOMDP) = p.discount
 
 # some example policies
 type Starve <: Policy end
-action(::Starve, ::Belief, a=false) = false
+action{B}(::Starve, ::B, a=false) = false
 updater(::Starve) = EmptyUpdater()
 
 type AlwaysFeed <: Policy end
-action(::AlwaysFeed, ::Belief, a=true) = true
+action{B}(::AlwaysFeed, ::B, a=true) = true
 updater(::AlwaysFeed) = EmptyUpdater()
 
 # feed when the previous observation was crying - this is nearly optimal

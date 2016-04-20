@@ -37,6 +37,8 @@ function pdf(d::TigerDistribution, so::Bool)
     so ? (return d.p) : (return 1.0-d.p)
 end
 
+rand(rng::AbstractRNG, d::TigerDistribution, s::Bool) = rand(rng) <= d.p
+
 n_states(::TigerPOMDP) = 2
 n_actions(::TigerPOMDP) = 3
 n_observations(::TigerPOMDP) = 2
@@ -78,6 +80,9 @@ end
 reward(pomdp::TigerPOMDP, s::Bool, a::Int64, sp::Bool) = reward(pomdp, s, a)
 
 
+initial_state_distribution(pomdp::TigerPOMDP) = TigerDistribution(0.5, [true, false])     
+
+
 type TigerStateSpace <: AbstractSpace
     states::Vector{Bool}
 end
@@ -109,9 +114,6 @@ observations(::TigerPOMDP, s::Bool, obs::TigerObservationSpace=observations(pomd
 iterator(space::TigerObservationSpace) = space.obs
 dimensions(::TigerObservationSpace) = 1
 
-rand(rng::AbstractRNG, d::TigerDistribution, s::Bool) = rand(rng) <= d.p
-
-
 function upperbound(pomdp::TigerPOMDP, s::Bool)
     return pomdp.r_escapetiger 
 end
@@ -119,7 +121,7 @@ end
 
 discount(pomdp::TigerPOMDP) = pomdp.discount_factor
 
-type TigerBeliefUpdater <: BeliefUpdater
+type TigerBeliefUpdater <: Updater{TigerDistribution}
     pomdp::TigerPOMDP
 end
 

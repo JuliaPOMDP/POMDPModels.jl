@@ -18,7 +18,7 @@ import POMDPs: length, index, weight # discrete distribution functions
 import POMDPs: rand, pdf # common distribution functions
 import POMDPs: iterator, dimensions # space functions
 import POMDPs: create_state, create_action, create_observation
-import POMDPs: create_transition_distribution, create_observation_distribution, create_belief, initial_belief 
+import POMDPs: create_transition_distribution, create_observation_distribution, create_belief, initial_state_distribution
 import POMDPs: update, updater
 import POMDPs: upperbound
 
