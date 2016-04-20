@@ -20,19 +20,15 @@ type BoolDistribution <: AbstractDistribution{Bool}
 end
 BoolDistribution() = BoolDistribution(0.0)
 
-type BabyExactBelief <: AbstractDistribution 
-    p::Float64 # probability of hungry
-end
-type BabyBeliefUpdater <: Updater{BabyExactBelief}
+type BabyBeliefUpdater <: Updater{BoolDistribution}
     problem::BabyPOMDP
 end
 updater(problem::BabyPOMDP) = BabyBeliefUpdater(problem)
 
 create_transition_distribution(::BabyPOMDP) = BoolDistribution()
 create_observation_distribution(::BabyPOMDP) = BoolDistribution()
-create_belief(::BabyBeliefUpdater) = BabyExactBelief(0.0)
-#create_belief(::BabyPOMDP) = BabyExactBelief(0.0)
-initial_state_distribution(::BabyPOMDP) = BabyExactBelief(0.0)
+create_belief(::BabyBeliefUpdater) = BoolDistribution()
+initial_state_distribution(::BabyPOMDP) = BoolDistribution(0.0)
 
 n_states(::BabyPOMDP) = 2
 n_actions(::BabyPOMDP) = 2
@@ -69,9 +65,9 @@ function reward(pomdp::BabyPOMDP, s::Bool, a::Bool, sp::Bool)
     return r
 end
 
-rand(rng::AbstractRNG, d::Union{BoolDistribution,BabyExactBelief}, s::Bool=false) = rand(rng) <= d.p
+rand(rng::AbstractRNG, d::BoolDistribution, s::Bool=false) = rand(rng) <= d.p
 
-function update(bu::BabyBeliefUpdater, old::BabyExactBelief, a::Bool, o::Bool, b::BabyExactBelief=BabyExactBelief(0.0))
+function update(bu::BabyBeliefUpdater, old::BoolDistribution, a::Bool, o::Bool, b::BoolDistribution=BoolDistribution(0.0))
     p = bu.problem
     if a # feed
         b.p = 0.0
@@ -98,7 +94,7 @@ rand(rng::AbstractRNG, bs::BoolSpace, b::Bool=true) = rand(rng, Bool)
 
 states(::BabyPOMDP) = BoolSpace()
 actions(::BabyPOMDP, s::Bool=true, as::BoolSpace=BoolSpace()) = as
-actions(::BabyPOMDP, b::BabyExactBelief, as::BoolSpace=BoolSpace()) = as
+actions(::BabyPOMDP, b::BoolDistribution, as::BoolSpace=BoolSpace()) = as
 
 discount(p::BabyPOMDP) = p.discount
 
