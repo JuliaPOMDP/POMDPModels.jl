@@ -101,17 +101,17 @@ discount(p::BabyPOMDP) = p.discount
 # some example policies
 type Starve <: Policy end
 action{B}(::Starve, ::B, a=false) = false
-updater(::Starve) = EmptyUpdater()
+updater(::Starve) = VoidUpdater()
 
 type AlwaysFeed <: Policy end
 action{B}(::AlwaysFeed, ::B, a=true) = true
-updater(::AlwaysFeed) = EmptyUpdater()
+updater(::AlwaysFeed) = VoidUpdater()
 
 # feed when the previous observation was crying - this is nearly optimal
 type FeedWhenCrying <: Policy end
 updater(::FeedWhenCrying) = PreviousObservationUpdater{Bool}()
-function action(::FeedWhenCrying, b::PreviousObservation{Bool}, a=false)
-    if get(b.observation, false) == false # not crying (or null)
+function action(::FeedWhenCrying, b::Nullable{Bool}, a=false)
+    if get(b, false) == false # not crying (or null)
         return false
     else # is crying
         return true

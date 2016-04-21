@@ -11,7 +11,7 @@ problem = BabyPOMDP(-5, -10, 0.1, 0.8, 0.1, 0.9)
 sim = RolloutSimulator()
 sim.eps = 0.0001
 sim.initial_state = true
-ib = EmptyBelief()
+ib = nothing
 policy = Starve()
 r = simulate(sim, problem, policy, updater(policy), ib)
 @test_approx_eq_eps r -100.0 0.01
