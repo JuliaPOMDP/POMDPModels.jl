@@ -83,10 +83,12 @@ export
     pdf,
     dimensions,
     upperbound,
-    getindex
+    getindex,
+    initial_state_distribution
 
 include("GridWorlds.jl")
 include("CryingBabies.jl")
 include("TigerPOMDPs.jl")
+
 
 end # module
