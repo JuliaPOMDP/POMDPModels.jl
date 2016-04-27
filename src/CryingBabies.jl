@@ -93,6 +93,7 @@ Base.next(::BoolSpace, st::Int) = (st==0, st+1)
 rand(rng::AbstractRNG, bs::BoolSpace, b::Bool=true) = rand(rng, Bool)
 
 states(::BabyPOMDP) = BoolSpace()
+actions(::BabyPOMDP) = BoolSpace()
 actions(::BabyPOMDP, s_or_b::Any, as::BoolSpace=BoolSpace()) = as
 
 discount(p::BabyPOMDP) = p.discount
