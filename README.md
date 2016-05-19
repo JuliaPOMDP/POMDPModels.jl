@@ -1,8 +1,14 @@
 # POMDPModels
 
-This package provides test models for POMDPs.jl.
+This package provides the following models for POMDPs.jl:
+
+* Grid World
+* Tiger
+* Crying Baby
+* Random 
 
 Installation:
 ```julia
-Pkg.clone("https://github.com/sisl/POMDPModels.jl.git")
+using POMDPs
+Pkg.add("POMDPModels")
 ```
