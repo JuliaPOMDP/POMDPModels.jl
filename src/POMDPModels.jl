@@ -9,6 +9,7 @@ module POMDPModels
 
 using POMDPs
 using POMDPToolbox
+using Distributions
 
 import POMDPs: n_states, n_actions, n_observations # space sizes for discrete problems
 import POMDPs: state_index, action_index, obs_index
@@ -52,6 +53,9 @@ export
     Starve,
     AlwaysFeed,
     FeedWhenCrying,
+    # Discrete
+    DiscreteMDP,
+    DiscretePOMDP,
     # Commons
     n_states,
     n_actions,

@@ -8,8 +8,6 @@
 # while the states with a negative reward are not.
 #################################################################
 
-using POMDPDistributions
-
 #################################################################
 # States and Actions
 #################################################################
@@ -120,15 +118,13 @@ rand(space::GridWorldActionSpace) = space.actions[rand(1:end)]
 type GridWorldDistribution <: AbstractDistribution
     neighbors::Array{GridWorldState}
     probs::Array{Float64} 
-    cat::Categorical
 end
 
 function create_transition_distribution(mdp::GridWorld)
     # can have at most five neighbors in grid world
     neighbors =  [GridWorldState(i,i) for i = 1:5]
     probabilities = zeros(5) + 1.0/5.0
-    cat = Categorical(5)
-    return GridWorldDistribution(neighbors, probabilities, cat)
+    return GridWorldDistribution(neighbors, probabilities)
 end
 
 # returns an iterator over the distirubtion
@@ -147,8 +143,8 @@ end
 
 # TODO these should be cleaned up once rand() stabilizes in pomdps
 function rand(rng::AbstractRNG, d::GridWorldDistribution, s::GridWorldState=GridWorldState(0,0))
-    set_prob!(d.cat, d.probs) # fill the Categorical distribution with our state probabilities
-    d.neighbors[rand(rng, d.cat)] # sample a neighbor state according to the distribution c
+    cat = Categorical(d.probs)
+    d.neighbors[rand(cat)] # sample a neighbor state according to the distribution c
 end
 #= # Don't need these, right?
 function rand(rng::AbstractRNG, d::GridWorldDistribution, s::GridWorldState)
