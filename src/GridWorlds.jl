@@ -100,7 +100,7 @@ function actions(mdp::GridWorld, s=nothing)
 	acts = [GridWorldAction(:up), GridWorldAction(:down), GridWorldAction(:left), GridWorldAction(:right)]
 	return GridWorldActionSpace(acts)
 end
-POMDPs.actions(mdp::GridWorld, s::GridWorldState, as::GridWorldActionSpace) = as;
+actions(mdp::GridWorld, s::GridWorldState, as::GridWorldActionSpace) = as;
 
 # returns an iterator over states or action (arrays in this case)
 iterator(space::GridWorldStateSpace) = space.states

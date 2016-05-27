@@ -35,11 +35,11 @@ n_actions(::BabyPOMDP) = 2
 n_observations(::BabyPOMDP) = 2
 
 function transition(pomdp::BabyPOMDP, s::Bool, a::Bool, d::BoolDistribution=BoolDistribution())
-    if !a && s # don't feed when hungry
+    if !a && s # did not feed when hungry
         d.p = 1.0
-    elseif a # feed
+    elseif a # fed
         d.p = 0.0
-    else # don't feed when not hungry
+    else # did not feed when not hungry
         d.p = pomdp.p_become_hungry
     end
     return d
