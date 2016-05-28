@@ -25,13 +25,13 @@ type DiscretePOMDP <: POMDP{Int64, Int64, Int64}
     na::Int64
     no::Int64
     discount::Float64
-    function DiscreteMDP(T::Array{Float64, 3}, R::Matrix{Float64}, O::Array{Float64, 3}, discount::Float64)
+    function DiscretePOMDP(T::Array{Float64, 3}, R::Matrix{Float64}, O::Array{Float64, 3}, discount::Float64)
         pomdp = new()
         # add some checks
         pomdp.ns, pomdp.na, pomdp.no = size(R, 1), size(R, 2), size(O, 1)
         pomdp.discount = discount
         pomdp.T, pomdp.R, pomdp.O = T, R, O
-        return mdp
+        return pomdp
     end
 end
 
@@ -46,11 +46,11 @@ type DiscreteDistribution <: AbstractDistribution
     it::UnitRange{Int64}
 end
 
-iterator(d::RandomDistribution) = d.it
+iterator(d::DiscreteDistribution) = d.it
 
-pdf(d::RandomDistribution, sp::Int64) = D[sp, d.a, s.s] # T(s', a, s)
+pdf(d::DiscreteDistribution, sp::Int64) = d.D[sp, d.a, d.s] # T(s', a, s)
 
-function rand(rng::AbstractRNG, d::RandomDistribution, s::Int64)
+function rand(rng::AbstractRNG, d::DiscreteDistribution, s::Int64)
     cat = Categorical(d.D[:,d.a,d.s])
     rand(cat)
 end

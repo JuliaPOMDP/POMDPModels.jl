@@ -56,6 +56,9 @@ export
     # Discrete
     DiscreteMDP,
     DiscretePOMDP,
+    # Random
+    RandomMDP,
+    RandomPOMDP,
     # Commons
     n_states,
     n_actions,
@@ -69,6 +72,9 @@ export
     observation,
     create_observation_distribution,
     create_transition_distribution,
+    create_state,
+    create_action,
+    create_observation,
     create_belief,
     reward,
     transition,
@@ -93,6 +99,8 @@ export
 include("GridWorlds.jl")
 include("CryingBabies.jl")
 include("TigerPOMDPs.jl")
+include("Discrete.jl")
+include("Random.jl")
 
 
 end # module
