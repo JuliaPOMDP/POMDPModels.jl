@@ -19,6 +19,7 @@ type BoolDistribution <: AbstractDistribution{Bool}
     p::Float64 # probability of true
 end
 BoolDistribution() = BoolDistribution(0.0)
+pdf(d::BoolDistribution, s::Bool) = s ? d.p : 1.0-d.p
 
 type BabyBeliefUpdater <: Updater{BoolDistribution}
     problem::BabyPOMDP
@@ -31,6 +32,7 @@ create_belief(::BabyBeliefUpdater) = BoolDistribution()
 initial_state_distribution(::BabyPOMDP) = BoolDistribution(0.0)
 
 n_states(::BabyPOMDP) = 2
+state_index(::BabyPOMDP, s::Bool) = s ? 1 : 2
 n_actions(::BabyPOMDP) = 2
 n_observations(::BabyPOMDP) = 2
 
@@ -45,7 +47,7 @@ function transition(pomdp::BabyPOMDP, s::Bool, a::Bool, d::BoolDistribution=Bool
     return d
 end
 
-function observation(pomdp::BabyPOMDP, s::Bool, a::Bool, sp::Bool, d::BoolDistribution=create_observation_distribution(pomdp))
+function observation(pomdp::BabyPOMDP, a::Bool, sp::Bool, d::BoolDistribution=create_observation_distribution(pomdp))
     if sp # hungry
         d.p = pomdp.p_cry_when_hungry
     else
@@ -53,6 +55,7 @@ function observation(pomdp::BabyPOMDP, s::Bool, a::Bool, sp::Bool, d::BoolDistri
     end
     return d
 end
+observation(pomdp::BabyPOMDP, s::Bool, a::Bool, sp::Bool, d::BoolDistribution=create_observation_distribution(pomdp)) = observation(pomdp, a, sp, d)
 
 function reward(pomdp::BabyPOMDP, s::Bool, a::Bool, sp::Bool)
     r = 0.0
