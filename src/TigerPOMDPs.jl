@@ -66,6 +66,11 @@ function observation(pomdp::TigerPOMDP, s::Bool, a::Int64, d::TigerDistribution=
     d
 end
 
+function observation(pomdp::TigerPOMDP, s::Bool, a::Int64, sp::Bool, d::TigerDistribution=create_observation_distribution(pomdp))
+    return observation(pomdp, s, a, d)
+end
+
+
 function reward(pomdp::TigerPOMDP, s::Bool, a::Int64)
     r = 0.0
     a == 0 ? (r+=pomdp.r_listen) : (nothing)
