@@ -1,4 +1,6 @@
 # POMDPModels
+[![Build Status](https://travis-ci.org/JuliaPOMDP/POMDPModels.jl.svg?branch=master)](https://travis-ci.org/JuliaPOMDP/POMDPModels.jl)
+[![Coverage Status](https://coveralls.io/repos/github/JuliaPOMDP/POMDPModels.jl/badge.svg?branch=master)](https://coveralls.io/github/JuliaPOMDP/POMDPModels.jl?branch=master)
 
 This package provides the following models for POMDPs.jl:
 
