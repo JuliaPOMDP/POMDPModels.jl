@@ -1,6 +1,6 @@
 #################################################################
 # This module provides implementations of MDP and POMDP problems
-# in the POMDPs.jl format. These implementations serve as 
+# in the POMDPs.jl format. These implementations serve as
 # examples for new users and as benchmark problems for testing
 # and valdiation.
 #################################################################
@@ -26,12 +26,12 @@ import POMDPs: upperbound
 # for example policies
 import POMDPs: Policy, create_policy, action
 
-import Base.rand! 
+import Base.rand!
 import Base.rand
 import Base.==
 import Base.hash
 
-import GenerativeModels: initial_state
+import GenerativeModels: initial_state, generate_s
 
 export
     # Tiger
@@ -53,6 +53,11 @@ export
     Starve,
     AlwaysFeed,
     FeedWhenCrying,
+    # MountainCar
+    MountainCar,
+    Energize,
+    # InvertedPendulum
+    InvertedPendulum,
     # Discrete
     DiscreteMDP,
     DiscretePOMDP,
@@ -101,6 +106,8 @@ include("CryingBabies.jl")
 include("TigerPOMDPs.jl")
 include("Discrete.jl")
 include("Random.jl")
+include("MountainCar.jl")
+include("InvertedPendulum.jl")
 
 
 end # module
