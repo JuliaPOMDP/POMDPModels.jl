@@ -7,31 +7,33 @@ type MountainCar <: MDP{Tuple{Float64,Float64},Float64}
 end
 MountainCar(;discount::Float64=0.99,cost::Float64=-1.) = MountainCar(discount,cost)
 
-POMDPs.create_state(::MountainCar) = (-0.5,0.,)
-POMDPs.create_action(::MountainCar) = 0.
+create_state(::MountainCar) = (-0.5,0.,)
+create_action(::MountainCar) = 0.
 
 type MountainCarActions <: AbstractSpace
   actions::Vector{Float64}
 end
 MountainCarActions() = MountainCarActions(Float64[-1.,0.,1.])
-POMDPs.actions(::MountainCar) = MountainCarActions(Float64[-1.,0.,1.])
+actions(::MountainCar) = MountainCarActions(Float64[-1.,0.,1.])
+actions(mc::MountainCar,::Tuple{Float64,Float64},as::MountainCarActions=actions(mc)) = as
+rand(rng::AbstractRNG,as::MountainCarActions,a::Float64=0.) = as.actions[rand(rng,1:length(as.actions))]
 
-POMDPs.reward(mc::MountainCar,
+reward(mc::MountainCar,
               s::Tuple{Float64,Float64},
               a::Float64,
               sp::Tuple{Float64,Float64}) = isterminal(mc,s) ? 0. : mc.cost
 
-function GenerativeModels.initial_state(mc::MountainCar,
+function initial_state(mc::MountainCar,
                                         ::AbstractRNG,
                                         sp::Tuple{Float64,Float64}=create_state(mc))
   sp = (-0.5,0.,)
   return sp
 end
 
-POMDPs.isterminal(::MountainCar,s::Tuple{Float64,Float64}) = s[1] >= 0.5
-POMDPs.discount(mc::MountainCar) = mc.discount
+isterminal(::MountainCar,s::Tuple{Float64,Float64}) = s[1] >= 0.5
+discount(mc::MountainCar) = mc.discount
 
-function GenerativeModels.generate_s( mc::MountainCar,
+function generate_s( mc::MountainCar,
                                       s::Tuple{Float64,Float64},
                                       a::Float64,
                                       ::AbstractRNG,
@@ -48,3 +50,7 @@ function GenerativeModels.generate_s( mc::MountainCar,
   sp = (x_,v_,)
   return sp
 end
+
+# Example policy -- works pretty well
+type Energize <: Policy end
+action(::Energize,s::Tuple{Float64,Float64},a::Float64=0.) = sign(s[2])

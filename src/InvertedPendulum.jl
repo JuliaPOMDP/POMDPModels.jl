@@ -36,25 +36,28 @@ end
 type InvertedPendulumActions <: AbstractSpace
   actions::Vector{Float64}
 end
-InvertedPendulumActions(::InvertedPendulum) = InvertedPendulumActions(Float64[-50.;0.;50.])
+InvertedPendulumActions() = InvertedPendulumActions(Float64[-50.;0.;50.])
+actions(ip::InvertedPendulum) = InvertedPendulumActions()
+actions(ip::InvertedPendulum, s::Tuple{Float64,Float64}, as::InvertedPendulumActions=actions(ip)) = as
+rand(rng::AbstractRNG, as::InvertedPendulumActions,a::Float64=0.) = as.actions[rand(rng,1:length(as.actions))]
 
-POMDPs.create_state(::InvertedPendulum) = (0.,0.)
-POMDPS.create_action(::InvertedPendulum) = 0.
+create_state(::InvertedPendulum) = (0.,0.)
+create_action(::InvertedPendulum) = 0.
 
-function GenerativeModel.initial_state( ip::InvertedPendulum,
+function initial_state( ip::InvertedPendulum,
                                         rng::AbstractRNG,
                                         sp::Tuple{Float64,Float64}=create_state(ip))
   sp = ((rand(rng)-0.5)*0.1, (rand(rng)-0.5)*0.1, )
   return sp
 end
 
-POMDPs.reward(ip::InvertedPendulum,
+reward(ip::InvertedPendulum,
               s::Tuple{Float64,Float64},
               a::Float64,
               sp=create_state(ip)) = abs(s[1]) < pi/2 ? 0.: ip.cost
 
-POMDPs.discount(ip::InvertedPendulum) = ip.discount
-POMDPs.isterminal(::InvertedPendulum, s::Tuple{Float64,Float64}) = abs(s[1]) > pi/2.
+discount(ip::InvertedPendulum) = ip.discount
+isterminal(::InvertedPendulum, s::Tuple{Float64,Float64}) = abs(s[1]) > pi/2.
 
 function dwdt(m::InvertedPendulum,th::Float64,w::Float64,u::Float64)
     num = m.g*sin(th)-m.alpha*m.m*m.l*(w^2)*sin(2*th)*0.5 - m.alpha*cos(th)*u
@@ -80,7 +83,7 @@ function euler(m::InvertedPendulum,s::Tuple{Float64,Float64},a::Float64)
     return (th_,w_)
 end
 
-function GenerativeModels.generate_s( ip::InvertedPendulum,
+function generate_s( ip::InvertedPendulum,
                                       s::Tuple{Float64,Float64},
                                       a::Float64,
                                       rng::AbstractRNG,
