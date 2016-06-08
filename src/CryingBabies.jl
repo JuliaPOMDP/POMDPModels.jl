@@ -20,6 +20,7 @@ type BoolDistribution <: AbstractDistribution{Bool}
 end
 BoolDistribution() = BoolDistribution(0.0)
 pdf(d::BoolDistribution, s::Bool) = s ? d.p : 1.0-d.p
+iterator(d::BoolDistribution) = [true, false]
 
 type BabyBeliefUpdater <: Updater{BoolDistribution}
     problem::BabyPOMDP
