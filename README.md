@@ -8,6 +8,8 @@ This package provides the following models for POMDPs.jl:
 * Tiger
 * Crying Baby
 * Random 
+* Mountain Car
+* Inverted Pendulum
 
 ## Installation
 Make sure POMDPs.jl is installed, then run the following code in the Julia REPL:
