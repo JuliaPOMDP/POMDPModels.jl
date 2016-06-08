@@ -38,6 +38,7 @@ function pdf(d::TigerDistribution, so::Bool)
 end
 
 rand(rng::AbstractRNG, d::TigerDistribution, s::Bool) = rand(rng) <= d.p
+rand(rng::AbstractRNG, d::TigerDistribution) = rand(rng) <= d.p
 
 n_states(::TigerPOMDP) = 2
 n_actions(::TigerPOMDP) = 3
@@ -102,7 +103,7 @@ end
 type TigerActionSpace <: AbstractSpace
     actions::Vector{Int64}
 end
-actions(::TigerPOMDP) = TigerActionSpace([0,1,2,])
+actions(::TigerPOMDP) = TigerActionSpace([0,1,2])
 actions(pomdp::TigerPOMDP, s::Bool, acts::TigerActionSpace=actions(pomdp)) = acts
 iterator(space::TigerActionSpace) = space.actions
 dimensions(::TigerActionSpace) = 1
