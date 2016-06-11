@@ -15,13 +15,11 @@ import POMDPs: n_states, n_actions, n_observations # space sizes for discrete pr
 import POMDPs: state_index, action_index, obs_index
 import POMDPs: discount, states, actions, observations # model functions
 import POMDPs: transition, observation, reward, isterminal # model functions
-import POMDPs: length, index, weight # discrete distribution functions
 import POMDPs: rand, pdf # common distribution functions
 import POMDPs: iterator, dimensions # space functions
 import POMDPs: create_state, create_action, create_observation
 import POMDPs: create_transition_distribution, create_observation_distribution, create_belief, initial_state_distribution
 import POMDPs: update, updater
-import POMDPs: upperbound
 
 # for example policies
 import POMDPs: Policy, create_policy, action
