@@ -14,3 +14,5 @@ policy = RandomPolicy(problem)
 sim = RolloutSimulator(MersenneTwister(1))
 
 simulate(sim, problem, policy, GridWorldState(1,1))
+
+trans_prob_consistancy_check(problem)

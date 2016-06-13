@@ -57,10 +57,10 @@ function transition(pomdp::TigerPOMDP, s::Bool, a::Int64, d::TigerDistribution=c
     d
 end
 
-function observation(pomdp::TigerPOMDP, s::Bool, a::Int64, d::TigerDistribution=create_observation_distribution(pomdp))
+function observation(pomdp::TigerPOMDP, a::Int64, sp::Bool, d::TigerDistribution=create_observation_distribution(pomdp))
     pc = pomdp.p_listen_correctly
     if a == 0
-        s ? (d.p = pc) : (d.p = 1.0-pc)
+        sp ? (d.p = pc) : (d.p = 1.0-pc)
     else 
         d.p = 0.5
     end
@@ -68,7 +68,7 @@ function observation(pomdp::TigerPOMDP, s::Bool, a::Int64, d::TigerDistribution=
 end
 
 function observation(pomdp::TigerPOMDP, s::Bool, a::Int64, sp::Bool, d::TigerDistribution=create_observation_distribution(pomdp))
-    return observation(pomdp, s, a, d)
+    return observation(pomdp, a, sp, d)
 end
 
 

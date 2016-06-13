@@ -99,6 +99,7 @@ rand(rng::AbstractRNG, bs::BoolSpace, b::Bool=true) = rand(rng, Bool)
 states(::BabyPOMDP) = BoolSpace()
 actions(::BabyPOMDP) = BoolSpace()
 actions(::BabyPOMDP, s_or_b::Any, as::BoolSpace=BoolSpace()) = as
+observations(::BabyPOMDP) = BoolSpace()
 
 discount(p::BabyPOMDP) = p.discount
 

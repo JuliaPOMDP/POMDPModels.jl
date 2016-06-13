@@ -39,7 +39,7 @@ typealias DiscreteProb Union{DiscreteMDP, DiscretePOMDP}
 
 # Distribution Type and methods
 
-type DiscreteDistribution <: AbstractDistribution
+type DiscreteDistribution <: AbstractDistribution{Int64}
     D::Array{Float64, 3}
     s::Int64
     a::Int64
@@ -57,7 +57,7 @@ end
 
 # Space Type and methods
 
-type DiscreteSpace <: AbstractSpace
+type DiscreteSpace <: AbstractSpace{Int64}
     it::UnitRange{Int64}
 end
 
@@ -92,7 +92,13 @@ end
 reward(prob::DiscreteProb, s::Int64, a::Int64) = prob.R[s, a]
 reward(prob::DiscreteProb, s::Int64, a::Int64, sp::Int64) = prob.R[s, a]
 
-initial_state_distribution(prob::DiscreteProb) = Categorical(prob.ns)
+type StateDist <: AbstractDistribution{Int64}
+    cat::Categorical
+end
+initial_state_distribution(prob::DiscreteProb) = StateDist(Categorical(prob.ns))
+rand(rng::AbstractRNG, d::StateDist, s::Int64) = rand(d.cat)
+pdf(d::StateDist, s::Int64) = pdf(d.cat, s)
+
 
 
 # POMDP only methods
@@ -105,7 +111,7 @@ observations(p::DiscretePOMDP) = DiscreteSpace(1:p.no)
 create_observation_distribution(prob::DiscretePOMDP) = DiscreteDistribution(prob.O, 0, 0, 1:prob.no)
 
 
-function observation(prob::DiscretePOMDP, s::Int64, a::Int64, d::DiscreteDistribution=DiscreteDistribution(prob.O,0,0,1:prob.no))
+function observation(prob::DiscretePOMDP, a::Int64, s::Int64, d::DiscreteDistribution=DiscreteDistribution(prob.O,0,0,1:prob.no))
     d.s = s
     d.a = a
     return d
