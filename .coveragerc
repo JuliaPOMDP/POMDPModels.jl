@@ -1,0 +1,3 @@
+omit =
+    src/InvertedPendulum.jl
+    src/MountainCar.jl
