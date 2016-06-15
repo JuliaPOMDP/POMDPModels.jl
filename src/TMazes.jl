@@ -20,17 +20,17 @@ end
 TMaze(n::Int64) = TMaze(n, 0.95) 
 TMaze() = TMaze(10)
 
-n_states(m::TMaze) = 2 * (maze.n + 1) + 1 # 2*(corr length + 1 (junction)) + 1 (term)
+n_states(m::TMaze) = 2 * (m.n + 1) + 1 # 2*(corr length + 1 (junction)) + 1 (term)
 n_actions(::TMaze) = 4
-n_observations(::TMaze) = 4
+n_observations(::TMaze) = 5
 
-type TMazeStateSpace <: AbstractSpace
+type TMazeStateSpace <: AbstractSpace{TMazeState}
     domain::Vector{TMazeState}
 end
 iterator(s::TMazeStateSpace) = s.domain
 rand(rng::AbstractRNG, space::TMazeStateSpace, s::TMazeState) = space.domain[rand(rng, 1:length(space.domain))]
 
-type TMazeSpace <: AbstractSpace
+type TMazeSpace <: AbstractSpace{Int64}
     domain::Vector{Int64}
 end
 iterator(s::TMazeSpace) = s.domain
@@ -56,7 +56,7 @@ actions(maze::TMaze) = TMazeSpace(collect(1:4))
 observations(maze::TMaze) = TMazeSpace(collect(1:5))
 
 # transition distribution (actions are deterministic)
-type TMazeStateDistribution <: AbstractDistribution
+type TMazeStateDistribution <: AbstractDistribution{TMazeState}
     current_state::TMazeState # deterministic
 end
 create_transition_distribution(::TMaze) = TMazeStateDistribution(TMazeState())
@@ -66,7 +66,7 @@ pdf(d::TMazeStateDistribution, s::TMazeState) = s == d.current_state ? (return 1
 rand(rng::AbstractRNG, d::TMazeStateDistribution, s::TMazeState) = d.current_state
 rand(rng::AbstractRNG, d::TMazeStateDistribution) = d.current_state
 
-type TMazeInit <: AbstractDistribution
+type TMazeInit <: AbstractDistribution{TMazeState}
     states::Vector{TMazeState}
 end
 function initial_state_distribution(maze::TMaze)
@@ -86,7 +86,7 @@ function pdf(d::TMazeInit, s::TMazeState)
 end
 
 # observation distribution (deterministic)
-type TMazeObservationDistribution <: AbstractDistribution
+type TMazeObservationDistribution <: AbstractDistribution{Int64}
     current_observation::Int64
 end
 create_observation_distribution(::TMaze) = TMazeObservationDistribution(1)
