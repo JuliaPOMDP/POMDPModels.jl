@@ -62,6 +62,11 @@ export
     # Random
     RandomMDP,
     RandomPOMDP,
+    # TMaze
+    TMaze,
+    TMazeState,
+    TMazeSpace,
+    TMazeStateSpace,
     # Commons
     n_states,
     n_actions,
@@ -106,6 +111,7 @@ include("Discrete.jl")
 include("Random.jl")
 include("MountainCar.jl")
 include("InvertedPendulum.jl")
+include("TMazes.jl")
 
 
 end # module
