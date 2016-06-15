@@ -10,6 +10,7 @@ This package provides the following models for POMDPs.jl:
 * Random 
 * Mountain Car
 * Inverted Pendulum
+* T-Maze
 
 ## Installation
 Make sure POMDPs.jl is installed, then run the following code in the Julia REPL:
