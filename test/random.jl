@@ -14,7 +14,7 @@ simulate(sim, mdp, policy, 1)
 trans_prob_consistancy_check(mdp)
 
 pomdp = RandomPOMDP(ns, na, no, disc, rng=MersenneTwister(1))
-policy = RandomPolicy(mdp, rng=MersenneTwister(2))
+policy = RandomPolicy(pomdp, rng=MersenneTwister(2))
 sim = RolloutSimulator(rng=MersenneTwister(3), max_steps=100)
         
 simulate(sim, pomdp, policy, updater(policy), initial_state_distribution(pomdp))
