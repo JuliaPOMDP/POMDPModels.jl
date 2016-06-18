@@ -20,6 +20,7 @@ import POMDPs: iterator, dimensions # space functions
 import POMDPs: create_state, create_action, create_observation
 import POMDPs: create_transition_distribution, create_observation_distribution, create_belief, initial_state_distribution
 import POMDPs: update, updater
+import POMDPs: vec
 
 # for example policies
 import POMDPs: Policy, create_policy, action
@@ -29,7 +30,7 @@ import Base.rand
 import Base.==
 import Base.hash
 
-import GenerativeModels: initial_state, generate_s
+import GenerativeModels: initial_state, generate_s, generate_o
 
 export
     # Tiger
@@ -67,6 +68,7 @@ export
     TMazeState,
     TMazeSpace,
     TMazeStateSpace,
+    MazeOptimal,
     # Commons
     n_states,
     n_actions,
@@ -102,7 +104,13 @@ export
     dimensions,
     upperbound,
     getindex,
-    initial_state_distribution
+    initial_state_distribution,
+    vec,
+    # generative model
+    generate_s,
+    generate_o,
+    initial_state
+
 
 include("GridWorlds.jl")
 include("CryingBabies.jl")
