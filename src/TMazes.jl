@@ -6,7 +6,7 @@ end
 TMazeState() = TMazeState(1, :north, false)
 ==(s1::TMazeState, s2::TMazeState) = s1.x == s2.x && s1.g == s2.g
 hash(s::TMazeState, h::UInt64 = zero(UInt64)) = hash(s.x, hash(s.g, h))
-function copy!(s1::TMazeState, s2::TMazeState) 
+function Base.copy!(s1::TMazeState, s2::TMazeState) 
     s1.x = s2.x
     s1.g = s2.g
     s1.term = s2.term
@@ -31,12 +31,14 @@ type TMazeStateSpace <: AbstractSpace{TMazeState}
 end
 iterator(s::TMazeStateSpace) = s.domain
 rand(rng::AbstractRNG, space::TMazeStateSpace, s::TMazeState) = space.domain[rand(rng, 1:length(space.domain))]
+rand(rng::AbstractRNG, space::TMazeStateSpace) = space.domain[rand(rng, 1:length(space.domain))]
 
 type TMazeSpace <: AbstractSpace{Int64}
     domain::Vector{Int64}
 end
 iterator(s::TMazeSpace) = s.domain
 rand(rng::AbstractRNG, space::TMazeSpace, ao::Int64) = space.domain[rand(rng, 1:length(space.domain))]
+rand(rng::AbstractRNG, space::TMazeSpace) = space.domain[rand(rng, 1:length(space.domain))]
 
 
 # state space is length of corr + 3 cells at the end

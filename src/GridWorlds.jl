@@ -51,6 +51,7 @@ type GridWorld <: MDP{GridWorldState, GridWorldAction}
     tprob::Float64 # probability of transitioning to the desired state
     terminals::Set{GridWorldState}
     discount_factor::Float64 # disocunt factor
+    vec_state::Vector{Float64}
 end
 # we use key worded arguments so we can change any of the values we pass in 
 function GridWorld(;sx::Int64=10, # size_x
@@ -66,7 +67,7 @@ function GridWorld(;sx::Int64=10, # size_x
             push!(terminals, rs[i])
         end
     end
-    return GridWorld(sx, sy, rs, rv, penalty, tp, terminals, discount_factor)
+    return GridWorld(sx, sy, rs, rv, penalty, tp, terminals, discount_factor, zeros(3))
 end
 
 create_state(::GridWorld) = GridWorldState()
@@ -322,5 +323,12 @@ function isterminal(mdp::GridWorld, s::GridWorldState)
 end
 
 discount(mdp::GridWorld) = mdp.discount_factor
+
+function vec(mdp::GridWorld, s::GridWorldState)
+    mdp.vec_state[1] = s.x
+    mdp.vec_state[2] = s.y
+    mdp.vec_state[3] = s.bumped
+    return mdp.vec_state
+end
 
 initial_state(mdp::GridWorld, rng::AbstractRNG) = GridWorldState(rand(rng, 1:mdp.size_x), rand(rng, 1:mdp.size_y))

@@ -4,8 +4,9 @@
 type MountainCar <: MDP{Tuple{Float64,Float64},Float64}
   discount::Float64
   cost::Float64
+  vec_state::Vector{Float64}
 end
-MountainCar(;discount::Float64=0.99,cost::Float64=-1.) = MountainCar(discount,cost)
+MountainCar(;discount::Float64=0.99,cost::Float64=-1.) = MountainCar(discount,cost, zeros(2))
 
 create_state(::MountainCar) = (-0.5,0.,)
 create_action(::MountainCar) = 0.
@@ -49,6 +50,12 @@ function generate_s( mc::MountainCar,
   end
   sp = (x_,v_,)
   return sp
+end
+
+
+function vec(mc::MountainCar, s::Tuple{Float64,Float64})
+    copy!(mc.vec_state, s)
+    return mc.vec_state
 end
 
 # Example policy -- works pretty well

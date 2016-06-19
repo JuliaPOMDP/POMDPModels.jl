@@ -16,4 +16,11 @@ policy = Starve()
 r = simulate(sim, problem, policy, updater(policy), ib)
 @test_approx_eq_eps r -100.0 0.01
 
+# test generate_o
+o = generate_o(problem, true, MersenneTwister(1))
+@test o == 1
+# test vec
+ov = vec(problem, true)
+@test ov == [1.]
+
 probability_check(problem)

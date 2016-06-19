@@ -9,6 +9,7 @@ type InvertedPendulum <: MDP{Tuple{Float64,Float64},Float64}
     dt::Float64
     discount::Float64
     cost::Float64
+    vec_state::Vector{Float64}
     # TODO add symbol for which integrator
     function InvertedPendulum(;
                               g::Float64=9.81,
@@ -28,6 +29,7 @@ type InvertedPendulum <: MDP{Tuple{Float64,Float64},Float64}
         self.dt = dt
         self.discount = discount
         self.cost = cost
+        self.vec_state = zeros(2)
         return self
     end
 end
@@ -51,10 +53,12 @@ function initial_state( ip::InvertedPendulum,
   return sp
 end
 
-reward(ip::InvertedPendulum,
+function reward(ip::InvertedPendulum,
               s::Tuple{Float64,Float64},
               a::Float64,
-              sp=create_state(ip)) = abs(s[1]) < pi/2 ? 0.: ip.cost
+              sp::Tuple{Float64,Float64}) 
+    isterminal(ip, sp) ? (return ip.cost) : (return 0.0)
+end
 
 discount(ip::InvertedPendulum) = ip.discount
 isterminal(::InvertedPendulum, s::Tuple{Float64,Float64}) = abs(s[1]) > pi/2.
@@ -93,4 +97,9 @@ function generate_s( ip::InvertedPendulum,
 
   sp = euler(ip, s, a_)
   return sp
+end
+
+function vec(ip::InvertedPendulum, s::Tuple{Float64,Float64})
+    copy!(ip.vec_state, s)
+    return ip.vec_state
 end
