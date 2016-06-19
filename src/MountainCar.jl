@@ -17,6 +17,7 @@ end
 MountainCarActions() = MountainCarActions(Float64[-1.,0.,1.])
 actions(::MountainCar) = MountainCarActions(Float64[-1.,0.,1.])
 actions(mc::MountainCar,::Tuple{Float64,Float64},as::MountainCarActions=actions(mc)) = as
+n_actions(mc::MountainCar) = 3
 rand(rng::AbstractRNG,as::MountainCarActions,a::Float64=0.) = as.actions[rand(rng,1:length(as.actions))]
 
 reward(mc::MountainCar,

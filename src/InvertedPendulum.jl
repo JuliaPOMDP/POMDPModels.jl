@@ -41,6 +41,7 @@ end
 InvertedPendulumActions() = InvertedPendulumActions(Float64[-50.;0.;50.])
 actions(ip::InvertedPendulum) = InvertedPendulumActions()
 actions(ip::InvertedPendulum, s::Tuple{Float64,Float64}, as::InvertedPendulumActions=actions(ip)) = as
+n_actions(ip::InvertedPendulum) = 3
 rand(rng::AbstractRNG, as::InvertedPendulumActions,a::Float64=0.) = as.actions[rand(rng,1:length(as.actions))]
 
 create_state(::InvertedPendulum) = (0.,0.)
