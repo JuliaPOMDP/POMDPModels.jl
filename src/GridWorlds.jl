@@ -15,19 +15,32 @@
 type GridWorldState # this is not immutable because of how it is used in transition(), but maybe it should be
 	x::Int64 # x position
 	y::Int64 # y position
-    bumped::Bool # bumped the wall or not in previous step
-    done::Bool # entered the terminal reward state in previous step
-    GridWorldState(x,y,bumped,done) = new(x,y,bumped,done)
+    done::Bool # entered the terminal reward state in previous step - there is only one terminal state
+    GridWorldState(x,y,done) = new(x,y,done)
     GridWorldState() = new()
 end
 # simpler constructors
-GridWorldState(x::Int64, y::Int64) = GridWorldState(x,y,false,false)
+GridWorldState(x::Int64, y::Int64) = GridWorldState(x,y,false)
 # for state comparison
-==(s1::GridWorldState,s2::GridWorldState) = s1.x == s2.x && s1.y == s2.y && s1.bumped == s2.bumped && s1.done == s2.done
+function ==(s1::GridWorldState,s2::GridWorldState)
+    if s1.done && s2.done
+        return true
+    elseif s1.done || s2.done
+        return false
+    else
+        return posequal(s1, s2)
+    end
+end
 # for hashing states in dictionaries in Monte Carlo Tree Search
 posequal(s1::GridWorldState, s2::GridWorldState) = s1.x == s2.x && s1.y == s2.y
-hash(s::GridWorldState, h::UInt64 = zero(UInt64)) = hash(s.x, hash(s.y, hash(s.bumped, hash(s.done, h))))
-Base.copy!(dest::GridWorldState, src::GridWorldState) = (dest.x=src.x; dest.y=src.y; dest.bumped=src.bumped; dest.done=src.done; return dest)
+function hash(s::GridWorldState, h::UInt64 = zero(UInt64))
+    if s.done
+        return hash(s.done, h)
+    else
+        return hash(s.x, hash(s.y, h))
+    end
+end
+Base.copy!(dest::GridWorldState, src::GridWorldState) = (dest.x=src.x; dest.y=src.y; dest.done=src.done; return dest)
 
 # action taken by the agent indeicates desired travel direction
 immutable GridWorldAction
@@ -67,7 +80,7 @@ function GridWorld(;sx::Int64=10, # size_x
             push!(terminals, rs[i])
         end
     end
-    return GridWorld(sx, sy, rs, rv, penalty, tp, terminals, discount_factor, zeros(3))
+    return GridWorld(sx, sy, rs, rv, penalty, tp, terminals, discount_factor, zeros(2))
 end
 
 create_state(::GridWorld) = GridWorldState()
@@ -76,6 +89,8 @@ create_action(::GridWorld) = GridWorldAction()
 #################################################################
 # State and Action Spaces
 #################################################################
+# This could probably be implemented more efficiently without vectors
+
 # state space
 type GridWorldStateSpace <: AbstractSpace
     states::Vector{GridWorldState}
@@ -89,9 +104,10 @@ function states(mdp::GridWorld)
 	s = GridWorldState[] 
 	size_x = mdp.size_x
 	size_y = mdp.size_y
-    for d = 0:1, b = 0:1, y = 1:mdp.size_y, x = 1:mdp.size_x
-        push!(s, GridWorldState(x,y,b,d))
+    for y = 1:mdp.size_y, x = 1:mdp.size_x
+        push!(s, GridWorldState(x,y,false))
     end
+    push!(s, GridWorldState(0, 0, true))
     return GridWorldStateSpace(s)
 end
 # returns the action space
@@ -142,24 +158,12 @@ function pdf(d::GridWorldDistribution, s::GridWorldState)
     return 0.0
 end
 
-# TODO these should be cleaned up once rand() stabilizes in pomdps
 function rand(rng::AbstractRNG, d::GridWorldDistribution, s::GridWorldState=GridWorldState(0,0))
-    cat = Categorical(d.probs)
-    d.neighbors[rand(cat)] # sample a neighbor state according to the distribution c
+    cat = WeightVec(d.probs)
+    d.neighbors[sample(rng, cat)]
 end
-#= # Don't need these, right?
-function rand(rng::AbstractRNG, d::GridWorldDistribution, s::GridWorldState)
-    set_prob!(d.cat, d.probs) # fill the Categorical distribution with our state probabilities
-    d.neighbors[rand(rng, d.cat)] # sample a neighbor state according to the distribution c
-    copy!(s, sample)
-end
-function rand(rng::AbstractRNG, d::GridWorldDistribution)
-    set_prob!(d.cat, d.probs) # fill the Categorical distribution with our state probabilities
-    d.neighbors[rand(rng, d.cat)] # sample a neighbor state according to the distribution c
-end
-=#
 
-n_states(mdp::GridWorld) = 4*mdp.size_x*mdp.size_y
+n_states(mdp::GridWorld) = mdp.size_x*mdp.size_y+1
 n_actions(mdp::GridWorld) = 4
 
 #check for reward state
@@ -176,10 +180,24 @@ function reward(mdp::GridWorld, state::GridWorldState, action::GridWorldAction, 
 			r += reward_values[i]
 		end
 	end 
-    if state.bumped
+    if !inbounds(mdp, sp)
         r += mdp.bounds_penalty
     end
 	return r
+end
+
+function reward(mdp::GridWorld, state::GridWorldState)
+    @assert mdp.bounds_penalty == 0.0
+	r = 0.0
+	reward_states = mdp.reward_states
+	reward_values = mdp.reward_values
+	n = length(reward_states)
+	for i = 1:n
+		if posequal(state, reward_states[i]) 
+			r += reward_values[i]
+		end
+	end 
+    return r
 end
 
 #checking boundries- x,y --> points of current state
@@ -207,7 +225,6 @@ function fill_probability!(p::Vector{Float64}, val::Float64, index::Int64)
 	end
 end
 
-#function transition!(d::GridWorldDistribution, mdp::GridWorld, state::GridWorldState, action::GridWorldAction)
 function transition(mdp::GridWorld, state::GridWorldState, action::GridWorldAction, d::GridWorldDistribution)
 	a = action.direction 
 	x = state.x
@@ -229,11 +246,9 @@ function transition(mdp::GridWorld, state::GridWorldState, action::GridWorldActi
     if state.done
         fill_probability!(probability, 1.0, 5)
         neighbors[5].done = true
-        neighbors[5].bumped = state.bumped
         return d
     end
 
-    for i = 1:5 neighbors[i].bumped = false end
     for i = 1:5 neighbors[i].done = false end 
     reward_states = mdp.reward_states
     reward_values = mdp.reward_values
@@ -250,7 +265,6 @@ function transition(mdp::GridWorld, state::GridWorldState, action::GridWorldActi
     if a == :right  
 		if !inbounds(mdp, neighbors[1])
 			fill_probability!(probability, 1.0, 5)
-            neighbors[5].bumped = true
 		else
 			probability[1] = 0.7
 		end
@@ -258,7 +272,6 @@ function transition(mdp::GridWorld, state::GridWorldState, action::GridWorldActi
 	elseif a == :left
 		if !inbounds(mdp, neighbors[2])
 			fill_probability!(probability, 1.0, 5)
-            neighbors[5].bumped = true
 		else
 			probability[2] = 0.7
 		end
@@ -266,7 +279,6 @@ function transition(mdp::GridWorld, state::GridWorldState, action::GridWorldActi
 	elseif a == :down
 		if !inbounds(mdp, neighbors[3])
 			fill_probability!(probability, 1.0, 5)
-            neighbors[5].bumped = true
 		else
 			probability[3] = 0.7
 		end
@@ -274,7 +286,6 @@ function transition(mdp::GridWorld, state::GridWorldState, action::GridWorldActi
 	elseif a == :up 
 		if !inbounds(mdp, neighbors[4])
 			fill_probability!(probability, 1.0, 5)
-            neighbors[5].bumped = true
 		else
 			probability[4] = 0.7 
 		end
@@ -312,23 +323,124 @@ function state_index(mdp::GridWorld, s::GridWorldState)
 end
 
 function s2i(mdp::GridWorld, state::GridWorldState)
-    sb = Int(state.bumped + 1)
-    sd = Int(state.done + 1)
-    return sub2ind((mdp.size_x, mdp.size_y, 2, 2), state.x, state.y, sb, sd)
+    if state.done
+        return mdp.size_x*mdp.size_y + 1
+    else
+        return sub2ind((mdp.size_x, mdp.size_y), state.x, state.y)
+    end
 end 
 
 
 function isterminal(mdp::GridWorld, s::GridWorldState)
-    s.done ? (return true) : (return false)
+    return s.done
 end
 
 discount(mdp::GridWorld) = mdp.discount_factor
 
+#XXX It doesn't seem like a good idea to have vec_state as a member of the mdp to me (zsunberg)
 function vec(mdp::GridWorld, s::GridWorldState)
     mdp.vec_state[1] = s.x
     mdp.vec_state[2] = s.y
-    mdp.vec_state[3] = s.bumped
     return mdp.vec_state
 end
 
 initial_state(mdp::GridWorld, rng::AbstractRNG) = GridWorldState(rand(rng, 1:mdp.size_x), rand(rng, 1:mdp.size_y))
+
+# Visualization
+
+#=
+function colorval(val, brightness::Real = 1.0)
+  val = convert(Vector{Float64}, val)
+  x = 255 - min(255, 255 * (abs(val) ./ 10.0) .^ brightness)
+  r = 255 * ones(size(val))
+  g = 255 * ones(size(val))
+  b = 255 * ones(size(val))
+  r[val .>= 0] = x[val .>= 0]
+  b[val .>= 0] = x[val .>= 0]
+  g[val .< 0] = x[val .< 0]
+  b[val .< 0] = x[val .< 0]
+  (r, g, b)
+end
+
+function plot(g::GridWorld, f::Function)
+  V = map(f, g.S)
+  plot(g, V)
+end
+
+function plot(obj::GridWorld, V::Vector; curState=0)
+  o = IOBuffer()
+  sqsize = 1.0
+  twid = 0.05
+  (r, g, b) = colorval(V)
+  for s = obj.S
+    (yval, xval) = s2xy(s)
+    yval = 10 - yval
+    println(o, "\\definecolor{currentcolor}{RGB}{$(r[s]),$(g[s]),$(b[s])}")
+    println(o, "\\fill[currentcolor] ($((xval-1) * sqsize),$((yval) * sqsize)) rectangle +($sqsize,$sqsize);")
+    if s == curState
+      println(o, "\\fill[orange] ($((xval-1) * sqsize),$((yval) * sqsize)) rectangle +($sqsize,$sqsize);")
+    end
+    vs = @sprintf("%0.2f", V[s])
+    println(o, "\\node[above right] at ($((xval-1) * sqsize), $((yval) * sqsize)) {\$$(vs)\$};")
+  end
+  println(o, "\\draw[black] grid(10,10);")
+  tikzDeleteIntermediate(false)
+  TikzPicture(takebuf_string(o), options="scale=1.25")
+end
+
+function plot(g::GridWorld, f::Function, policy::Function; curState=0)
+  V = map(f, g.S)
+  plot(g, V, policy, curState=curState)
+end
+
+function plot(obj::GridWorld, V::Vector, policy::Function; curState=0)
+  P = map(policy, obj.S)
+  plot(obj, V, P, curState=curState)
+end
+
+function plot(obj::GridWorld, V::Vector, policy::Vector; curState=0)
+  o = IOBuffer()
+  sqsize = 1.0
+  twid = 0.05
+  (r, g, b) = colorval(V)
+  for s in obj.S
+    (yval, xval) = s2xy(s)
+    yval = 10 - yval
+    println(o, "\\definecolor{currentcolor}{RGB}{$(r[s]),$(g[s]),$(b[s])}")
+    println(o, "\\fill[currentcolor] ($((xval-1) * sqsize),$((yval) * sqsize)) rectangle +($sqsize,$sqsize);")
+    if s == curState
+      println(o, "\\fill[orange] ($((xval-1) * sqsize),$((yval) * sqsize)) rectangle +($sqsize,$sqsize);")
+    end
+  end
+  println(o, "\\begin{scope}[fill=gray]")
+  for s in obj.S
+    (yval, xval) = s2xy(s)
+    yval = 10 - yval + 1
+    c = [xval, yval] * sqsize - sqsize / 2
+    C = [c'; c'; c']'
+    RightArrow = [0 0 sqsize/2; twid -twid 0]
+    if policy[s] == :left
+      A = [-1 0; 0 -1] * RightArrow + C
+      println(o, "\\fill ($(A[1]), $(A[2])) -- ($(A[3]), $(A[4])) -- ($(A[5]), $(A[6])) -- cycle;")
+    end
+    if policy[s] == :right
+      A = RightArrow + C
+      println(o, "\\fill ($(A[1]), $(A[2])) -- ($(A[3]), $(A[4])) -- ($(A[5]), $(A[6])) -- cycle;")
+    end
+    if policy[s] == :up
+      A = [0 -1; 1 0] * RightArrow + C
+      println(o, "\\fill ($(A[1]), $(A[2])) -- ($(A[3]), $(A[4])) -- ($(A[5]), $(A[6])) -- cycle;")
+    end
+    if policy[s] == :down
+      A = [0 1; -1 0] * RightArrow + C
+      println(o, "\\fill ($(A[1]), $(A[2])) -- ($(A[3]), $(A[4])) -- ($(A[5]), $(A[6])) -- cycle;")
+    end
+
+    vs = @sprintf("%0.2f", V[s])
+    println(o, "\\node[above right] at ($((xval-1) * sqsize), $((yval-1) * sqsize)) {\$$(vs)\$};")
+  end
+  println(o, "\\end{scope}");
+  println(o, "\\draw[black] grid(10,10);");
+  TikzPicture(takebuf_string(o), options="scale=1.25")
+end
+=#
