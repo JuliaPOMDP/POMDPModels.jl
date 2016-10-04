@@ -34,6 +34,9 @@ import Base.hash
 
 import GenerativeModels: initial_state, generate_s, generate_o
 
+# for grid world visualization
+using TikzPictures
+
 export
     # Tiger
     TigerPOMDP,
@@ -47,6 +50,7 @@ export
     GridWorldState,
     GridWorldAction,
     GridWorldDistribution,
+    plot,
     # CryingBabies
     BabyPOMDP,
     BoolDistribution,

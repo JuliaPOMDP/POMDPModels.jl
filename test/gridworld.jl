@@ -28,3 +28,5 @@ sv = vec(problem, GridWorldState(5, 3, false))
 @test hash(GridWorldState(1,2,true)) == hash(GridWorldState(1,1,true))
 
 trans_prob_consistancy_check(problem)
+
+plot(problem, state=GridWorldState(1,1))

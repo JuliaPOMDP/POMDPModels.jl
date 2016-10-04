@@ -71,7 +71,7 @@ function GridWorld(;sx::Int64=10, # size_x
                     sy::Int64=10, # size_y
                     rs::Vector{GridWorldState}=[GridWorldState(4,3), GridWorldState(4,6), GridWorldState(9,3), GridWorldState(8,8)],
                     rv::Vector{Float64}=[-10.,-5,10,3], 
-                    penalty::Float64=-1.0, # bounds penalty
+                    penalty::Float64=0.0, # bounds penalty
                     tp::Float64=0.7, # tprob
                     discount_factor::Float64=0.95)
     terminals = Set{GridWorldState}()
@@ -330,6 +330,10 @@ function s2i(mdp::GridWorld, state::GridWorldState)
     end
 end 
 
+#=
+function i2s(mdp::GridWorld, i::Int)
+end
+=#
 
 function isterminal(mdp::GridWorld, s::GridWorldState)
     return s.done
@@ -348,7 +352,6 @@ initial_state(mdp::GridWorld, rng::AbstractRNG) = GridWorldState(rand(rng, 1:mdp
 
 # Visualization
 
-#=
 function colorval(val, brightness::Real = 1.0)
   val = convert(Vector{Float64}, val)
   x = 255 - min(255, 255 * (abs(val) ./ 10.0) .^ brightness)
@@ -363,84 +366,92 @@ function colorval(val, brightness::Real = 1.0)
 end
 
 function plot(g::GridWorld, f::Function)
-  V = map(f, g.S)
-  plot(g, V)
+    V = map(f, iterator(states(g)))
+    plot(g, V)
 end
 
-function plot(obj::GridWorld, V::Vector; curState=0)
-  o = IOBuffer()
-  sqsize = 1.0
-  twid = 0.05
-  (r, g, b) = colorval(V)
-  for s = obj.S
-    (yval, xval) = s2xy(s)
-    yval = 10 - yval
-    println(o, "\\definecolor{currentcolor}{RGB}{$(r[s]),$(g[s]),$(b[s])}")
-    println(o, "\\fill[currentcolor] ($((xval-1) * sqsize),$((yval) * sqsize)) rectangle +($sqsize,$sqsize);")
-    if s == curState
-      println(o, "\\fill[orange] ($((xval-1) * sqsize),$((yval) * sqsize)) rectangle +($sqsize,$sqsize);")
+function plot(mdp::GridWorld, V::Vector, state=GridWorldState(0,0,true))
+    o = IOBuffer()
+    sqsize = 1.0
+    twid = 0.05
+    (r, g, b) = colorval(V)
+    for s in iterator(states(mdp))
+        if !s.done
+            (yval, xval) = (s.x, s.y)
+            i = state_index(mdp, s)
+            yval = 10 - yval
+            println(o, "\\definecolor{currentcolor}{RGB}{$(r[i]),$(g[i]),$(b[i])}")
+            println(o, "\\fill[currentcolor] ($((xval-1) * sqsize),$((yval) * sqsize)) rectangle +($sqsize,$sqsize);")
+            if s == state
+                println(o, "\\fill[orange] ($((xval-1) * sqsize),$((yval) * sqsize)) rectangle +($sqsize,$sqsize);")
+            end
+            vs = @sprintf("%0.2f", V[i])
+            println(o, "\\node[above right] at ($((xval-1) * sqsize), $((yval) * sqsize)) {\$$(vs)\$};")
+        end
     end
-    vs = @sprintf("%0.2f", V[s])
-    println(o, "\\node[above right] at ($((xval-1) * sqsize), $((yval) * sqsize)) {\$$(vs)\$};")
-  end
-  println(o, "\\draw[black] grid(10,10);")
-  tikzDeleteIntermediate(false)
-  TikzPicture(takebuf_string(o), options="scale=1.25")
+    println(o, "\\draw[black] grid(10,10);")
+    tikzDeleteIntermediate(false)
+    TikzPicture(takebuf_string(o), options="scale=1.25")
 end
 
-function plot(g::GridWorld, f::Function, policy::Function; curState=0)
-  V = map(f, g.S)
-  plot(g, V, policy, curState=curState)
+function plot(mdp::GridWorld, state=GridWorldState(0,0,true))
+    plot(mdp, zeros(n_states(mdp)), state)
 end
 
-function plot(obj::GridWorld, V::Vector, policy::Function; curState=0)
-  P = map(policy, obj.S)
-  plot(obj, V, P, curState=curState)
+function plot(g::GridWorld, f::Function, policy::Policy, state=GridWorldState(0,0,true))
+    V = map(f, iterator(states(g)))
+    plot(g, V, policy, state)
 end
 
-function plot(obj::GridWorld, V::Vector, policy::Vector; curState=0)
-  o = IOBuffer()
-  sqsize = 1.0
-  twid = 0.05
-  (r, g, b) = colorval(V)
-  for s in obj.S
-    (yval, xval) = s2xy(s)
-    yval = 10 - yval
-    println(o, "\\definecolor{currentcolor}{RGB}{$(r[s]),$(g[s]),$(b[s])}")
-    println(o, "\\fill[currentcolor] ($((xval-1) * sqsize),$((yval) * sqsize)) rectangle +($sqsize,$sqsize);")
-    if s == curState
-      println(o, "\\fill[orange] ($((xval-1) * sqsize),$((yval) * sqsize)) rectangle +($sqsize,$sqsize);")
+function plot(mdp::GridWorld, V::Vector, policy::Policy, state=GridWorldState(0,0,true))
+    o = IOBuffer()
+    sqsize = 1.0
+    twid = 0.05
+    (r, g, b) = colorval(V)
+    for s in iterator(states(mdp))
+        if !s.done
+            (yval, xval) = (s.x, s.y)
+            i = state_index(mdp, s)
+            yval = 10 - yval
+            println(o, "\\definecolor{currentcolor}{RGB}{$(r[i]),$(g[i]),$(b[i])}")
+            println(o, "\\fill[currentcolor] ($((xval-1) * sqsize),$((yval) * sqsize)) rectangle +($sqsize,$sqsize);")
+            if s == state
+                println(o, "\\fill[orange] ($((xval-1) * sqsize),$((yval) * sqsize)) rectangle +($sqsize,$sqsize);")
+            end
+        end
     end
-  end
-  println(o, "\\begin{scope}[fill=gray]")
-  for s in obj.S
-    (yval, xval) = s2xy(s)
-    yval = 10 - yval + 1
-    c = [xval, yval] * sqsize - sqsize / 2
-    C = [c'; c'; c']'
-    RightArrow = [0 0 sqsize/2; twid -twid 0]
-    if policy[s] == :left
-      A = [-1 0; 0 -1] * RightArrow + C
-      println(o, "\\fill ($(A[1]), $(A[2])) -- ($(A[3]), $(A[4])) -- ($(A[5]), $(A[6])) -- cycle;")
-    end
-    if policy[s] == :right
-      A = RightArrow + C
-      println(o, "\\fill ($(A[1]), $(A[2])) -- ($(A[3]), $(A[4])) -- ($(A[5]), $(A[6])) -- cycle;")
-    end
-    if policy[s] == :up
-      A = [0 -1; 1 0] * RightArrow + C
-      println(o, "\\fill ($(A[1]), $(A[2])) -- ($(A[3]), $(A[4])) -- ($(A[5]), $(A[6])) -- cycle;")
-    end
-    if policy[s] == :down
-      A = [0 1; -1 0] * RightArrow + C
-      println(o, "\\fill ($(A[1]), $(A[2])) -- ($(A[3]), $(A[4])) -- ($(A[5]), $(A[6])) -- cycle;")
-    end
+    println(o, "\\begin{scope}[fill=gray]")
+    for s in iterator(states(mdp))
+        if !s.done
+            (yval, xval) = (s.x, s.y)
+            i = state_index(mdp, s)
+            yval = 10 - yval + 1
+            c = [xval, yval] * sqsize - sqsize / 2
+            C = [c'; c'; c']'
+            RightArrow = [0 0 sqsize/2; twid -twid 0]
+            dir = action(policy, s).direction
+            if dir == :left
+                A = [-1 0; 0 -1] * RightArrow + C
+                println(o, "\\fill ($(A[1]), $(A[2])) -- ($(A[3]), $(A[4])) -- ($(A[5]), $(A[6])) -- cycle;")
+            end
+            if dir == :right
+                A = RightArrow + C
+                println(o, "\\fill ($(A[1]), $(A[2])) -- ($(A[3]), $(A[4])) -- ($(A[5]), $(A[6])) -- cycle;")
+            end
+            if dir == :up
+                A = [0 -1; 1 0] * RightArrow + C
+                println(o, "\\fill ($(A[1]), $(A[2])) -- ($(A[3]), $(A[4])) -- ($(A[5]), $(A[6])) -- cycle;")
+            end
+            if dir == :down
+                A = [0 1; -1 0] * RightArrow + C
+                println(o, "\\fill ($(A[1]), $(A[2])) -- ($(A[3]), $(A[4])) -- ($(A[5]), $(A[6])) -- cycle;")
+            end
 
-    vs = @sprintf("%0.2f", V[s])
-    println(o, "\\node[above right] at ($((xval-1) * sqsize), $((yval-1) * sqsize)) {\$$(vs)\$};")
-  end
-  println(o, "\\end{scope}");
-  println(o, "\\draw[black] grid(10,10);");
-  TikzPicture(takebuf_string(o), options="scale=1.25")
+            vs = @sprintf("%0.2f", V[i])
+            println(o, "\\node[above right] at ($((xval-1) * sqsize), $((yval-1) * sqsize)) {\$$(vs)\$};")
+        end
+    end
+    println(o, "\\end{scope}");
+    println(o, "\\draw[black] grid(10,10);");
+    TikzPicture(takebuf_string(o), options="scale=1.25")
 end
-=#
