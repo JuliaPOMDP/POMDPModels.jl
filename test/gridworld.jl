@@ -7,6 +7,7 @@
 using POMDPModels
 using POMDPToolbox
 using Base.Test
+using NBInclude
 
 problem = GridWorld()
 
@@ -29,4 +30,4 @@ sv = vec(problem, GridWorldState(5, 3, false))
 
 trans_prob_consistancy_check(problem)
 
-plot(problem, state=GridWorldState(1,1))
+nbinclude(joinpath(Pkg.dir("POMDPModels"), "notebooks", "GridWorld Visualization.ipynb"))
