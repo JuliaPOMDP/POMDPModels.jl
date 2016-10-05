@@ -50,6 +50,7 @@ export
     GridWorldState,
     GridWorldAction,
     GridWorldDistribution,
+    static_reward,
     plot,
     # CryingBabies
     BabyPOMDP,

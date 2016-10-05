@@ -166,28 +166,24 @@ end
 n_states(mdp::GridWorld) = mdp.size_x*mdp.size_y+1
 n_actions(mdp::GridWorld) = 4
 
-#check for reward state
-function reward(mdp::GridWorld, state::GridWorldState, action::GridWorldAction, sp::GridWorldState)
+function reward(mdp::GridWorld, state::GridWorldState, action::GridWorldAction, statep::GridWorldState)
     if state.done
         return 0.0
     end
 	r = 0.0
-	reward_states = mdp.reward_states
-	reward_values = mdp.reward_values
-	n = length(reward_states)
-	for i = 1:n
-		if posequal(state, reward_states[i]) 
-			r += reward_values[i]
-		end
-	end 
-    if !inbounds(mdp, sp)
+    r += static_reward(mdp, state)
+    if posequal(state, statep) # bumped is the only way this can happen
         r += mdp.bounds_penalty
     end
 	return r
 end
 
-function reward(mdp::GridWorld, state::GridWorldState)
-    @assert mdp.bounds_penalty == 0.0
+"""
+    static_reward(mdp::GridWorld, state::GridWorldState)
+
+Return the reward for being in the state (the reward not including bumping)
+"""
+function static_reward(mdp::GridWorld, state::GridWorldState)
 	r = 0.0
 	reward_states = mdp.reward_states
 	reward_values = mdp.reward_values
@@ -253,16 +249,13 @@ function transition(mdp::GridWorld, state::GridWorldState, action::GridWorldActi
     reward_states = mdp.reward_states
     reward_values = mdp.reward_values
 	n = length(reward_states)
-	for i = 1:n
-		#if state == reward_states[i] && reward_values[i] > 0.0
-		if posequal(state, reward_states[i]) && reward_values[i] > 0.0
-			fill_probability!(probability, 1.0, 5)
-            neighbors[5].done = true
-            return d
-		end
-	end 
+    if state in mdp.terminals
+		fill_probability!(probability, 1.0, 5)
+        neighbors[5].done = true
+        return d
+    end
 
-    if a == :right  
+    if a == :right
 		if !inbounds(mdp, neighbors[1])
 			fill_probability!(probability, 1.0, 5)
 		else
@@ -283,7 +276,7 @@ function transition(mdp::GridWorld, state::GridWorldState, action::GridWorldActi
 			probability[3] = 0.7
 		end
 
-	elseif a == :up 
+	elseif a == :up
 		if !inbounds(mdp, neighbors[4])
 			fill_probability!(probability, 1.0, 5)
 		else
@@ -377,7 +370,7 @@ function plot(mdp::GridWorld, V::Vector, state=GridWorldState(0,0,true))
     (r, g, b) = colorval(V)
     for s in iterator(states(mdp))
         if !s.done
-            (yval, xval) = (s.x, s.y)
+            (xval, yval) = (s.x, mdp.size_y-s.y+1)
             i = state_index(mdp, s)
             yval = 10 - yval
             println(o, "\\definecolor{currentcolor}{RGB}{$(r[i]),$(g[i]),$(b[i])}")
@@ -410,7 +403,7 @@ function plot(mdp::GridWorld, V::Vector, policy::Policy, state=GridWorldState(0,
     (r, g, b) = colorval(V)
     for s in iterator(states(mdp))
         if !s.done
-            (yval, xval) = (s.x, s.y)
+            (xval, yval) = (s.x, mdp.size_y-s.y+1)
             i = state_index(mdp, s)
             yval = 10 - yval
             println(o, "\\definecolor{currentcolor}{RGB}{$(r[i]),$(g[i]),$(b[i])}")
@@ -423,7 +416,7 @@ function plot(mdp::GridWorld, V::Vector, policy::Policy, state=GridWorldState(0,
     println(o, "\\begin{scope}[fill=gray]")
     for s in iterator(states(mdp))
         if !s.done
-            (yval, xval) = (s.x, s.y)
+            (xval, yval) = (s.x, mdp.size_y-s.y+1)
             i = state_index(mdp, s)
             yval = 10 - yval + 1
             c = [xval, yval] * sqsize - sqsize / 2
