@@ -71,7 +71,7 @@ function GridWorld(;sx::Int64=10, # size_x
                     sy::Int64=10, # size_y
                     rs::Vector{GridWorldState}=[GridWorldState(4,3), GridWorldState(4,6), GridWorldState(9,3), GridWorldState(8,8)],
                     rv::Vector{Float64}=[-10.,-5,10,3], 
-                    penalty::Float64=0.0, # bounds penalty
+                    penalty::Float64=0.0, # penalty for trying to go out of bounds
                     tp::Float64=0.7, # tprob
                     discount_factor::Float64=0.95)
     terminals = Set{GridWorldState}()
@@ -166,13 +166,13 @@ end
 n_states(mdp::GridWorld) = mdp.size_x*mdp.size_y+1
 n_actions(mdp::GridWorld) = 4
 
-function reward(mdp::GridWorld, state::GridWorldState, action::GridWorldAction, statep::GridWorldState)
+function reward(mdp::GridWorld, state::GridWorldState, action::GridWorldAction)
     if state.done
         return 0.0
     end
 	r = 0.0
     r += static_reward(mdp, state)
-    if posequal(state, statep) # bumped is the only way this can happen
+    if !inbounds(mdp, state, action)
         r += mdp.bounds_penalty
     end
 	return r
@@ -209,6 +209,26 @@ function inbounds(mdp::GridWorld,state::GridWorldState)
 	x = state.x #point x of state
 	y = state.y
 	return inbounds(mdp, x, y)
+end
+
+"""
+    inbounds(mdp::GridWorld, s::GridWorldState, a::GridWorldAction)
+
+Return false if `a` is trying to go out of bounds, true otherwise.
+"""
+function inbounds(mdp::GridWorld, s::GridWorldState, a::GridWorldAction)
+    sdir = GridWorldState(s.x, s.y, s.done)
+    if a.direction == :right
+        sdir.x += 1
+    elseif a.direction == :left
+        sdir.x -= 1
+    elseif a.direction == :up
+        sdir.y += 1
+    else
+        # @assert a.direction == :down
+        sdir.y -= 1
+    end
+    return inbounds(mdp, sdir)
 end
 
 function fill_probability!(p::Vector{Float64}, val::Float64, index::Int64)
