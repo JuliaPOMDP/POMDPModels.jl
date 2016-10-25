@@ -73,15 +73,21 @@ function GridWorld(;sx::Int64=10, # size_x
                     rv::Vector{Float64}=[-10.,-5,10,3], 
                     penalty::Float64=0.0, # penalty for trying to go out of bounds
                     tp::Float64=0.7, # tprob
-                    discount_factor::Float64=0.95)
+                    discount_factor::Float64=0.95,
+                    terminals=Set{GridWorldState}([rs[i] for i in filter(i->rv[i]>0.0, 1:length(rs))]))
+    return GridWorld(sx, sy, rs, rv, penalty, tp, terminals, discount_factor, zeros(2))
+end
+
+# convenience function
+function term_from_rs(rs, rv)
     terminals = Set{GridWorldState}()
     for (i,v) in enumerate(rv)
         if v > 0.0
             push!(terminals, rs[i])
         end
     end
-    return GridWorld(sx, sy, rs, rv, penalty, tp, terminals, discount_factor, zeros(2))
 end
+
 
 create_state(::GridWorld) = GridWorldState()
 create_action(::GridWorld) = GridWorldAction()
