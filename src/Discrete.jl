@@ -51,8 +51,8 @@ iterator(d::DiscreteDistribution) = d.it
 pdf(d::DiscreteDistribution, sp::Int64) = d.D[sp, d.a, d.s] # T(s', a, s)
 
 function rand(rng::AbstractRNG, d::DiscreteDistribution, s::Int64)
-    cat = Categorical(d.D[:,d.a,d.s])
-    rand(cat)
+    cat = WeightVec(d.D[:,d.a,d.s])
+    return sample(rng, cat)
 end
 
 # Space Type and methods
@@ -98,8 +98,6 @@ end
 initial_state_distribution(prob::DiscreteProb) = StateDist(Categorical(prob.ns))
 rand(rng::AbstractRNG, d::StateDist, s::Int64) = rand(d.cat)
 pdf(d::StateDist, s::Int64) = pdf(d.cat, s)
-
-
 
 # POMDP only methods
 
