@@ -165,8 +165,22 @@ function pdf(d::GridWorldDistribution, s::GridWorldState)
 end
 
 function rand(rng::AbstractRNG, d::GridWorldDistribution, s::GridWorldState=GridWorldState(0,0))
-    cat = WeightVec(d.probs)
-    d.neighbors[sample(rng, cat)]
+    # assume the sum of d.probs is one
+    t = rand(rng)
+    n = length(d.neighbors)
+    i = 1
+    c = d.probs[1]
+    while c < t && i < n
+        i += 1
+        @inbounds c += d.probs[i]
+    end
+    new = d.neighbors[i]
+    # cat = WeightVec(d.probs)
+    # new = d.neighbors[sample(rng, cat)]
+    s.x = new.x
+    s.y = new.y
+    s.done = new.done
+    return s
 end
 
 n_states(mdp::GridWorld) = mdp.size_x*mdp.size_y+1
