@@ -22,6 +22,9 @@ end
 BoolDistribution() = BoolDistribution(0.0)
 pdf(d::BoolDistribution, s::Bool) = s ? d.p : 1.0-d.p
 iterator(d::BoolDistribution) = [true, false]
+Base.length(d::BoolDistribution) = 2
+index(d::BoolDistribution, s::Bool) = s ? 1:2
+Base.convert(t::Type{DiscreteBelief}, b::BoolDistribution) = DiscreteBelief([b.p, 1.0-b.p])
 
 type BabyBeliefUpdater <: Updater{BoolDistribution}
     problem::BabyPOMDP
@@ -35,6 +38,7 @@ initial_state_distribution(::BabyPOMDP) = BoolDistribution(0.0)
 
 n_states(::BabyPOMDP) = 2
 state_index(::BabyPOMDP, s::Bool) = s ? 1 : 2
+action_index(::BabyPOMDP, s::Bool) = s ? 1 : 2
 n_actions(::BabyPOMDP) = 2
 n_observations(::BabyPOMDP) = 2
 
@@ -59,7 +63,7 @@ function observation(pomdp::BabyPOMDP, a::Bool, sp::Bool, d::BoolDistribution=cr
 end
 observation(pomdp::BabyPOMDP, s::Bool, a::Bool, sp::Bool, d::BoolDistribution=create_observation_distribution(pomdp)) = observation(pomdp, a, sp, d)
 
-function reward(pomdp::BabyPOMDP, s::Bool, a::Bool, sp::Bool)
+function reward(pomdp::BabyPOMDP, s::Bool, a::Bool)
     r = 0.0
     if s # hungry
         r += pomdp.r_hungry
