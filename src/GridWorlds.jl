@@ -331,6 +331,22 @@ function transition(mdp::GridWorld, state::GridWorldState, action::GridWorldActi
 end
 
 
+function action_index(mdp::GridWorld, a::GridWorldAction)
+    # lazy, replace with switches when they arrive
+    if a.direction == :up
+        return 1
+    elseif a.direction == :down
+        return 2
+    elseif a.direction == :left
+        return 3
+    elseif a.direction == :right
+        return 4
+    else
+        error("Invalid action symbol")
+    end
+end
+
+
 function state_index(mdp::GridWorld, s::GridWorldState)
     return s2i(mdp, s)
 end
