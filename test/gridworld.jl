@@ -13,9 +13,18 @@ problem = GridWorld()
 
 policy = RandomPolicy(problem)
 
-sim = RolloutSimulator(MersenneTwister(1))
+sim = HistoryRecorder(rng=MersenneTwister(1), max_steps=1000)
 
 simulate(sim, problem, policy, GridWorldState(1,1))
+
+for i in 1:length(sim.action_hist)
+    td = transition(problem, sim.state_hist[i], sim.action_hist[i])
+    @test_approx_eq_eps sum(td.probs) 1.0 0.01
+    for p in td.probs
+        @test p >= 0.0
+    end
+end
+
 
 sv = vec(problem, GridWorldState(1, 1, false))
 @test sv == [1.0, 1.0]
