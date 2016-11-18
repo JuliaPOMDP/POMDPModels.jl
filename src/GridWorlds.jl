@@ -269,7 +269,7 @@ function transition(mdp::GridWorld, state::GridWorldState, action::GridWorldActi
     neighbors = d.neighbors
     probability = d.probs
     
-    fill!(probability, 0.1)
+    fill!(probability, 0.0)
     probability[5] = 0.0 
 
     neighbors[1].x = x+1; neighbors[1].y = y
@@ -295,59 +295,42 @@ function transition(mdp::GridWorld, state::GridWorldState, action::GridWorldActi
         return d
     end
 
+    target_neighbor = 0
     if a == :right
-		if !inbounds(mdp, neighbors[1])
-			fill_probability!(probability, 1.0, 5)
-		else
-			probability[1] = 0.7
-		end
-
+        target_neighbor = 1
 	elseif a == :left
-		if !inbounds(mdp, neighbors[2])
-			fill_probability!(probability, 1.0, 5)
-		else
-			probability[2] = 0.7
-		end
-
+        target_neighbor = 2
 	elseif a == :down
-		if !inbounds(mdp, neighbors[3])
-			fill_probability!(probability, 1.0, 5)
-		else
-			probability[3] = 0.7
-		end
-
+        target_neighbor = 3
 	elseif a == :up
-		if !inbounds(mdp, neighbors[4])
-			fill_probability!(probability, 1.0, 5)
-		else
-			probability[4] = 0.7 
-		end
+        target_neighbor = 4
 	end
+    # @assert target_neighbor > 0
 
-    count = 0
-    new_probability = 0.1
-    
-    for i = 1:length(neighbors)
-        if !inbounds(mdp, neighbors[i])
-         count += 1
-            probability[i] = 0.0
-         end
-     end
- 
-    if count == 1 
-        new_probability = 0.15
-    elseif count == 2
-        new_probability = 0.3
-    end 
-    
-    if count > 0 
+	if !inbounds(mdp, neighbors[target_neighbor])
+		fill_probability!(probability, 1.0, 5)
+	else
+		probability[target_neighbor] = mdp.tprob
+
+        oob_count = 0 # number of out of bounds neighbors
+        
         for i = 1:length(neighbors)
-            if probability[i] == 0.1
-               probability[i] = new_probability
+             if !inbounds(mdp, neighbors[i])
+                oob_count += 1
+                @assert probability[i] == 0.0
+             end
+        end
+
+        new_probability = (1.0 - mdp.tprob)/(3-oob_count)
+
+        for i = 1:4 # do not include neighbor 5
+            if inbounds(mdp, neighbors[i]) && i != target_neighbor
+                probability[i] = new_probability
             end
         end
-    end
-    d
+	end
+
+    return d
 end
 
 
