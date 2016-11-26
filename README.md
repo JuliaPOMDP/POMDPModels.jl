@@ -16,7 +16,7 @@ This package provides the following models for POMDPs.jl:
 Make sure POMDPs.jl is installed, then run the following code in the Julia REPL:
 ```julia
 using POMDPs
-Pkg.add("POMDPModels")
+POMDPs.add("POMDPModels")
 ```
 
 ## Usage
