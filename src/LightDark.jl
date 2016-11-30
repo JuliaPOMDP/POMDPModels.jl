@@ -72,8 +72,21 @@ function rand(rng::AbstractRNG, asp::LightDark1DActionSpace, a::Int64)
     return a
 end
 
-function initial_state(p::LightDark1D, rng::AbstractRNG)
-    return LightDark1DState(0, 2+Base.randn(rng)*3)
+# function initial_state(p::LightDark1D, rng::AbstractRNG)
+#     return LightDark1DState(0, 2+Base.randn(rng)*3)
+# end
+
+type LDNormalStateDist <: AbstractDistribution{LightDark1DState}
+    mean::Float64
+    std::Float64
+end
+
+function rand(rng::AbstractRNG, d::LDNormalStateDist)
+    return LightDark1DState(0, d.mean + randn(rng)*d.std)
+end
+
+function initial_state_distribution(pomdp::LightDark1D)
+    return LDNormalStateDist(2, 3)
 end
 
 sigma(x::Float64) = abs(x - 5)/sqrt(2) + 1e-2
@@ -81,7 +94,9 @@ function generate_o(p::LightDark1D, s, a, sp::LightDark1DState, rng::AbstractRNG
     return sp.y + Base.randn(rng)*sigma(sp.y)
 end
 
-function generate_sor(p::LightDark1D, s::LightDark1DState, a::Int64, rng::AbstractRNG)
+function generate_sor(p::LightDark1D, s::LightDark1DState, a::Int64, rng::AbstractRNG,
+                      sp::LightDark1DState=create_state(p),
+                      o::Float64=1.0)
     if s.status < 0                  # Terminal state
         sprime = copy(s)
         o = generate_o(p, nothing, nothing, sprime, rng)
