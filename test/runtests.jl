@@ -1,4 +1,5 @@
 using POMDPModels
+using POMDPBounds
 using Base.Test
 
 # write your own tests here
@@ -9,3 +10,4 @@ include("tiger.jl")
 include("tmaze.jl")
 include("inverted.jl")
 include("car.jl")
+include("lightdark.jl")

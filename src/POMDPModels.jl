@@ -37,46 +37,72 @@ import GenerativeModels: initial_state, generate_s, generate_o
 # for grid world visualization
 using TikzPictures
 
+include("TigerPOMDPs.jl")
 export
-    # Tiger
     TigerPOMDP,
     TigerDistribution,
     TigerStateSpace,
     TigerActionSpace,
     TigerObservationSpace,
-    TigerBeliefUpdater,
-    # Grid World
+    TigerBeliefUpdater
+
+
+include("GridWorlds.jl")
+export
     GridWorld,
     GridWorldState,
     GridWorldAction,
     GridWorldDistribution,
     static_reward,
-    plot,
-    # CryingBabies
+    plot
+
+include("CryingBabies.jl")
+export
     BabyPOMDP,
     BoolDistribution,
     BabyBeliefUpdater,
     Starve,
     AlwaysFeed,
-    FeedWhenCrying,
-    # MountainCar
+    FeedWhenCrying
+
+include("MountainCar.jl")
+export
     MountainCar,
-    Energize,
-    # InvertedPendulum
-    InvertedPendulum,
-    # Discrete
+    Energize
+
+include("InvertedPendulum.jl")
+export
+    InvertedPendulum
+
+include("Discrete.jl")
+export
     DiscreteMDP,
-    DiscretePOMDP,
-    # Random
+    DiscretePOMDP
+
+include("Random.jl")
+export
     RandomMDP,
-    RandomPOMDP,
-    # TMaze
+    RandomPOMDP
+
+include("TMazes.jl")
+export
     TMaze,
     TMazeState,
     TMazeSpace,
     TMazeStateSpace,
-    MazeOptimal,
-    # Commons
+    MazeOptimal
+
+include("LightDark.jl")
+export
+    LightDark1D,
+    LightDark1DState,
+    LightDark1DActionSpace,
+    LightDark1DLowerBound,
+    LightDark1DUpperBound,
+    DummyHeuristic1DPolicy,
+    SmartHeuristic1DPolicy
+
+export
     n_states,
     n_actions,
     n_observations,
@@ -97,7 +123,6 @@ export
     transition,
     length,
     index,
-    weight,
     #domain,
     iterator,
     rand,
@@ -117,16 +142,5 @@ export
     generate_s,
     generate_o,
     initial_state
-
-
-include("GridWorlds.jl")
-include("CryingBabies.jl")
-include("TigerPOMDPs.jl")
-include("Discrete.jl")
-include("Random.jl")
-include("MountainCar.jl")
-include("InvertedPendulum.jl")
-include("TMazes.jl")
-
 
 end # module
