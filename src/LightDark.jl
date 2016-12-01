@@ -1,7 +1,11 @@
+# A one-dimensional light-dark problem, originally used to test MCVI
+# A very simple POMDP with continuous state and observation spaces.
+# maintained by @zsunberg
+
 import Base: ==, +, *, -
 
 using POMDPs
-import POMDPs: create_state, discount, isterminal, pdf, actions, iterator, n_actions
+import POMDPs: create_state, discount, isterminal, pdf, actions, iterator, n_actions, initial_state_distribution
 using GenerativeModels
 import GenerativeModels: generate_sor, generate_o, initial_state
 import POMDPBounds: lower_bound, upper_bound, Bound
@@ -14,12 +18,8 @@ type LightDark1DState
     LightDark1DState(x, y) = new(x, y)
 end
 
-# FIXME Status arithmetic
 ==(s1::LightDark1DState, s2::LightDark1DState) = (s1.status == s2.status) && (s1.y == s2.y)
-+(s1::LightDark1DState, s2::LightDark1DState) = LightDark1DState(s1.status+s2.status, s1.y+s2.y)
--(s1::LightDark1DState, s2::LightDark1DState) = LightDark1DState(s1.status-s2.status, s1.y-s2.y)
 *(n::Number, s::LightDark1DState) = LightDark1DState(s.status, n*s.y)
-*(s1::LightDark1DState, s2::LightDark1DState) = LightDark1DState(s1.status*s2.status, s1.y*s2.y)
 
 Base.hash(s::LightDark1DState, h::UInt64=zero(UInt64)) = hash(s.status, hash(s.y, h))
 copy(s::LightDark1DState) = LightDark1DState(s.status, s.y)
@@ -36,11 +36,10 @@ Model
 ...| | | | | | | | ...
           G   S
 
-Here R is the goal. S is the starting location
+Here G is the goal. S is the starting location
 """
 type LightDark1D <: POMDPs.POMDP{LightDark1DState,Int64,Float64}
     discount_factor::Float64
-    # lower_act::Int64
     correct_r::Float64
     incorrect_r::Float64
     step_size::Float64
@@ -67,21 +66,14 @@ iterator(space::LightDark1DActionSpace) = space.actions
 dimensions(::LightDark1DActionSpace) = 1
 n_actions(p::LightDark1D) = length(actions(p))
 
-function rand(rng::AbstractRNG, asp::LightDark1DActionSpace, a::Int64)
-    a = rand(rng, iterator(asp))
-    return a
-end
-
-# function initial_state(p::LightDark1D, rng::AbstractRNG)
-#     return LightDark1DState(0, 2+Base.randn(rng)*3)
-# end
+rand(rng::AbstractRNG, asp::LightDark1DActionSpace, a::Int64) = rand(rng, iterator(asp))
 
 type LDNormalStateDist <: AbstractDistribution{LightDark1DState}
     mean::Float64
     std::Float64
 end
 
-function rand(rng::AbstractRNG, d::LDNormalStateDist)
+function rand(rng::AbstractRNG, d::LDNormalStateDist, sample::LightDark1DState=LightDark1DState())
     return LightDark1DState(0, d.mean + randn(rng)*d.std)
 end
 
