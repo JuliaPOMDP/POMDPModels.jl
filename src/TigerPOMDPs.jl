@@ -12,6 +12,7 @@ create_state(::TigerPOMDP) = zero(Bool)
 create_observation(::TigerPOMDP) = zero(Bool)
 create_action(::TigerPOMDP) = zero(Int64)
 state_index(::TigerPOMDP, s::Bool) = Int64(s) + 1
+action_index(::TigerPOMDP, a::Int) = a+1
 
 create_belief(::TigerPOMDP) = DiscreteBelief(2)
 initial_belief(::TigerPOMDP) = DiscreteBelief(2)
@@ -44,7 +45,6 @@ rand(rng::AbstractRNG, d::TigerDistribution) = rand(rng) <= d.p
 n_states(::TigerPOMDP) = 2
 n_actions(::TigerPOMDP) = 3
 n_observations(::TigerPOMDP) = 2
-
 
 # Resets the problem after opening door; does nothing after listening
 function transition(pomdp::TigerPOMDP, s::Bool, a::Int64, d::TigerDistribution=create_transition_distribution(pomdp))
