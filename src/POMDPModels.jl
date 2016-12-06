@@ -52,6 +52,8 @@ export
     GridWorld,
     GridWorldState,
     GridWorldAction,
+    GridWorldActionSpace,
+    GridWorldStateSpace,
     GridWorldDistribution,
     static_reward,
     plot

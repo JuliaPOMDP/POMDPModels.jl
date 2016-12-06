@@ -60,7 +60,7 @@ type GridWorld <: MDP{GridWorldState, GridWorldAction}
 	size_y::Int64 # y size of the grid
 	reward_states::Vector{GridWorldState} # the states in which agent recieves reward
 	reward_values::Vector{Float64} # reward values for those states
-    bounds_penalty::Float64 # penalty for bumping the wall
+    bounds_penalty::Float64 # penalty for bumping the wall (will be added to reward)
     tprob::Float64 # probability of transitioning to the desired state
     terminals::Set{GridWorldState}
     discount_factor::Float64 # disocunt factor
@@ -71,7 +71,7 @@ function GridWorld(;sx::Int64=10, # size_x
                     sy::Int64=10, # size_y
                     rs::Vector{GridWorldState}=[GridWorldState(4,3), GridWorldState(4,6), GridWorldState(9,3), GridWorldState(8,8)],
                     rv::Vector{Float64}=[-10.,-5,10,3], 
-                    penalty::Float64=0.0, # penalty for trying to go out of bounds
+                    penalty::Float64=0.0, # penalty for trying to go out of bounds  (will be added to reward)
                     tp::Float64=0.7, # tprob
                     discount_factor::Float64=0.95,
                     terminals=Set{GridWorldState}([rs[i] for i in filter(i->rv[i]>0.0, 1:length(rs))]))
@@ -272,11 +272,11 @@ function transition(mdp::GridWorld, state::GridWorldState, action::GridWorldActi
     fill!(probability, 0.0)
     probability[5] = 0.0 
 
-    neighbors[1].x = x+1; neighbors[1].y = y
-    neighbors[2].x = x-1; neighbors[2].y = y
-    neighbors[3].x = x; neighbors[3].y = y-1
-    neighbors[4].x = x; neighbors[4].y = y+1
-    neighbors[5].x = x; neighbors[5].y = y
+    neighbors[1].x = x+1; neighbors[1].y = y # right
+    neighbors[2].x = x-1; neighbors[2].y = y # left
+    neighbors[3].x = x; neighbors[3].y = y-1 # down
+    neighbors[4].x = x; neighbors[4].y = y+1 # up
+    neighbors[5].x = x; neighbors[5].y = y   # stay
 
 
     if state.done
@@ -294,7 +294,9 @@ function transition(mdp::GridWorld, state::GridWorldState, action::GridWorldActi
         neighbors[5].done = true
         return d
     end
-
+	
+    # The following match the definition of neighbors
+    # given above
     target_neighbor = 0
     if a == :right
         target_neighbor = 1
@@ -308,6 +310,8 @@ function transition(mdp::GridWorld, state::GridWorldState, action::GridWorldActi
     # @assert target_neighbor > 0
 
 	if !inbounds(mdp, neighbors[target_neighbor])
+                # If would transition out of bounds, stay in
+                # same cell with probability 1
 		fill_probability!(probability, 1.0, 5)
 	else
 		probability[target_neighbor] = mdp.tprob
