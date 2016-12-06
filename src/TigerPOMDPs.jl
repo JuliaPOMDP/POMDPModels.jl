@@ -12,7 +12,8 @@ create_state(::TigerPOMDP) = zero(Bool)
 create_observation(::TigerPOMDP) = zero(Bool)
 create_action(::TigerPOMDP) = zero(Int64)
 state_index(::TigerPOMDP, s::Bool) = Int64(s) + 1
-action_index(::TigerPOMDP, a::Int) = a+1
+action_index(::TigerPOMDP, a::Int) = a + 1
+obs_index(::TigerPOMDP, o::Bool) = Int64(o) + 1
 
 create_belief(::TigerPOMDP) = DiscreteBelief(2)
 initial_belief(::TigerPOMDP) = DiscreteBelief(2)
