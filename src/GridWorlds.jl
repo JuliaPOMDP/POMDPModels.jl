@@ -310,8 +310,8 @@ function transition(mdp::GridWorld, state::GridWorldState, action::GridWorldActi
     # @assert target_neighbor > 0
 
 	if !inbounds(mdp, neighbors[target_neighbor])
-                # If would transition out of bounds, stay in
-                # same cell with probability 1
+        # If would transition out of bounds, stay in
+        # same cell with probability 1
 		fill_probability!(probability, 1.0, 5)
 	else
 		probability[target_neighbor] = mdp.tprob
