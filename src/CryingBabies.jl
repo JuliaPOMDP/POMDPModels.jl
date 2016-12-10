@@ -31,9 +31,6 @@ type BabyBeliefUpdater <: Updater{BoolDistribution}
 end
 updater(problem::BabyPOMDP) = BabyBeliefUpdater(problem)
 
-create_transition_distribution(::BabyPOMDP) = BoolDistribution()
-create_observation_distribution(::BabyPOMDP) = BoolDistribution()
-create_belief(::BabyBeliefUpdater) = BoolDistribution()
 initial_state_distribution(::BabyPOMDP) = BoolDistribution(0.0)
 
 n_states(::BabyPOMDP) = 2
@@ -42,7 +39,7 @@ action_index(::BabyPOMDP, s::Bool) = s ? 1 : 2
 n_actions(::BabyPOMDP) = 2
 n_observations(::BabyPOMDP) = 2
 
-function transition(pomdp::BabyPOMDP, s::Bool, a::Bool, d::BoolDistribution=BoolDistribution())
+function transition(pomdp::BabyPOMDP, s::Bool, a::Bool)
     if !a && s # did not feed when hungry
         d.p = 1.0
     elseif a # fed
@@ -53,7 +50,7 @@ function transition(pomdp::BabyPOMDP, s::Bool, a::Bool, d::BoolDistribution=Bool
     return d
 end
 
-function observation(pomdp::BabyPOMDP, a::Bool, sp::Bool, d::BoolDistribution=create_observation_distribution(pomdp))
+function observation(pomdp::BabyPOMDP, a::Bool, sp::Bool)
     if sp # hungry
         d.p = pomdp.p_cry_when_hungry
     else
@@ -61,7 +58,7 @@ function observation(pomdp::BabyPOMDP, a::Bool, sp::Bool, d::BoolDistribution=cr
     end
     return d
 end
-observation(pomdp::BabyPOMDP, s::Bool, a::Bool, sp::Bool, d::BoolDistribution=create_observation_distribution(pomdp)) = observation(pomdp, a, sp, d)
+observation(pomdp::BabyPOMDP, s::Bool, a::Bool, sp::Bool) = observation(pomdp, a, sp, d)
 
 function reward(pomdp::BabyPOMDP, s::Bool, a::Bool)
     r = 0.0
@@ -74,9 +71,9 @@ function reward(pomdp::BabyPOMDP, s::Bool, a::Bool)
     return r
 end
 
-rand(rng::AbstractRNG, d::BoolDistribution, s::Bool=false) = rand(rng) <= d.p
+rand(rng::AbstractRNG, d::BoolDistribution) = rand(rng) <= d.p
 
-function update(bu::BabyBeliefUpdater, old::BoolDistribution, a::Bool, o::Bool, b::BoolDistribution=BoolDistribution(0.0))
+function update(bu::BabyBeliefUpdater, old::BoolDistribution, a::Bool, o::Bool)
     p = bu.problem
     if a # feed
         b.p = 0.0
@@ -103,12 +100,11 @@ rand(rng::AbstractRNG, bs::BoolSpace, b::Bool=true) = rand(rng, Bool)
 
 states(::BabyPOMDP) = BoolSpace()
 actions(::BabyPOMDP) = BoolSpace()
-actions(::BabyPOMDP, s_or_b::Any, as::BoolSpace=BoolSpace()) = as
 observations(::BabyPOMDP) = BoolSpace()
 
 discount(p::BabyPOMDP) = p.discount
 
-function generate_o(p::BabyPOMDP, s::Bool, rng::AbstractRNG, o::Bool=create_observation(p))
+function generate_o(p::BabyPOMDP, s::Bool, rng::AbstractRNG)
     d = observation(p, create_action(p), s) # obs distrubtion not action dependant
     return rand(rng, d)
 end
