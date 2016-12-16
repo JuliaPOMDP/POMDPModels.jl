@@ -89,9 +89,6 @@ function term_from_rs(rs, rv)
 end
 
 
-create_state(::GridWorld) = GridWorldState()
-create_action(::GridWorld) = GridWorldAction()
-
 #################################################################
 # State and Action Spaces
 #################################################################
@@ -121,17 +118,16 @@ function actions(mdp::GridWorld, s=nothing)
 	acts = [GridWorldAction(:up), GridWorldAction(:down), GridWorldAction(:left), GridWorldAction(:right)]
 	return GridWorldActionSpace(acts)
 end
-actions(mdp::GridWorld, s::GridWorldState, as::GridWorldActionSpace) = as;
 
 # returns an iterator over states or action (arrays in this case)
 iterator(space::GridWorldStateSpace) = space.states
 iterator(space::GridWorldActionSpace) = space.actions
 
 # sampling and mutating methods
-rand(rng::AbstractRNG, space::GridWorldStateSpace, s::GridWorldState=GridWorldState(0,0)) = space.states[rand(rng, 1:end)]
+rand(rng::AbstractRNG, space::GridWorldStateSpace) = space.states[rand(rng, 1:end)]
 rand(space::GridWorldStateSpace) = space.states[rand(1:end)]
 
-rand(rng::AbstractRNG, space::GridWorldActionSpace, a::GridWorldAction=GridWorldAction(:up)) = space.actions[rand(rng,1:end)]
+rand(rng::AbstractRNG, space::GridWorldActionSpace) = space.actions[rand(rng,1:end)]
 rand(space::GridWorldActionSpace) = space.actions[rand(1:end)]
 
 #################################################################
@@ -143,12 +139,6 @@ type GridWorldDistribution <: AbstractDistribution
     probs::Array{Float64} 
 end
 
-function create_transition_distribution(mdp::GridWorld)
-    # can have at most five neighbors in grid world
-    neighbors =  [GridWorldState(i,i) for i = 1:5]
-    probabilities = zeros(5) + 1.0/5.0
-    return GridWorldDistribution(neighbors, probabilities)
-end
 
 # returns an iterator over the distirubtion
 function POMDPs.iterator(d::GridWorldDistribution)
@@ -261,23 +251,24 @@ function fill_probability!(p::Vector{Float64}, val::Float64, index::Int64)
 	end
 end
 
-function transition(mdp::GridWorld, state::GridWorldState, action::GridWorldAction, d::GridWorldDistribution)
+function transition(mdp::GridWorld, state::GridWorldState, action::GridWorldAction)
+
 	a = action.direction 
 	x = state.x
 	y = state.y 
+
+    neighbors = [
+        GridWorldState(x+1, y, false), # right
+        GridWorldState(x-1, y, false), # left
+        GridWorldState(x, y-1, false), # down
+        GridWorldState(x, y+1, false), # up
+        GridWorldState(x, y, false)    # stay
+       ]
+
+    d = GridWorldDistribution(neighbors, Array(Float64, 5)) 
     
-    neighbors = d.neighbors
     probability = d.probs
-    
     fill!(probability, 0.0)
-    probability[5] = 0.0 
-
-    neighbors[1].x = x+1; neighbors[1].y = y # right
-    neighbors[2].x = x-1; neighbors[2].y = y # left
-    neighbors[3].x = x; neighbors[3].y = y-1 # down
-    neighbors[4].x = x; neighbors[4].y = y+1 # up
-    neighbors[5].x = x; neighbors[5].y = y   # stay
-
 
     if state.done
         fill_probability!(probability, 1.0, 5)

@@ -16,7 +16,7 @@ BabyPOMDP(r_feed, r_hungry) = BabyPOMDP(r_feed, r_hungry, 0.1, 0.8, 0.1, 0.9, ze
 BabyPOMDP() = BabyPOMDP(-5., -10.)
 
 # TODO: this should be moved to POMDPDistributions.jl
-type BoolDistribution <: AbstractDistribution{Bool}
+immutable BoolDistribution <: AbstractDistribution{Bool}
     p::Float64 # probability of true
 end
 BoolDistribution() = BoolDistribution(0.0)
@@ -41,24 +41,22 @@ n_observations(::BabyPOMDP) = 2
 
 function transition(pomdp::BabyPOMDP, s::Bool, a::Bool)
     if !a && s # did not feed when hungry
-        d.p = 1.0
+        return BoolDistribution(1.0)
     elseif a # fed
-        d.p = 0.0
+        return BoolDistribution(0.0)
     else # did not feed when not hungry
-        d.p = pomdp.p_become_hungry
+        return BoolDistribution(pomdp.p_become_hungry)
     end
-    return d
 end
 
 function observation(pomdp::BabyPOMDP, a::Bool, sp::Bool)
     if sp # hungry
-        d.p = pomdp.p_cry_when_hungry
+        return BoolDistribution(pomdp.p_cry_when_hungry)
     else
-        d.p = pomdp.p_cry_when_not_hungry
+        return BoolDistribution(pomdp.p_cry_when_not_hungry)
     end
-    return d
 end
-observation(pomdp::BabyPOMDP, s::Bool, a::Bool, sp::Bool) = observation(pomdp, a, sp, d)
+observation(pomdp::BabyPOMDP, s::Bool, a::Bool, sp::Bool) = observation(pomdp, a, sp)
 
 function reward(pomdp::BabyPOMDP, s::Bool, a::Bool)
     r = 0.0
@@ -105,7 +103,7 @@ observations(::BabyPOMDP) = BoolSpace()
 discount(p::BabyPOMDP) = p.discount
 
 function generate_o(p::BabyPOMDP, s::Bool, rng::AbstractRNG)
-    d = observation(p, create_action(p), s) # obs distrubtion not action dependant
+    d = observation(p, true, s) # obs distrubtion not action dependant
     return rand(rng, d)
 end
 
