@@ -26,13 +26,13 @@ n_states(m::TMaze) = 2 * (m.n + 1) + 1 # 2*(corr length + 1 (junction)) + 1 (ter
 n_actions(::TMaze) = 4
 n_observations(::TMaze) = 5
 
-type TMazeStateSpace <: AbstractSpace{TMazeState}
+type TMazeStateSpace
     domain::Vector{TMazeState}
 end
 iterator(s::TMazeStateSpace) = s.domain
 rand(rng::AbstractRNG, space::TMazeStateSpace) = space.domain[rand(rng, 1:length(space.domain))]
 
-type TMazeSpace <: AbstractSpace{Int64}
+type TMazeSpace
     domain::Vector{Int64}
 end
 iterator(s::TMazeSpace) = s.domain
@@ -58,7 +58,7 @@ actions(maze::TMaze) = TMazeSpace(collect(1:4))
 observations(maze::TMaze) = TMazeSpace(collect(1:5))
 
 # transition distribution (actions are deterministic)
-type TMazeStateDistribution <: AbstractDistribution{TMazeState}
+type TMazeStateDistribution
     current_state::TMazeState # deterministic
     reset::Bool
     reset_states::Vector{TMazeState}
@@ -90,7 +90,7 @@ function rand(rng::AbstractRNG, d::TMazeStateDistribution)
 end
 #rand(rng::AbstractRNG, d::TMazeStateDistribution) 
 
-type TMazeInit <: AbstractDistribution{TMazeState}
+type TMazeInit
     states::Vector{TMazeState}
     probs::Vector{Float64}
 end
@@ -126,7 +126,7 @@ function pdf(d::TMazeInit, s::TMazeState)
 end
 
 # observation distribution (deterministic)
-type TMazeObservationDistribution <: AbstractDistribution{Int64}
+type TMazeObservationDistribution
     current_observation::Int64
 end
 create_observation_distribution(::TMaze) = TMazeObservationDistribution(1)
@@ -271,7 +271,7 @@ end
 MazeBelief() = MazeBelief(1, :none)
 
 type MazeUpdater <: Updater{MazeBelief} end
-POMDPs.initialize_belief(bu::MazeUpdater, d::AbstractDistribution) = b
+POMDPs.initialize_belief(bu::MazeUpdater, d::Any) = b
 
 function POMDPs.update(bu::MazeUpdater, b::MazeBelief, a, o)
     bp::MazeBelief=create_belief(bu)

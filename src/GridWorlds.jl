@@ -95,11 +95,11 @@ end
 # This could probably be implemented more efficiently without vectors
 
 # state space
-type GridWorldStateSpace <: AbstractSpace
+type GridWorldStateSpace
     states::Vector{GridWorldState}
 end
 # action space
-type GridWorldActionSpace <: AbstractSpace
+type GridWorldActionSpace
     actions::Vector{GridWorldAction}
 end
 # returns the state space
@@ -134,7 +134,7 @@ rand(space::GridWorldActionSpace) = space.actions[rand(1:end)]
 # Distributions
 #################################################################
 
-type GridWorldDistribution <: AbstractDistribution
+type GridWorldDistribution
     neighbors::Array{GridWorldState}
     probs::Array{Float64} 
 end

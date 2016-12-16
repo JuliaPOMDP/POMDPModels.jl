@@ -18,7 +18,7 @@ const listen = 0
 const openleft = 1
 const openright = 2
 
-type TigerDistribution <: AbstractDistribution
+type TigerDistribution
     p::Float64
     it::Vector{Bool}
 end
@@ -85,7 +85,7 @@ reward(pomdp::TigerPOMDP, s::Bool, a::Int64, sp::Bool) = reward(pomdp, s, a)
 initial_state_distribution(pomdp::TigerPOMDP) = TigerDistribution(0.5, [true, false])     
 
 
-type TigerStateSpace <: AbstractSpace
+type TigerStateSpace
     states::Vector{Bool}
 end
 states(::TigerPOMDP) = TigerStateSpace([true, false])
@@ -96,7 +96,7 @@ function rand(rng::AbstractRNG, space::TigerStateSpace)
     p > 0.5 ? (return true) : (return false)
 end
 
-type TigerActionSpace <: AbstractSpace
+type TigerActionSpace
     actions::Vector{Int64}
 end
 actions(::TigerPOMDP) = TigerActionSpace([0,1,2])
@@ -108,7 +108,7 @@ function rand(rng::AbstractRNG, space::TigerActionSpace)
     return a
 end
 
-type TigerObservationSpace <: AbstractSpace
+type TigerObservationSpace
     obs::Vector{Bool}
 end
 observations(::TigerPOMDP) = TigerObservationSpace([true, false])

@@ -39,7 +39,7 @@ typealias DiscreteProb Union{DiscreteMDP, DiscretePOMDP}
 
 # Distribution Type and methods
 
-type DiscreteDistribution <: AbstractDistribution{Int64}
+type DiscreteDistribution
     D::Array{Float64, 3}
     s::Int64
     a::Int64
@@ -57,7 +57,7 @@ end
 
 # Space Type and methods
 
-type DiscreteSpace <: AbstractSpace{Int64}
+type DiscreteSpace
     it::UnitRange{Int64}
 end
 
@@ -89,7 +89,7 @@ end
 reward(prob::DiscreteProb, s::Int64, a::Int64) = prob.R[s, a]
 reward(prob::DiscreteProb, s::Int64, a::Int64, sp::Int64) = prob.R[s, a]
 
-type StateDist <: AbstractDistribution{Int64}
+type StateDist
     cat::Vector{Float64}
 end
 initial_state_distribution(prob::DiscreteProb) = StateDist(ones(prob.ns)/prob.ns)

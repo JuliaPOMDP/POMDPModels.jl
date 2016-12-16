@@ -50,7 +50,7 @@ isterminal(::LightDark1D, act::Int64) = act == 0
 
 isterminal(::LightDark1D, s::LightDark1DState) = s.status < 0
 
-type LightDark1DActionSpace <: POMDPs.AbstractSpace{Int64}
+type LightDark1DActionSpace
     actions::Vector{Int64}
 end
 Base.length(asp::LightDark1DActionSpace) = length(asp.actions)
@@ -62,7 +62,7 @@ n_actions(p::LightDark1D) = length(actions(p))
 
 rand(rng::AbstractRNG, asp::LightDark1DActionSpace) = rand(rng, iterator(asp))
 
-type LDNormalStateDist <: AbstractDistribution{LightDark1DState}
+type LDNormalStateDist
     mean::Float64
     std::Float64
 end

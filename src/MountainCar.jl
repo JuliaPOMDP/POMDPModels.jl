@@ -9,7 +9,7 @@ type MountainCar <: MDP{Tuple{Float64,Float64},Float64}
 end
 MountainCar(;discount::Float64=0.99,cost::Float64=-1., jackpot::Float64=0.0) = MountainCar(discount,cost,jackpot,zeros(2))
 
-type MountainCarActions <: AbstractSpace
+type MountainCarActions
   actions::Vector{Float64}
 end
 MountainCarActions() = MountainCarActions(Float64[-1.,0.,1.])

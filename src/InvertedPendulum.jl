@@ -35,7 +35,7 @@ type InvertedPendulum <: MDP{Tuple{Float64,Float64},Float64}
 end
 
 
-type InvertedPendulumActions <: AbstractSpace
+type InvertedPendulumActions
   actions::Vector{Float64}
 end
 InvertedPendulumActions() = InvertedPendulumActions(Float64[-50.;0.;50.])

@@ -16,7 +16,7 @@ BabyPOMDP(r_feed, r_hungry) = BabyPOMDP(r_feed, r_hungry, 0.1, 0.8, 0.1, 0.9, ze
 BabyPOMDP() = BabyPOMDP(-5., -10.)
 
 # TODO: this should be moved to POMDPDistributions.jl
-immutable BoolDistribution <: AbstractDistribution{Bool}
+immutable BoolDistribution
     p::Float64 # probability of true
 end
 BoolDistribution() = BoolDistribution(0.0)
@@ -89,7 +89,7 @@ end
 
 dimensions(::BoolDistribution) = 1
 
-type BoolSpace <: AbstractSpace{Bool} end
+type BoolSpace end
 iterator(bs::BoolSpace) = bs
 Base.start(::BoolSpace) = 0
 Base.done(::BoolSpace, st::Int) = st > 1
