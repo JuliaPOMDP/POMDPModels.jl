@@ -74,17 +74,17 @@ rand(rng::AbstractRNG, d::BoolDistribution) = rand(rng) <= d.p
 function update(bu::BabyBeliefUpdater, old::BoolDistribution, a::Bool, o::Bool)
     p = bu.problem
     if a # feed
-        b.p = 0.0
+        return BoolDistribution(0.0)
     else # did not feed
-        b.p = old.p + (1.0-old.p)*p.p_become_hungry # this is from the system dynamics
+        ph = old.p + (1.0-old.p)*p.p_become_hungry # this is from the system dynamics
         # bayes rule
         if o # crying
-            b.p = (p.p_cry_when_hungry*b.p)/(p.p_cry_when_hungry*b.p + p.p_cry_when_not_hungry*(1.0-b.p))
+            ph = (p.p_cry_when_hungry*ph)/(p.p_cry_when_hungry*ph + p.p_cry_when_not_hungry*(1.0-ph))
         else # not crying
-            b.p = ((1.0-p.p_cry_when_hungry)*b.p)/((1.0-p.p_cry_when_hungry)*b.p + (1.0-p.p_cry_when_not_hungry)*(1.0-b.p))
+            ph = ((1.0-p.p_cry_when_hungry)*ph)/((1.0-p.p_cry_when_hungry)*ph + (1.0-p.p_cry_when_not_hungry)*(1.0-ph))
         end
+        return BoolDistribution(ph)
     end
-    return b
 end
 
 dimensions(::BoolDistribution) = 1
