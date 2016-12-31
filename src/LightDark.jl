@@ -4,10 +4,6 @@
 
 import Base: ==, +, *, -
 
-using POMDPs
-import POMDPs: create_state, discount, isterminal, pdf, actions, iterator, n_actions, initial_state_distribution
-using GenerativeModels
-import GenerativeModels: generate_sor, generate_o, initial_state
 import POMDPBounds: lower_bound, upper_bound, Bound
 
 
@@ -48,32 +44,30 @@ end
 
 LightDark1D() = LightDark1D(0.9, 10, -10, 1, 0)
 
-create_state(p::LightDark1D) = LightDark1DState(0,0)
-
 discount(p::LightDark1D) = p.discount_factor
 
 isterminal(::LightDark1D, act::Int64) = act == 0
 
 isterminal(::LightDark1D, s::LightDark1DState) = s.status < 0
 
-type LightDark1DActionSpace <: POMDPs.AbstractSpace{Int64}
+type LightDark1DActionSpace
     actions::Vector{Int64}
 end
 Base.length(asp::LightDark1DActionSpace) = length(asp.actions)
 actions(::LightDark1D) = LightDark1DActionSpace([-1, 0, 1]) # Left Stop Right
-actions(pomdp::LightDark1D, s::LightDark1DState, acts::LightDark1DActionSpace=actions(pomdp)) = acts
+actions(pomdp::LightDark1D, s::LightDark1DState) = acts
 iterator(space::LightDark1DActionSpace) = space.actions
 dimensions(::LightDark1DActionSpace) = 1
 n_actions(p::LightDark1D) = length(actions(p))
 
-rand(rng::AbstractRNG, asp::LightDark1DActionSpace, a::Int64) = rand(rng, iterator(asp))
+rand(rng::AbstractRNG, asp::LightDark1DActionSpace) = rand(rng, iterator(asp))
 
-type LDNormalStateDist <: AbstractDistribution{LightDark1DState}
+type LDNormalStateDist
     mean::Float64
     std::Float64
 end
 
-function rand(rng::AbstractRNG, d::LDNormalStateDist, sample::LightDark1DState=LightDark1DState())
+function rand(rng::AbstractRNG, d::LDNormalStateDist)
     return LightDark1DState(0, d.mean + randn(rng)*d.std)
 end
 
@@ -82,13 +76,11 @@ function initial_state_distribution(pomdp::LightDark1D)
 end
 
 sigma(x::Float64) = abs(x - 5)/sqrt(2) + 1e-2
-function generate_o(p::LightDark1D, s, a, sp::LightDark1DState, rng::AbstractRNG)
+function generate_o(p::LightDark1D, s::Union{LightDark1DState,Void}, a::Union{Int,Void}, sp::LightDark1DState, rng::AbstractRNG)
     return sp.y + Base.randn(rng)*sigma(sp.y)
 end
 
-function generate_sor(p::LightDark1D, s::LightDark1DState, a::Int64, rng::AbstractRNG,
-                      sp::LightDark1DState=create_state(p),
-                      o::Float64=1.0)
+function generate_sor(p::LightDark1D, s::LightDark1DState, a::Int, rng::AbstractRNG)
     if s.status < 0                  # Terminal state
         sprime = copy(s)
         o = generate_o(p, nothing, nothing, sprime, rng)
@@ -106,7 +98,7 @@ function generate_sor(p::LightDark1D, s::LightDark1DState, a::Int64, rng::Abstra
         sprime = LightDark1DState(s.status, s.y+a)
         r = 0
     end
-    o = generate_o(p, nothing, nothing, sprime, rng)
+    o = generate_o(p, s, a, sprime, rng)
     return (sprime, o, r)
 end
 

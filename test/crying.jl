@@ -24,3 +24,12 @@ ov = vec(problem, true)
 @test ov == [1.]
 
 probability_check(problem)
+
+bp =  update(BabyBeliefUpdater(problem),
+             BoolDistribution(0.0),
+             false,
+             true)
+
+@test_approx_eq_eps bp.p 0.47058823529411764 0.0001
+r = simulate(sim, problem, policy, BabyBeliefUpdater(problem), BoolDistribution(1.0))
+@test_approx_eq_eps r -100.0 0.01

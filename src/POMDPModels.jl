@@ -19,20 +19,19 @@ import POMDPs: discount, states, actions, observations # model functions
 import POMDPs: transition, observation, reward, isterminal # model functions
 import POMDPs: rand, pdf # common distribution functions
 import POMDPs: iterator, dimensions # space functions
-import POMDPs: create_state, create_action, create_observation
-import POMDPs: create_transition_distribution, create_observation_distribution, create_belief, initial_state_distribution
+import POMDPs: initial_state_distribution
 import POMDPs: update, updater
 import POMDPs: vec
 
 # for example policies
-import POMDPs: Policy, create_policy, action
+import POMDPs: Policy, action
 
 import Base.rand!
 import Base.rand
 import Base.==
 import Base.hash
 
-import GenerativeModels: initial_state, generate_s, generate_o
+import GenerativeModels: initial_state, generate_s, generate_o, generate_sor
 
 # for grid world visualization
 using TikzPictures
@@ -115,12 +114,6 @@ export
     actions,
     observations,
     observation,
-    create_observation_distribution,
-    create_transition_distribution,
-    create_state,
-    create_action,
-    create_observation,
-    create_belief,
     reward,
     transition,
     length,
@@ -131,7 +124,6 @@ export
     isterminal,
     discount,
     initial_belief,
-    create_belief,
     belief,
     update,
     pdf,

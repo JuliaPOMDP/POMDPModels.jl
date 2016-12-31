@@ -39,7 +39,7 @@ typealias DiscreteProb Union{DiscreteMDP, DiscretePOMDP}
 
 # Distribution Type and methods
 
-type DiscreteDistribution <: AbstractDistribution{Int64}
+type DiscreteDistribution
     D::Array{Float64, 3}
     s::Int64
     a::Int64
@@ -50,20 +50,20 @@ iterator(d::DiscreteDistribution) = d.it
 
 pdf(d::DiscreteDistribution, sp::Int64) = d.D[sp, d.a, d.s] # T(s', a, s)
 
-function rand(rng::AbstractRNG, d::DiscreteDistribution, s::Int64)
+function rand(rng::AbstractRNG, d::DiscreteDistribution)
     cat = WeightVec(d.D[:,d.a,d.s])
     return sample(rng, cat)
 end
 
 # Space Type and methods
 
-type DiscreteSpace <: AbstractSpace{Int64}
+type DiscreteSpace
     it::UnitRange{Int64}
 end
 
 iterator(space::DiscreteSpace) = space.it
 
-rand(rng::AbstractRNG, space::DiscreteSpace, sample::Int64) = rand(rng, space.it)
+rand(rng::AbstractRNG, space::DiscreteSpace) = rand(rng, space.it)
 
 
 # MDP and POMDP common methods
@@ -71,8 +71,6 @@ rand(rng::AbstractRNG, space::DiscreteSpace, sample::Int64) = rand(rng, space.it
 n_states(prob::DiscreteProb) = prob.ns
 n_actions(prob::DiscreteProb) = prob.na
 
-create_state(::DiscreteProb) = zero(Int64)
-create_action(::DiscreteProb) = zero(Int64)
 state_index(::DiscreteProb, s::Int64) = s
 action_index(::DiscreteProb, a::Int64) = a
 
@@ -81,9 +79,8 @@ actions(p::DiscreteProb) = DiscreteSpace(1:p.na)
 
 discount(p::DiscreteProb) = p.discount
 
-create_transition_distribution(prob::DiscreteProb) = DiscreteDistribution(prob.T, 0, 0, 1:prob.ns)
-
-function transition(prob::DiscreteProb, s::Int64, a::Int64, d::DiscreteDistribution=DiscreteDistribution(prob.T,0,0,1:prob.ns))
+function transition(prob::DiscreteProb, s::Int64, a::Int64)
+    d::DiscreteDistribution=DiscreteDistribution(prob.T,0,0,1:prob.ns)
     d.s = s
     d.a = a
     return d
@@ -92,25 +89,21 @@ end
 reward(prob::DiscreteProb, s::Int64, a::Int64) = prob.R[s, a]
 reward(prob::DiscreteProb, s::Int64, a::Int64, sp::Int64) = prob.R[s, a]
 
-type StateDist <: AbstractDistribution{Int64}
-    cat::Categorical
+type StateDist
+    cat::Vector{Float64}
 end
-initial_state_distribution(prob::DiscreteProb) = StateDist(Categorical(prob.ns))
-rand(rng::AbstractRNG, d::StateDist, s::Int64) = rand(d.cat)
-pdf(d::StateDist, s::Int64) = pdf(d.cat, s)
+initial_state_distribution(prob::DiscreteProb) = StateDist(ones(prob.ns)/prob.ns)
+rand(rng::AbstractRNG, d::StateDist) = sample(rng, WeightVec(d.cat))
+pdf(d::StateDist, s::Int64) = d.cat[s]
 
 # POMDP only methods
-
-create_observation(::DiscretePOMDP) = zero(Int64)
 observation_index(::DiscretePOMDP, o::Int64) = o
 
 observations(p::DiscretePOMDP) = DiscreteSpace(1:p.no)
 
-create_observation_distribution(prob::DiscretePOMDP) = DiscreteDistribution(prob.O, 0, 0, 1:prob.no)
-
-
-function observation(prob::DiscretePOMDP, a::Int64, s::Int64, d::DiscreteDistribution=DiscreteDistribution(prob.O,0,0,1:prob.no))
-    d.s = s
+function observation(prob::DiscretePOMDP, a::Int64, sp::Int64)
+    d=DiscreteDistribution(prob.O,0,0,1:prob.no)
+    d.s = sp
     d.a = a
     return d
 end

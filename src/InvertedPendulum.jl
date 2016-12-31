@@ -35,21 +35,16 @@ type InvertedPendulum <: MDP{Tuple{Float64,Float64},Float64}
 end
 
 
-type InvertedPendulumActions <: AbstractSpace
+type InvertedPendulumActions
   actions::Vector{Float64}
 end
 InvertedPendulumActions() = InvertedPendulumActions(Float64[-50.;0.;50.])
 actions(ip::InvertedPendulum) = InvertedPendulumActions()
-actions(ip::InvertedPendulum, s::Tuple{Float64,Float64}, as::InvertedPendulumActions=actions(ip)) = as
+actions(ip::InvertedPendulum, s::Tuple{Float64,Float64}) = actions(ip)
 n_actions(ip::InvertedPendulum) = 3
-rand(rng::AbstractRNG, as::InvertedPendulumActions,a::Float64=0.) = as.actions[rand(rng,1:length(as.actions))]
+rand(rng::AbstractRNG, as::InvertedPendulumActions) = as.actions[rand(rng,1:length(as.actions))]
 
-create_state(::InvertedPendulum) = (0.,0.)
-create_action(::InvertedPendulum) = 0.
-
-function initial_state( ip::InvertedPendulum,
-                                        rng::AbstractRNG,
-                                        sp::Tuple{Float64,Float64}=create_state(ip))
+function initial_state(ip::InvertedPendulum, rng::AbstractRNG)
   sp = ((rand(rng)-0.5)*0.1, (rand(rng)-0.5)*0.1, )
   return sp
 end
@@ -89,10 +84,9 @@ function euler(m::InvertedPendulum,s::Tuple{Float64,Float64},a::Float64)
 end
 
 function generate_s( ip::InvertedPendulum,
-                                      s::Tuple{Float64,Float64},
-                                      a::Float64,
-                                      rng::AbstractRNG,
-                                      sp::Tuple{Float64,Float64}=create_state(ip))
+                    s::Tuple{Float64,Float64},
+                    a::Float64,
+                    rng::AbstractRNG)
   a_offset = 20*(rand(rng)-0.5)
   a_ = a + a_offset
 

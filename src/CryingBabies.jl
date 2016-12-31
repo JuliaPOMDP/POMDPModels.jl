@@ -16,7 +16,7 @@ BabyPOMDP(r_feed, r_hungry) = BabyPOMDP(r_feed, r_hungry, 0.1, 0.8, 0.1, 0.9, ze
 BabyPOMDP() = BabyPOMDP(-5., -10.)
 
 # TODO: this should be moved to POMDPDistributions.jl
-type BoolDistribution <: AbstractDistribution{Bool}
+immutable BoolDistribution
     p::Float64 # probability of true
 end
 BoolDistribution() = BoolDistribution(0.0)
@@ -31,9 +31,6 @@ type BabyBeliefUpdater <: Updater{BoolDistribution}
 end
 updater(problem::BabyPOMDP) = BabyBeliefUpdater(problem)
 
-create_transition_distribution(::BabyPOMDP) = BoolDistribution()
-create_observation_distribution(::BabyPOMDP) = BoolDistribution()
-create_belief(::BabyBeliefUpdater) = BoolDistribution()
 initial_state_distribution(::BabyPOMDP) = BoolDistribution(0.0)
 
 n_states(::BabyPOMDP) = 2
@@ -42,26 +39,24 @@ action_index(::BabyPOMDP, s::Bool) = s ? 1 : 2
 n_actions(::BabyPOMDP) = 2
 n_observations(::BabyPOMDP) = 2
 
-function transition(pomdp::BabyPOMDP, s::Bool, a::Bool, d::BoolDistribution=BoolDistribution())
+function transition(pomdp::BabyPOMDP, s::Bool, a::Bool)
     if !a && s # did not feed when hungry
-        d.p = 1.0
+        return BoolDistribution(1.0)
     elseif a # fed
-        d.p = 0.0
+        return BoolDistribution(0.0)
     else # did not feed when not hungry
-        d.p = pomdp.p_become_hungry
+        return BoolDistribution(pomdp.p_become_hungry)
     end
-    return d
 end
 
-function observation(pomdp::BabyPOMDP, a::Bool, sp::Bool, d::BoolDistribution=create_observation_distribution(pomdp))
+function observation(pomdp::BabyPOMDP, a::Bool, sp::Bool)
     if sp # hungry
-        d.p = pomdp.p_cry_when_hungry
+        return BoolDistribution(pomdp.p_cry_when_hungry)
     else
-        d.p = pomdp.p_cry_when_not_hungry
+        return BoolDistribution(pomdp.p_cry_when_not_hungry)
     end
-    return d
 end
-observation(pomdp::BabyPOMDP, s::Bool, a::Bool, sp::Bool, d::BoolDistribution=create_observation_distribution(pomdp)) = observation(pomdp, a, sp, d)
+observation(pomdp::BabyPOMDP, s::Bool, a::Bool, sp::Bool) = observation(pomdp, a, sp)
 
 function reward(pomdp::BabyPOMDP, s::Bool, a::Bool)
     r = 0.0
@@ -74,27 +69,27 @@ function reward(pomdp::BabyPOMDP, s::Bool, a::Bool)
     return r
 end
 
-rand(rng::AbstractRNG, d::BoolDistribution, s::Bool=false) = rand(rng) <= d.p
+rand(rng::AbstractRNG, d::BoolDistribution) = rand(rng) <= d.p
 
-function update(bu::BabyBeliefUpdater, old::BoolDistribution, a::Bool, o::Bool, b::BoolDistribution=BoolDistribution(0.0))
+function update(bu::BabyBeliefUpdater, old::BoolDistribution, a::Bool, o::Bool)
     p = bu.problem
     if a # feed
-        b.p = 0.0
+        return BoolDistribution(0.0)
     else # did not feed
-        b.p = old.p + (1.0-old.p)*p.p_become_hungry # this is from the system dynamics
+        ph = old.p + (1.0-old.p)*p.p_become_hungry # this is from the system dynamics
         # bayes rule
         if o # crying
-            b.p = (p.p_cry_when_hungry*b.p)/(p.p_cry_when_hungry*b.p + p.p_cry_when_not_hungry*(1.0-b.p))
+            ph = (p.p_cry_when_hungry*ph)/(p.p_cry_when_hungry*ph + p.p_cry_when_not_hungry*(1.0-ph))
         else # not crying
-            b.p = ((1.0-p.p_cry_when_hungry)*b.p)/((1.0-p.p_cry_when_hungry)*b.p + (1.0-p.p_cry_when_not_hungry)*(1.0-b.p))
+            ph = ((1.0-p.p_cry_when_hungry)*ph)/((1.0-p.p_cry_when_hungry)*ph + (1.0-p.p_cry_when_not_hungry)*(1.0-ph))
         end
+        return BoolDistribution(ph)
     end
-    return b
 end
 
 dimensions(::BoolDistribution) = 1
 
-type BoolSpace <: AbstractSpace{Bool} end
+type BoolSpace end
 iterator(bs::BoolSpace) = bs
 Base.start(::BoolSpace) = 0
 Base.done(::BoolSpace, st::Int) = st > 1
@@ -103,13 +98,12 @@ rand(rng::AbstractRNG, bs::BoolSpace, b::Bool=true) = rand(rng, Bool)
 
 states(::BabyPOMDP) = BoolSpace()
 actions(::BabyPOMDP) = BoolSpace()
-actions(::BabyPOMDP, s_or_b::Any, as::BoolSpace=BoolSpace()) = as
 observations(::BabyPOMDP) = BoolSpace()
 
 discount(p::BabyPOMDP) = p.discount
 
-function generate_o(p::BabyPOMDP, s::Bool, rng::AbstractRNG, o::Bool=create_observation(p))
-    d = observation(p, create_action(p), s) # obs distrubtion not action dependant
+function generate_o(p::BabyPOMDP, s::Bool, rng::AbstractRNG)
+    d = observation(p, true, s) # obs distrubtion not action dependant
     return rand(rng, d)
 end
 

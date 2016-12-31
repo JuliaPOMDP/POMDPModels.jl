@@ -26,18 +26,16 @@ n_states(m::TMaze) = 2 * (m.n + 1) + 1 # 2*(corr length + 1 (junction)) + 1 (ter
 n_actions(::TMaze) = 4
 n_observations(::TMaze) = 5
 
-type TMazeStateSpace <: AbstractSpace{TMazeState}
+type TMazeStateSpace
     domain::Vector{TMazeState}
 end
 iterator(s::TMazeStateSpace) = s.domain
-rand(rng::AbstractRNG, space::TMazeStateSpace, s::TMazeState) = space.domain[rand(rng, 1:length(space.domain))]
 rand(rng::AbstractRNG, space::TMazeStateSpace) = space.domain[rand(rng, 1:length(space.domain))]
 
-type TMazeSpace <: AbstractSpace{Int64}
+type TMazeSpace
     domain::Vector{Int64}
 end
 iterator(s::TMazeSpace) = s.domain
-rand(rng::AbstractRNG, space::TMazeSpace, ao::Int64) = space.domain[rand(rng, 1:length(space.domain))]
 rand(rng::AbstractRNG, space::TMazeSpace) = space.domain[rand(rng, 1:length(space.domain))]
 
 
@@ -60,7 +58,7 @@ actions(maze::TMaze) = TMazeSpace(collect(1:4))
 observations(maze::TMaze) = TMazeSpace(collect(1:5))
 
 # transition distribution (actions are deterministic)
-type TMazeStateDistribution <: AbstractDistribution{TMazeState}
+type TMazeStateDistribution
     current_state::TMazeState # deterministic
     reset::Bool
     reset_states::Vector{TMazeState}
@@ -80,7 +78,8 @@ function pdf(d::TMazeStateDistribution, s::TMazeState)
         s == d.current_state ? (return 1.0) : (return 0.0)
     end
 end
-function rand(rng::AbstractRNG, d::TMazeStateDistribution, s::TMazeState) 
+function rand(rng::AbstractRNG, d::TMazeStateDistribution) 
+    s = TMazeState()
     if d.reset 
         rand(rng) < 0.5 ? (copy!(s, d.reset_states[1])) : (copy!(s, d.reset_states[2]))
         return s
@@ -91,7 +90,7 @@ function rand(rng::AbstractRNG, d::TMazeStateDistribution, s::TMazeState)
 end
 #rand(rng::AbstractRNG, d::TMazeStateDistribution) 
 
-type TMazeInit <: AbstractDistribution{TMazeState}
+type TMazeInit
     states::Vector{TMazeState}
     probs::Vector{Float64}
 end
@@ -106,12 +105,13 @@ function initial_state_distribution(maze::TMaze)
     #d = TMazeInit([s1, s2])
     return TMazeInit(s, p)
 end
-function rand(rng::AbstractRNG, d::TMazeInit, s::TMazeState)
+function rand(rng::AbstractRNG, d::TMazeInit)
+    s = TMazeState()
     #idx = nothing
     #rand(rng) < 0.5 ? (idx = 1) : (idx = 2)
     #copy!(s, d.states[idx])
-    cat = Categorical(d.probs)
-    idx = rand(cat)
+    cat = WeightVec(d.probs)
+    idx = sample(rng, cat)
     copy!(s, d.states[idx])
     return s
 end
@@ -126,18 +126,17 @@ function pdf(d::TMazeInit, s::TMazeState)
 end
 
 # observation distribution (deterministic)
-type TMazeObservationDistribution <: AbstractDistribution{Int64}
+type TMazeObservationDistribution
     current_observation::Int64
 end
 create_observation_distribution(::TMaze) = TMazeObservationDistribution(1)
 iterator(d::TMazeObservationDistribution) = [d.current_observation]
 
 pdf(d::TMazeObservationDistribution, o::Int64) = o == d.current_observation ? (return 1.0) : (return 0.0)
-rand(rng::AbstractRNG, d::TMazeObservationDistribution, o::Int64) = d.current_observation
 rand(rng::AbstractRNG, d::TMazeObservationDistribution) = d.current_observation
 
-function transition(maze::TMaze, s::TMazeState, a::Int64, 
-                    d::TMazeStateDistribution=create_transition_distribution(maze))
+function transition(maze::TMaze, s::TMazeState, a::Int64)
+    d=create_transition_distribution(maze)
     d.reset = false
     # check if terminal
     if s.term
@@ -200,8 +199,8 @@ end
 # observation mapping
 #    1      2        3         4         5
 # goal N  goal S  corridor  junction  terminal 
-function observation(maze::TMaze, a::Int64, sp::TMazeState, 
-                     d::TMazeObservationDistribution = create_observation_distribution(maze))
+function observation(maze::TMaze, a::Int64, sp::TMazeState)
+    d::TMazeObservationDistribution = create_observation_distribution(maze)
     sp.term ? (d.current_observation = 5; return d) : (nothing)
     x = sp.x; g = sp.g
     #if x == 1
@@ -220,18 +219,13 @@ function observation(maze::TMaze, a::Int64, sp::TMazeState,
     d.current_observation = 5
     return d
 end
-function observation(maze::TMaze, s::TMazeState, a::Int64, sp::TMazeState,
-                     d::TMazeObservationDistribution = create_observation_distribution(maze))
-    return observation(maze, a, sp, d)
+function observation(maze::TMaze, s::TMazeState, a::Int64, sp::TMazeState)
+    return observation(maze, a, sp)
 end
 
 isterminal(m::TMaze, s::TMazeState) = s.term
 
 discount(m::TMaze) = m.discount
-
-create_state(::TMaze) = TMazeState()
-create_action(::TMaze) = 1
-create_observation(::TMaze) = 1
 
 function state_index(maze::TMaze, s::TMazeState)
     s.term ? (return maze.n + 1) : (nothing)
@@ -242,7 +236,7 @@ function state_index(maze::TMaze, s::TMazeState)
     end
 end
 
-function generate_o(maze::TMaze, s::TMazeState, rng::AbstractRNG, o::Int64=create_observation(maze))
+function generate_o(maze::TMaze, s::TMazeState, rng::AbstractRNG)
     s.term ? (return 5) : (nothing)
     x = s.x; g = s.g
     #if x == 1
@@ -277,10 +271,10 @@ end
 MazeBelief() = MazeBelief(1, :none)
 
 type MazeUpdater <: Updater{MazeBelief} end
-POMDPs.create_belief(::MazeUpdater) = MazeBelief()
-POMDPs.initialize_belief(bu::MazeUpdater, d::AbstractDistribution, b::MazeBelief=create_belief(bu)) = b
+POMDPs.initialize_belief(bu::MazeUpdater, d::Any) = b
 
-function POMDPs.update(bu::MazeUpdater, b::MazeBelief, a, o, bp::MazeBelief=create_belief(bu))
+function POMDPs.update(bu::MazeUpdater, b::MazeBelief, a, o)
+    bp::MazeBelief=create_belief(bu)
     bp.last_obs = o
     bp.mem = b.mem
     if o == 1
