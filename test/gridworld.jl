@@ -37,6 +37,6 @@ sv = vec(problem, GridWorldState(5, 3, false))
 @test GridWorldState(1,2,true) == GridWorldState(1,1,true)
 @test hash(GridWorldState(1,2,true)) == hash(GridWorldState(1,1,true))
 
-trans_prob_consistancy_check(problem)
+trans_prob_consistency_check(problem)
 
 nbinclude(joinpath(Pkg.dir("POMDPModels"), "notebooks", "GridWorld Visualization.ipynb"))
