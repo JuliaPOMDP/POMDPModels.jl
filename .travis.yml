@@ -8,7 +8,7 @@ notifications:
     - sunbergzach@gmail.com
 script:
   - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
-  - julia --check-bounds=yes -e 'Pkg.clone(pwd()); Pkg.build("POMDPModels"); Pkg.add("NBInclude"); Pkg.checkout("POMDPs"); Pkg.test("POMDPModels"; coverage=true)'
+  - julia --check-bounds=yes -e 'Pkg.clone(pwd()); Pkg.build("POMDPModels"); Pkg.add("NBInclude"); Pkg.test("POMDPModels"; coverage=true)'
 after_success:
   - julia -e 'cd(Pkg.dir("POMDPModels")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(Coveralls.process_folder())'
 
