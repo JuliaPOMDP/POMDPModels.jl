@@ -89,17 +89,6 @@ end
 
 dimensions(::BoolDistribution) = 1
 
-type BoolSpace end
-iterator(bs::BoolSpace) = bs
-Base.start(::BoolSpace) = 0
-Base.done(::BoolSpace, st::Int) = st > 1
-Base.next(::BoolSpace, st::Int) = (st==0, st+1)
-rand(rng::AbstractRNG, bs::BoolSpace, b::Bool=true) = rand(rng, Bool)
-
-states(::BabyPOMDP) = BoolSpace()
-actions(::BabyPOMDP) = BoolSpace()
-observations(::BabyPOMDP) = BoolSpace()
-
 discount(p::BabyPOMDP) = p.discount
 
 function generate_o(p::BabyPOMDP, s::Bool, rng::AbstractRNG)
