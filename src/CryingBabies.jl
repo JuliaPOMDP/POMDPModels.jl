@@ -95,6 +95,7 @@ Base.start(::BoolSpace) = 0
 Base.done(::BoolSpace, st::Int) = st > 1
 Base.next(::BoolSpace, st::Int) = (st==0, st+1)
 rand(rng::AbstractRNG, bs::BoolSpace, b::Bool=true) = rand(rng, Bool)
+rand(bs::BoolSpace) = rand(MersenneTwister(rand(UInt64)), bs)
 
 states(::BabyPOMDP) = BoolSpace()
 actions(::BabyPOMDP) = BoolSpace()
