@@ -14,9 +14,12 @@ obs_index(::TigerPOMDP, o::Bool) = Int64(o) + 1
 
 initial_belief(::TigerPOMDP) = DiscreteBelief(2)
 
-const listen = 0
-const openleft = 1
-const openright = 2
+const TIGER_LISTEN = 0
+const TIGER_OPEN_LEFT = 1
+const TIGER_OPEN_RIGHT = 2
+
+const TIGER_LEFT = true
+const TIGER_RIGHT = false
 
 type TigerDistribution
     p::Float64
@@ -84,44 +87,13 @@ reward(pomdp::TigerPOMDP, s::Bool, a::Int64, sp::Bool) = reward(pomdp, s, a)
 
 initial_state_distribution(pomdp::TigerPOMDP) = TigerDistribution(0.5, [true, false])     
 
-
-type TigerStateSpace
-    states::Vector{Bool}
-end
-states(::TigerPOMDP) = TigerStateSpace([true, false])
-iterator(space::TigerStateSpace) = space.states
-dimensions(::TigerStateSpace) = 1
-function rand(rng::AbstractRNG, space::TigerStateSpace)
-    p = rand(rng)
-    p > 0.5 ? (return true) : (return false)
-end
-
-type TigerActionSpace
-    actions::Vector{Int64}
-end
-actions(::TigerPOMDP) = TigerActionSpace([0,1,2])
-actions(pomdp::TigerPOMDP, s::Bool, acts::TigerActionSpace=actions(pomdp)) = acts
-iterator(space::TigerActionSpace) = space.actions
-dimensions(::TigerActionSpace) = 1
-function rand(rng::AbstractRNG, space::TigerActionSpace)
-    a = rand(rng, 0:2)
-    return a
-end
-
-type TigerObservationSpace
-    obs::Vector{Bool}
-end
-observations(::TigerPOMDP) = TigerObservationSpace([true, false])
-observations(::TigerPOMDP, s::Bool, obs::TigerObservationSpace=observations(pomdp)) = obs
-iterator(space::TigerObservationSpace) = space.obs
-dimensions(::TigerObservationSpace) = 1
+actions(::TigerPOMDP) = [0,1,2]
 
 function upperbound(pomdp::TigerPOMDP, s::Bool)
     return pomdp.r_escapetiger 
 end
 
 discount(pomdp::TigerPOMDP) = pomdp.discount_factor
-
 
 function generate_o(p::TigerPOMDP, s::Bool, rng::AbstractRNG)
     d = observation(p, 0, s) # obs distrubtion not action dependant

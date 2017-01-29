@@ -43,7 +43,12 @@ export
     TigerStateSpace,
     TigerActionSpace,
     TigerObservationSpace,
-    TigerBeliefUpdater
+    TigerBeliefUpdater,
+    TIGER_LEFT,
+    TIGER_RIGHT,
+    TIGER_LISTEN,
+    TIGER_OPEN_LEFT,
+    TIGER_OPEN_RIGHT
 
 
 include("GridWorlds.jl")
