@@ -43,19 +43,13 @@ end
 Base.copy!(dest::GridWorldState, src::GridWorldState) = (dest.x=src.x; dest.y=src.y; dest.done=src.done; return dest)
 
 # action taken by the agent indeicates desired travel direction
-immutable GridWorldAction
-    direction::Symbol
-    GridWorldAction(d) = new(d)
-    GridWorldAction() = new()
-end 
-==(u::GridWorldAction, v::GridWorldAction) = u.direction == v.direction
-hash(a::GridWorldAction, h::UInt) = hash(a.direction, h)
+typealias GridWorldAction Symbol # deprecated - this is here so that other people's code won't break
 
 #################################################################
 # Grid World MDP
 #################################################################
 # the grid world mdp type
-type GridWorld <: MDP{GridWorldState, GridWorldAction}
+type GridWorld <: MDP{GridWorldState, Symbol}
 	size_x::Int64 # x size of the grid
 	size_y::Int64 # y size of the grid
 	reward_states::Vector{GridWorldState} # the states in which agent recieves reward
@@ -94,14 +88,6 @@ end
 #################################################################
 # This could probably be implemented more efficiently without vectors
 
-# state space
-type GridWorldStateSpace
-    states::Vector{GridWorldState}
-end
-# action space
-type GridWorldActionSpace
-    actions::Vector{GridWorldAction}
-end
 # returns the state space
 function states(mdp::GridWorld)
 	s = GridWorldState[] 
@@ -111,24 +97,10 @@ function states(mdp::GridWorld)
         push!(s, GridWorldState(x,y,false))
     end
     push!(s, GridWorldState(0, 0, true))
-    return GridWorldStateSpace(s)
+    return s
 end
 # returns the action space
-function actions(mdp::GridWorld, s=nothing)
-	acts = [GridWorldAction(:up), GridWorldAction(:down), GridWorldAction(:left), GridWorldAction(:right)]
-	return GridWorldActionSpace(acts)
-end
-
-# returns an iterator over states or action (arrays in this case)
-iterator(space::GridWorldStateSpace) = space.states
-iterator(space::GridWorldActionSpace) = space.actions
-
-# sampling and mutating methods
-rand(rng::AbstractRNG, space::GridWorldStateSpace) = space.states[rand(rng, 1:end)]
-rand(space::GridWorldStateSpace) = space.states[rand(1:end)]
-
-rand(rng::AbstractRNG, space::GridWorldActionSpace) = space.actions[rand(rng,1:end)]
-rand(space::GridWorldActionSpace) = space.actions[rand(1:end)]
+actions(mdp::GridWorld, s=nothing) = [:up, :down, :left, :right]
 
 #################################################################
 # Distributions
@@ -176,7 +148,7 @@ end
 n_states(mdp::GridWorld) = mdp.size_x*mdp.size_y+1
 n_actions(mdp::GridWorld) = 4
 
-function reward(mdp::GridWorld, state::GridWorldState, action::GridWorldAction)
+function reward(mdp::GridWorld, state::GridWorldState, action::Symbol)
     if state.done
         return 0.0
     end
@@ -222,20 +194,20 @@ function inbounds(mdp::GridWorld,state::GridWorldState)
 end
 
 """
-    inbounds(mdp::GridWorld, s::GridWorldState, a::GridWorldAction)
+    inbounds(mdp::GridWorld, s::GridWorldState, a::Symbol)
 
 Return false if `a` is trying to go out of bounds, true otherwise.
 """
-function inbounds(mdp::GridWorld, s::GridWorldState, a::GridWorldAction)
+function inbounds(mdp::GridWorld, s::GridWorldState, a::Symbol)
     sdir = GridWorldState(s.x, s.y, s.done)
-    if a.direction == :right
+    if a == :right
         sdir.x += 1
-    elseif a.direction == :left
+    elseif a == :left
         sdir.x -= 1
-    elseif a.direction == :up
+    elseif a == :up
         sdir.y += 1
     else
-        # @assert a.direction == :down
+        # @assert a == :down
         sdir.y -= 1
     end
     return inbounds(mdp, sdir)
@@ -251,9 +223,9 @@ function fill_probability!(p::Vector{Float64}, val::Float64, index::Int64)
 	end
 end
 
-function transition(mdp::GridWorld, state::GridWorldState, action::GridWorldAction)
+function transition(mdp::GridWorld, state::GridWorldState, action::Symbol)
 
-	a = action.direction 
+	a = action 
 	x = state.x
 	y = state.y 
 
@@ -329,18 +301,18 @@ function transition(mdp::GridWorld, state::GridWorldState, action::GridWorldActi
 end
 
 
-function action_index(mdp::GridWorld, a::GridWorldAction)
+function action_index(mdp::GridWorld, a::Symbol)
     # lazy, replace with switches when they arrive
-    if a.direction == :up
+    if a == :up
         return 1
-    elseif a.direction == :down
+    elseif a == :down
         return 2
-    elseif a.direction == :left
+    elseif a == :left
         return 3
-    elseif a.direction == :right
+    elseif a == :right
         return 4
     else
-        error("Invalid action symbol")
+        error("Invalid action symbol $a")
     end
 end
 
@@ -456,7 +428,7 @@ function plot(mdp::GridWorld, V::Vector, policy::Policy, state=GridWorldState(0,
             c = [xval, yval] * sqsize - sqsize / 2
             C = [c'; c'; c']'
             RightArrow = [0 0 sqsize/2; twid -twid 0]
-            dir = action(policy, s).direction
+            dir = action(policy, s)
             if dir == :left
                 A = [-1 0; 0 -1] * RightArrow + C
                 println(o, "\\fill ($(A[1]), $(A[2])) -- ($(A[3]), $(A[4])) -- ($(A[5]), $(A[6])) -- cycle;")
