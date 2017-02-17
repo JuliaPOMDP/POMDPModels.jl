@@ -16,7 +16,7 @@ using Distributions
 import POMDPs: n_states, n_actions, n_observations # space sizes for discrete problems
 import POMDPs: state_index, action_index, obs_index
 import POMDPs: discount, states, actions, observations # model functions
-import POMDPs: transition, observation, reward, isterminal # model functions
+import POMDPs: transition, observation, reward, isterminal, isterminal_obs # model functions
 import POMDPs: rand, pdf # common distribution functions
 import POMDPs: iterator, dimensions # space functions
 import POMDPs: initial_state_distribution

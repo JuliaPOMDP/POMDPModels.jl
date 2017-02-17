@@ -104,17 +104,17 @@ end
 
 # some example policies
 type Starve <: Policy end
-action{B}(::Starve, ::B, a=false) = false
+action{B}(::Starve, ::B) = false
 updater(::Starve) = VoidUpdater()
 
 type AlwaysFeed <: Policy end
-action{B}(::AlwaysFeed, ::B, a=true) = true
+action{B}(::AlwaysFeed, ::B) = true
 updater(::AlwaysFeed) = VoidUpdater()
 
 # feed when the previous observation was crying - this is nearly optimal
 type FeedWhenCrying <: Policy end
 updater(::FeedWhenCrying) = PreviousObservationUpdater{Bool}()
-function action(::FeedWhenCrying, b::Nullable{Bool}, a=false)
+function action(::FeedWhenCrying, b::Nullable{Bool})
     if get(b, false) == false # not crying (or null)
         return false
     else # is crying
