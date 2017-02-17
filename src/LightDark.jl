@@ -76,8 +76,24 @@ function initial_state_distribution(pomdp::LightDark1D)
 end
 
 sigma(x::Float64) = abs(x - 5)/sqrt(2) + 1e-2
+
+function observation(p::LightDark1D, s::LightDark1DState, a::Int, sp::LightDark1DState)
+    return Normal(sp.y, sigma(sp.y))
+end
+
 function generate_o(p::LightDark1D, s::Union{LightDark1DState,Void}, a::Union{Int,Void}, sp::LightDark1DState, rng::AbstractRNG)
     return sp.y + Base.randn(rng)*sigma(sp.y)
+end
+
+function generate_s(p::LightDark1D, s::LightDark1DState, a::Int, rng::AbstractRNG)
+    if s.status < 0                  # Terminal state
+        return copy(s)
+    end
+    if a == 0                   # Enter
+        return LightDark1DState(-1, s.y)
+    else
+        return LightDark1DState(s.status, s.y+a)
+    end
 end
 
 function generate_sor(p::LightDark1D, s::LightDark1DState, a::Int, rng::AbstractRNG)
