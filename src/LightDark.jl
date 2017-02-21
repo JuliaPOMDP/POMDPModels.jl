@@ -50,8 +50,6 @@ isterminal(::LightDark1D, act::Int64) = act == 0
 
 isterminal(::LightDark1D, s::LightDark1DState) = s.status < 0
 
-isterminal_obs(::LightDark1D, o::Float64) = isnan(o)  # Kind of a hack
-
 type LightDark1DActionSpace
     actions::Vector{Int64}
 end
@@ -84,11 +82,7 @@ function observation(p::LightDark1D, s::LightDark1DState, a::Int, sp::LightDark1
 end
 
 function generate_o(p::LightDark1D, s::Union{LightDark1DState,Void}, a::Union{Int,Void}, sp::LightDark1DState, rng::AbstractRNG)
-    if sp.status < 0
-        return NaN
-    else
-        return sp.y + Base.randn(rng)*sigma(sp.y)
-    end
+    return sp.y + Base.randn(rng)*sigma(sp.y)
 end
 
 function generate_s(p::LightDark1D, s::LightDark1DState, a::Int, rng::AbstractRNG)
