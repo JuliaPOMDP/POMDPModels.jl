@@ -103,8 +103,6 @@ export
     LightDark1D,
     LightDark1DState,
     LightDark1DActionSpace,
-    LightDark1DLowerBound,
-    LightDark1DUpperBound,
     DummyHeuristic1DPolicy,
     SmartHeuristic1DPolicy
 

@@ -4,9 +4,6 @@
 
 import Base: ==, +, *, -
 
-import POMDPBounds: lower_bound, upper_bound, Bound
-
-
 type LightDark1DState
     status::Int64
     y::Float64
@@ -50,17 +47,18 @@ isterminal(::LightDark1D, act::Int64) = act == 0
 
 isterminal(::LightDark1D, s::LightDark1DState) = s.status < 0
 
+
 type LightDark1DActionSpace
-    actions::Vector{Int64}
+    actions::NTuple{3,Int64}
 end
 Base.length(asp::LightDark1DActionSpace) = length(asp.actions)
-actions(::LightDark1D) = LightDark1DActionSpace([-1, 0, 1]) # Left Stop Right
+actions(::LightDark1D) = LightDark1DActionSpace((-1, 0, 1)) # Left Stop Right
 actions(pomdp::LightDark1D, s::LightDark1DState) = acts
 iterator(space::LightDark1DActionSpace) = space.actions
 dimensions(::LightDark1DActionSpace) = 1
 n_actions(p::LightDark1D) = length(actions(p))
 
-rand(rng::AbstractRNG, asp::LightDark1DActionSpace) = rand(rng, iterator(asp))
+rand(rng::AbstractRNG, asp::LightDark1DActionSpace) = asp.actions[rand(rng, 1:3)]
 
 type LDNormalStateDist
     mean::Float64
@@ -118,28 +116,24 @@ function generate_sor(p::LightDark1D, s::LightDark1DState, a::Int, rng::Abstract
     return (sprime, o, r)
 end
 
+function reward(p::LightDark1D, s::LightDark1DState, a::Int)
+    if s.status < 0
+        return 0.0
+    elseif a == 0
+        if abs(s.y) < 1
+            return p.correct_r
+        else
+            return p.incorrect_r
+        end
+    else
+        return 0.0
+    end
+end
+
 # XXX this is specifically for MCVI
 # it is also implemented in the MCVI tests
 function init_lower_action(p::LightDark1D)
     return 0 # Worst? This depends on the initial state? XXX
-end
-
-type LightDark1DLowerBound <: Bound
-    rng::AbstractRNG
-end
-
-type LightDark1DUpperBound <: Bound
-    rng::AbstractRNG
-end
-
-function lower_bound(lb::LightDark1DLowerBound, p::LightDark1D, s::LightDark1DState)
-    _, _, r = generate_sor(p, s, init_lower_action(p), lb.rng)
-    return r * discount(p)
-end
-
-function upper_bound(ub::LightDark1DUpperBound, p::LightDark1D, s::LightDark1DState)
-    steps = abs(s.y)/p.step_size + 1
-    return p.correct_r*(discount(p)^steps)
 end
 
 gauss(s::Float64, x::Float64) = 1 / sqrt(2*pi) / s * exp(-1*x^2/(2*s^2))
