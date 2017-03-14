@@ -4,11 +4,9 @@
 
 import Base: ==, +, *, -
 
-type LightDark1DState
+immutable LightDark1DState
     status::Int64
     y::Float64
-    LightDark1DState() = new()
-    LightDark1DState(x, y) = new(x, y)
 end
 
 ==(s1::LightDark1DState, s2::LightDark1DState) = (s1.status == s2.status) && (s1.y == s2.y)
@@ -85,7 +83,7 @@ end
 
 function generate_s(p::LightDark1D, s::LightDark1DState, a::Int, rng::AbstractRNG)
     if s.status < 0                  # Terminal state
-        return copy(s)
+        return s
     end
     if a == 0                   # Enter
         return LightDark1DState(-1, s.y)
@@ -96,10 +94,10 @@ end
 
 function generate_sor(p::LightDark1D, s::LightDark1DState, a::Int, rng::AbstractRNG)
     if s.status < 0                  # Terminal state
-        sprime = copy(s)
+        sprime = s
         o = generate_o(p, nothing, nothing, sprime, rng)
-        r = 0                   # Penalty?
-        return (sprime, o, r)
+        r = 0.0                   # Penalty?
+        return sprime, o, r
     end
     if a == 0                   # Enter
         sprime = LightDark1DState(-1, s.y)
@@ -110,10 +108,10 @@ function generate_sor(p::LightDark1D, s::LightDark1DState, a::Int, rng::Abstract
         end
     else
         sprime = LightDark1DState(s.status, s.y+a)
-        r = 0
+        r = 0.0
     end
     o = generate_o(p, s, a, sprime, rng)
-    return (sprime, o, r)
+    return sprime, o, r
 end
 
 function reward(p::LightDark1D, s::LightDark1DState, a::Int)

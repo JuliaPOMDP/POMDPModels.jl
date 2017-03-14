@@ -1,5 +1,4 @@
 using POMDPModels
-using POMDPBounds
 using Base.Test
 
 # write your own tests here
