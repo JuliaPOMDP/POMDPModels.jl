@@ -63,6 +63,8 @@ type LDNormalStateDist
     std::Float64
 end
 
+Base.eltype(::Type{LDNormalStateDist}) = LightDark1DState
+
 function rand(rng::AbstractRNG, d::LDNormalStateDist)
     return LightDark1DState(0, d.mean + randn(rng)*d.std)
 end
