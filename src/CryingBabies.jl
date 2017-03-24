@@ -121,3 +121,4 @@ function action(::FeedWhenCrying, b::Nullable{Bool})
         return true
     end
 end
+action(::FeedWhenCrying, b::Bool) = b
