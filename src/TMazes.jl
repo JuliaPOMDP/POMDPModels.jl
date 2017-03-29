@@ -16,10 +16,8 @@ end
 type TMaze <: POMDP{TMazeState, Int64, Int64}
     n::Int64 # corridor length
     discount::Float64 # discount factor
-    vec_state::Vector{Float64}
-    vec_obs::Vector{Float64}
 end
-TMaze(n::Int64) = TMaze(n, 0.99, zeros(2), zeros(1)) 
+TMaze(n::Int64) = TMaze(n, 0.99) 
 TMaze() = TMaze(10)
 
 n_states(m::TMaze) = 2 * (m.n + 1) + 1 # 2*(corr length + 1 (junction)) + 1 (term)
@@ -253,16 +251,13 @@ function generate_o(maze::TMaze, s::TMazeState, rng::AbstractRNG)
 end
 
 function vec(maze::TMaze, s::TMazeState)
-    v = maze.vec_state
+    v = Array(Float64, 2)
     v[1] = s.x
     s.g == :north ? (v[2] = 0.0) : (v[2] = 1.0)
     return v
 end
 
-function vec(maze::TMaze, o::Int64)
-    maze.vec_obs[1] = o
-    return maze.vec_obs
-end
+vec(maze::TMaze, o::Int64) = Float64[o]
 
 type MazeBelief 
     last_obs::Int64

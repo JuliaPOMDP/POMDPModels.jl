@@ -31,7 +31,7 @@ import Base.rand
 import Base.==
 import Base.hash
 
-import GenerativeModels: initial_state, generate_s, generate_o, generate_sor
+import POMDPs: initial_state, generate_s, generate_o, generate_sor
 
 # for grid world visualization
 using TikzPictures

@@ -5,9 +5,8 @@ type MountainCar <: MDP{Tuple{Float64,Float64},Float64}
   discount::Float64
   cost::Float64 # reward at each state not at the goal (should be a negative number)
   jackpot::Float64 # reward at the top
-  vec_state::Vector{Float64}
 end
-MountainCar(;discount::Float64=0.99,cost::Float64=-1., jackpot::Float64=0.0) = MountainCar(discount,cost,jackpot,zeros(2))
+MountainCar(;discount::Float64=0.99,cost::Float64=-1., jackpot::Float64=0.0) = MountainCar(discount,cost,jackpot)
 
 type MountainCarActions
   actions::Vector{Float64}
@@ -50,8 +49,8 @@ end
 
 
 function vec(mc::MountainCar, s::Tuple{Float64,Float64})
-    copy!(mc.vec_state, s)
-    return mc.vec_state
+    v = copy!(Array(Float64,2), s)
+    return v
 end
 
 # Example policy -- works pretty well

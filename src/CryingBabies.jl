@@ -10,9 +10,8 @@ type BabyPOMDP <: POMDP{Bool, Bool, Bool}
     p_cry_when_hungry::Float64
     p_cry_when_not_hungry::Float64
     discount::Float64
-    vec_state::Vector{Float64} # single entry
 end
-BabyPOMDP(r_feed, r_hungry) = BabyPOMDP(r_feed, r_hungry, 0.1, 0.8, 0.1, 0.9, zeros(1))
+BabyPOMDP(r_feed, r_hungry) = BabyPOMDP(r_feed, r_hungry, 0.1, 0.8, 0.1, 0.9)
 BabyPOMDP() = BabyPOMDP(-5., -10.)
 
 # TODO: this should be moved to POMDPDistributions.jl
@@ -97,10 +96,7 @@ function generate_o(p::BabyPOMDP, s::Bool, rng::AbstractRNG)
 end
 
 # same for both state and observation
-function vec(p::BabyPOMDP, so::Bool) 
-    p.vec_state[1] = so
-    return p.vec_state
-end
+vec(p::BabyPOMDP, so::Bool) = Float64[so]
 
 # some example policies
 type Starve <: Policy end

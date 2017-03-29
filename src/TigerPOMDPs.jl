@@ -4,9 +4,8 @@ type TigerPOMDP <: POMDP{Bool, Int64, Bool}
     r_escapetiger::Float64
     p_listen_correctly::Float64
     discount_factor::Float64
-    vec_state::Vector{Float64}
 end
-TigerPOMDP() = TigerPOMDP(-1.0, -100.0, 10.0, 0.85, 0.95, zeros(1))
+TigerPOMDP() = TigerPOMDP(-1.0, -100.0, 10.0, 0.85, 0.95)
 
 state_index(::TigerPOMDP, s::Bool) = Int64(s) + 1
 action_index(::TigerPOMDP, a::Int) = a + 1
@@ -101,10 +100,7 @@ function generate_o(p::TigerPOMDP, s::Bool, rng::AbstractRNG)
 end
 
 # same for both state and observation
-function vec(p::TigerPOMDP, so::Bool) 
-    p.vec_state[1] = so
-    return p.vec_state
-end
+vec(p::TigerPOMDP, so::Bool) = Float64[so]
 
 type TigerBeliefUpdater <: Updater{TigerDistribution}
     pomdp::TigerPOMDP

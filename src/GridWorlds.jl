@@ -58,7 +58,6 @@ type GridWorld <: MDP{GridWorldState, Symbol}
     tprob::Float64 # probability of transitioning to the desired state
     terminals::Set{GridWorldState}
     discount_factor::Float64 # disocunt factor
-    vec_state::Vector{Float64}
 end
 # we use key worded arguments so we can change any of the values we pass in 
 function GridWorld(;sx::Int64=10, # size_x
@@ -69,7 +68,7 @@ function GridWorld(;sx::Int64=10, # size_x
                     tp::Float64=0.7, # tprob
                     discount_factor::Float64=0.95,
                     terminals=Set{GridWorldState}([rs[i] for i in filter(i->rv[i]>0.0, 1:length(rs))]))
-    return GridWorld(sx, sy, rs, rv, penalty, tp, terminals, discount_factor, zeros(2))
+    return GridWorld(sx, sy, rs, rv, penalty, tp, terminals, discount_factor)
 end
 
 # convenience function
@@ -340,12 +339,7 @@ end
 
 discount(mdp::GridWorld) = mdp.discount_factor
 
-#XXX It doesn't seem like a good idea to have vec_state as a member of the mdp to me (zsunberg)
-function vec(mdp::GridWorld, s::GridWorldState)
-    mdp.vec_state[1] = s.x
-    mdp.vec_state[2] = s.y
-    return mdp.vec_state
-end
+vec(mdp::GridWorld, s::GridWorldState) = Float64[s.x, s.y, s.done]
 
 initial_state(mdp::GridWorld, rng::AbstractRNG) = GridWorldState(rand(rng, 1:mdp.size_x), rand(rng, 1:mdp.size_y))
 
