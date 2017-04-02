@@ -95,9 +95,12 @@ end
 initial_state_distribution(prob::DiscreteProb) = StateDist(ones(prob.ns)/prob.ns)
 rand(rng::AbstractRNG, d::StateDist) = sample(rng, WeightVec(d.cat))
 pdf(d::StateDist, s::Int64) = d.cat[s]
+iterator(d::StateDist) = collect(1:length(d.cat))
 
 # POMDP only methods
 observation_index(::DiscretePOMDP, o::Int64) = o
+
+n_observations(prob::DiscreteProb) = prob.no
 
 observations(p::DiscretePOMDP) = DiscreteSpace(1:p.no)
 
