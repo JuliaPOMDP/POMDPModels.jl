@@ -96,7 +96,14 @@ function generate_o(p::BabyPOMDP, s::Bool, rng::AbstractRNG)
 end
 
 # same for both state and observation
-vec(p::BabyPOMDP, so::Bool) = Float64[so]
+function Base.convert(prob::BabyPOMDP, so::Bool)
+    v = copy!(Array(Float64,1), so)
+    return v
+end
+
+function Base.convert(prob::BabyPOMDP, so::Vector{Float64})
+    return Bool(so[1])
+end
 
 # some example policies
 type Starve <: Policy end

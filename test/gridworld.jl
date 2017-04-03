@@ -26,10 +26,12 @@ for i in 1:length(sim.action_hist)
 end
 
 
-sv = vec(problem, GridWorldState(1, 1, false))
+sv = convert(problem, GridWorldState(1, 1, false))
 @test sv == [1.0, 1.0, 0.0]
-sv = vec(problem, GridWorldState(5, 3, false))
+sv = convert(problem, GridWorldState(5, 3, false))
 @test sv == [5.0, 3.0, 0.0]
+s = convert(problem, sv)
+@test s == GridWorldState(5, 3, false)
 
 @test GridWorldState(1,1,false) == GridWorldState(1,1,false)
 @test hash(GridWorldState(1,1,false)) == hash(GridWorldState(1,1,false))

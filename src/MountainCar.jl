@@ -48,10 +48,11 @@ function generate_s( mc::MountainCar,
 end
 
 
-function vec(mc::MountainCar, s::Tuple{Float64,Float64})
+function Base.convert(mc::MountainCar, s::Tuple{Float64,Float64})
     v = copy!(Array(Float64,2), s)
     return v
 end
+Base.convert(mc::MountainCar, s::Vector{Float64}) = (s[1], s[2])
 
 # Example policy -- works pretty well
 type Energize <: Policy{Tuple{Float64,Float64}} end

@@ -138,6 +138,7 @@ export
     # generative model
     generate_s,
     generate_o,
+    generate_sor,
     initial_state
 
 end # module

@@ -110,3 +110,6 @@ function observation(prob::DiscretePOMDP, a::Int64, sp::Int64)
     d.a = a
     return d
 end
+
+Base.convert(prob::Union{DiscreteMDP,DiscretePOMDP}, s::Int64) = Float64[s]
+Base.convert(prob::Union{DiscreteMDP,DiscretePOMDP}, s::Vector{Float64}) = Int(s[1])

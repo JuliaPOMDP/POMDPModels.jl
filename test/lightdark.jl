@@ -1,5 +1,5 @@
-
 using Base.Test
+using POMDPModels
 
 rng = MersenneTwister(41)
 p = LightDark1D()
@@ -14,3 +14,8 @@ s1, _, r = generate_sor(p, s0, 0, rng)
 s2 = LightDark1DState(0, 5)
 obs = generate_o(p, nothing, nothing, s2, rng)
 @test abs(obs-6.0) <= 1.1
+
+ov = convert(p, obs)
+@test ov == [obs]
+o = convert(p, ov)
+@test o == obs

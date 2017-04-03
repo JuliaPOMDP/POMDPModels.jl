@@ -339,7 +339,8 @@ end
 
 discount(mdp::GridWorld) = mdp.discount_factor
 
-vec(mdp::GridWorld, s::GridWorldState) = Float64[s.x, s.y, s.done]
+Base.convert(mdp::GridWorld, s::GridWorldState) = Float64[s.x, s.y, s.done]
+Base.convert(mdp::GridWorld, s::Vector{Float64}) = GridWorldState(s[1], s[2], s[3])
 
 initial_state(mdp::GridWorld, rng::AbstractRNG) = GridWorldState(rand(rng, 1:mdp.size_x), rand(rng, 1:mdp.size_y))
 

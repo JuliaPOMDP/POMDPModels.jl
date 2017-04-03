@@ -23,11 +23,9 @@ test_obs(TMazeState(5, :south, false), 3) # corridor
 test_obs(TMazeState(11, :south, false), 4) # junction
 test_obs(TMazeState(11, :south, true), 5) # terminal
 
-ov = vec(problem, 1)
+ov = convert(problem, 1)
 @test ov == [1.]
+o = convert(problem, ov)
+@test o == 1
 
-sv = vec(problem, TMazeState(1, :north, false))
-@test sv == [1.0, 0.0]
-sv = vec(problem, TMazeState(1, :south, false))
-@test sv == [1.0, 1.0]
 

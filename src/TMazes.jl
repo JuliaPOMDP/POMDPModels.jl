@@ -250,14 +250,15 @@ function generate_o(maze::TMaze, s::TMazeState, rng::AbstractRNG)
     return 5
 end
 
-function vec(maze::TMaze, s::TMazeState)
+function Base.convert(maze::TMaze, s::TMazeState)
     v = Array(Float64, 2)
     v[1] = s.x
     s.g == :north ? (v[2] = 0.0) : (v[2] = 1.0)
     return v
 end
 
-vec(maze::TMaze, o::Int64) = Float64[o]
+Base.convert(maze::TMaze, o::Int64) = Float64[o]
+Base.convert(maze::TMaze, o::Vector{Float64}) = Int64(o[1])
 
 type MazeBelief 
     last_obs::Int64

@@ -130,6 +130,13 @@ function reward(p::LightDark1D, s::LightDark1DState, a::Int)
     end
 end
 
+
+#Base.convert(p::LightDark1D, s::LightDark1DState) = Float64[s.status, s.y]
+#Base.convert(p::LightDark1D, s::Vector{Float64}) = LightDark1D(Int64(s[1]), s[2])
+
+Base.convert(p::LightDark1D, o::Float64) = Float64[o]
+Base.convert(p::LightDark1D, o::Vector{Float64}) = o[1]
+
 # XXX this is specifically for MCVI
 # it is also implemented in the MCVI tests
 function init_lower_action(p::LightDark1D)
@@ -183,3 +190,4 @@ function action{B}(p::SmartHeuristic1DPolicy, b::B)
     end
     return a
 end
+
