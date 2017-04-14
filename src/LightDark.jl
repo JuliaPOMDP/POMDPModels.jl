@@ -82,6 +82,7 @@ end
 function generate_o(p::LightDark1D, s::Union{LightDark1DState,Void}, a::Union{Int,Void}, sp::LightDark1DState, rng::AbstractRNG)
     return sp.y + Base.randn(rng)*sigma(sp.y)
 end
+generate_o(p::LightDark1D, sp::Union{LightDark1DState,Void}, rng::AbstractRNG) = sp.y + Base.randn(rng)*sigma(sp.y)
 
 function generate_s(p::LightDark1D, s::LightDark1DState, a::Int, rng::AbstractRNG)
     if s.status < 0                  # Terminal state
