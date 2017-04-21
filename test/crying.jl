@@ -18,9 +18,9 @@ r = simulate(sim, problem, policy, updater(policy), ib)
 o = generate_o(problem, true, MersenneTwister(1))
 @test o == 1
 # test vec
-ov = convert(problem, true)
+ov = convert(Array{Float64}, true, problem)
 @test ov == [1.]
-o = convert(problem, ov)
+o = convert(Bool, ov, problem)
 @test o == true
 
 probability_check(problem)

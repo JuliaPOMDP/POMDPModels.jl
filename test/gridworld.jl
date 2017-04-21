@@ -26,11 +26,11 @@ for i in 1:length(sim.action_hist)
 end
 
 
-sv = convert(problem, GridWorldState(1, 1, false))
+sv = convert(Array{Float64}, GridWorldState(1, 1, false), problem)
 @test sv == [1.0, 1.0, 0.0]
-sv = convert(problem, GridWorldState(5, 3, false))
+sv = convert(Array{Float64}, GridWorldState(5, 3, false), problem)
 @test sv == [5.0, 3.0, 0.0]
-s = convert(problem, sv)
+s = convert(GridWorldState, sv, problem)
 @test s == GridWorldState(5, 3, false)
 
 @test GridWorldState(1,1,false) == GridWorldState(1,1,false)

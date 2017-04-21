@@ -96,12 +96,12 @@ function generate_o(p::BabyPOMDP, s::Bool, rng::AbstractRNG)
 end
 
 # same for both state and observation
-function Base.convert(prob::BabyPOMDP, so::Bool)
+function Base.convert(::Type{Array{Float64}}, so::Bool, prob::BabyPOMDP)
     v = copy!(Array(Float64,1), so)
     return v
 end
 
-function Base.convert(prob::BabyPOMDP, so::Vector{Float64})
+function Base.convert(::Type{Bool}, so::Vector{Float64}, prob::BabyPOMDP)
     return Bool(so[1])
 end
 

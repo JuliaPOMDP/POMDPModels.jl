@@ -25,9 +25,9 @@ simulate(sim, pomdp1, policy, updater(policy), initial_state_distribution(pomdp1
 o = generate_o(pomdp1, true, MersenneTwister(1))
 @test o == 1
 # test vec
-ov = convert(pomdp1, true)
+ov = convert(Array{Float64}, true, pomdp1)
 @test ov == [1.]
-o = convert(pomdp1, ov)
+o = convert(Bool, ov, pomdp1)
 @test o == true
 
 probability_check(pomdp1)

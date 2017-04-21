@@ -257,8 +257,8 @@ function Base.convert(maze::TMaze, s::TMazeState)
     return v
 end
 
-Base.convert(maze::TMaze, o::Int64) = Float64[o]
-Base.convert(maze::TMaze, o::Vector{Float64}) = Int64(o[1])
+Base.convert(::Type{Array{Float64}}, o::Int64, ::TMaze) = Float64[o]
+Base.convert(::Type{Int64}, o::Vector{Float64}, ::TMaze) = Int64(o[1])
 
 type MazeBelief 
     last_obs::Int64

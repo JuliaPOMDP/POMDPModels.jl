@@ -100,8 +100,8 @@ function generate_o(p::TigerPOMDP, s::Bool, rng::AbstractRNG)
 end
 
 # same for both state and observation
-Base.convert(p::TigerPOMDP, so::Bool) = Float64[so]
-Base.convert(p::TigerPOMDP, so::Vector{Float64}) = Bool(so[1])
+Base.convert(::Type{Array{Float64}}, so::Bool, p::TigerPOMDP) = Float64[so]
+Base.convert(::Type{Bool}, so::Vector{Float64}, p::TigerPOMDP) = Bool(so[1])
 
 type TigerBeliefUpdater <: Updater{TigerDistribution}
     pomdp::TigerPOMDP
