@@ -12,13 +12,6 @@ This package provides the following models for POMDPs.jl:
 * Inverted Pendulum
 * T-Maze
 
-## Installation
-Make sure POMDPs.jl is installed, then run the following code in the Julia REPL:
-```julia
-using POMDPs
-POMDPs.add("POMDPModels")
-```
-
 ## Usage
 
 To use POMDPModels, simply load it and initialize a model. The model supports the basic functions required by many of
