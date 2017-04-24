@@ -103,29 +103,29 @@ end
 Base.convert(::Type{Array{Float64}}, so::Bool, p::TigerPOMDP) = Float64[so]
 Base.convert(::Type{Bool}, so::Vector{Float64}, p::TigerPOMDP) = Bool(so[1])
 
-type TigerBeliefUpdater <: Updater{TigerDistribution}
-    pomdp::TigerPOMDP
-end
-
-
-function update(bu::TigerBeliefUpdater, bold::DiscreteBelief, a::Int64, o::Bool)
-    bl = bold[1]
-    br = bold[2]
-    p = bu.pomdp.p_listen_correctly
-    if a == 0
-        if o
-            bl *= p
-            br *= (1.0-p)
-        else
-            bl *= (1.0-p)
-            br *= p
-        end
-    else
-        bl = 0.5
-        br = 0.5
-    end
-    norm = bl+br
-    b[1] = bl / norm
-    b[2] = br / norm
-    b
-end
+# This doesn't seem to work well
+# type TigerBeliefUpdater <: Updater{DiscreteBelief}
+#     pomdp::TigerPOMDP
+# end
+# 
+# function update(bu::TigerBeliefUpdater, bold::DiscreteBelief, a::Int64, o::Bool)
+#     bl = bold[1]
+#     br = bold[2]
+#     p = bu.pomdp.p_listen_correctly
+#     if a == 0
+#         if o
+#             bl *= p
+#             br *= (1.0-p)
+#         else
+#             bl *= (1.0-p)
+#             br *= p
+#         end
+#     else
+#         bl = 0.5
+#         br = 0.5
+#     end
+#     norm = bl+br
+#     b[1] = bl / norm
+#     b[2] = br / norm
+#     b
+# end
