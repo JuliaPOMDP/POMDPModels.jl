@@ -33,6 +33,11 @@ sv = convert(Array{Float64}, GridWorldState(5, 3, false), problem)
 s = convert(GridWorldState, sv, problem)
 @test s == GridWorldState(5, 3, false)
 
+av = convert(Array{Float64}, :up, problem)
+@test av == [0.0]
+a = convert(Symbol, av, problem)
+@test a == :up
+
 @test GridWorldState(1,1,false) == GridWorldState(1,1,false)
 @test hash(GridWorldState(1,1,false)) == hash(GridWorldState(1,1,false))
 @test GridWorldState(1,2,false) != GridWorldState(1,1,false)

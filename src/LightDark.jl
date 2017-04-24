@@ -51,7 +51,7 @@ type LightDark1DActionSpace
 end
 Base.length(asp::LightDark1DActionSpace) = length(asp.actions)
 actions(::LightDark1D) = LightDark1DActionSpace((-1, 0, 1)) # Left Stop Right
-actions(pomdp::LightDark1D, s::LightDark1DState) = acts
+actions(pomdp::LightDark1D, s::LightDark1DState) = actions(pomdp)
 iterator(space::LightDark1DActionSpace) = space.actions
 dimensions(::LightDark1DActionSpace) = 1
 n_actions(p::LightDark1D) = length(actions(p))
@@ -137,6 +137,9 @@ Base.convert(::Type{LightDark1DState}, s::Vector{Float64}, p::LightDark1D) = Lig
 
 Base.convert(::Type{Array{Float64}}, o::Float64, p::LightDark1D) = Float64[o]
 Base.convert(::Type{Float64}, o::Vector{Float64}, p::LightDark1D) = o[1]
+
+Base.convert(::Type{Array{Float64}}, a::Int, p::LightDark1D) = Float64[a]
+Base.convert(::Type{Int}, a::Vector{Float64}, p::LightDark1D) = Int(a[1])
 
 # XXX this is specifically for MCVI
 # it is also implemented in the MCVI tests

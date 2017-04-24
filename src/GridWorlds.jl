@@ -342,6 +342,37 @@ discount(mdp::GridWorld) = mdp.discount_factor
 Base.convert(::Type{Array{Float64}}, s::GridWorldState, mdp::GridWorld) = Float64[s.x, s.y, s.done]
 Base.convert(::Type{GridWorldState}, s::Vector{Float64}, mdp::GridWorld) = GridWorldState(s[1], s[2], s[3])
 
+function a2int(a::Symbol, mdp::GridWorld)
+    if a == :up
+        return 0
+    elseif a == :down
+        return 1
+    elseif a == :left
+        return 2
+    elseif a == :right
+        return 3
+    else
+        throw("Action $a is invalid")
+    end
+end
+
+function int2a(a::Int, mdp::GridWorld)
+    if a == 0
+        return :up
+    elseif a == 1
+        return :down
+    elseif a == 2
+        return :left
+    elseif a == 3
+        return :right
+    else
+        throw("Action $a is invalid")
+    end
+end
+
+Base.convert(::Type{Array{Float64}}, a::Symbol, mdp::GridWorld) = [Float64(a2int(a, mdp))]
+Base.convert(::Type{Symbol}, a::Vector{Float64}, mdp::GridWorld) = int2a(Int(a[1]), mdp)
+
 initial_state(mdp::GridWorld, rng::AbstractRNG) = GridWorldState(rand(rng, 1:mdp.size_x), rand(rng, 1:mdp.size_y))
 
 # Visualization
