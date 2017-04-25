@@ -1,9 +1,3 @@
-# Install related packages on first run
-# using POMDPs
-# POMDPs.add("POMDPModels")
-# POMDPs.add("POMDPToolbox")
-# POMDPs.add("GenerativeModels")
-
 using POMDPModels
 using POMDPToolbox
 using Base.Test
