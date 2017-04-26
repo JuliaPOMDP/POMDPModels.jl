@@ -147,10 +147,19 @@ function init_lower_action(p::LightDark1D)
     return 0 # Worst? This depends on the initial state? XXX
 end
 
+observation(p::LightDark1D, sp::LightDark1DState) = Normal(sp.y, sigma(sp.y))
+
+#=
 gauss(s::Float64, x::Float64) = 1 / sqrt(2*pi) / s * exp(-1*x^2/(2*s^2))
+function obs_weight(p::LightDark1D, s::LightDark1DState, obs::Float64)
+    return gauss(sigma(s.y), s.y-obs)
+end
+
+# old - this should not be there
 function pdf(s::LightDark1DState, obs::Float64)
     return gauss(sigma(s.y), s.y-obs)
 end
+=#
 
 # Define some simple policies based on particle belief
 type DummyHeuristic1DPolicy <: POMDPs.Policy
