@@ -35,6 +35,7 @@ import POMDPs: initial_state, generate_s, generate_o, generate_sor
 
 # for grid world visualization
 using TikzPictures
+using AutoHashEquals
 
 include("TigerPOMDPs.jl")
 export
