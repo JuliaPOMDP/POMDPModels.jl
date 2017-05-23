@@ -51,7 +51,7 @@ iterator(d::DiscreteDistribution) = d.it
 pdf(d::DiscreteDistribution, sp::Int64) = d.D[sp, d.a, d.s] # T(s', a, s)
 
 function rand(rng::AbstractRNG, d::DiscreteDistribution)
-    cat = WeightVec(d.D[:,d.a,d.s])
+    cat = Weights(d.D[:,d.a,d.s])
     return sample(rng, cat)
 end
 
@@ -93,7 +93,7 @@ type StateDist
     cat::Vector{Float64}
 end
 initial_state_distribution(prob::DiscreteProb) = StateDist(ones(prob.ns)/prob.ns)
-rand(rng::AbstractRNG, d::StateDist) = sample(rng, WeightVec(d.cat))
+rand(rng::AbstractRNG, d::StateDist) = sample(rng, Weights(d.cat))
 pdf(d::StateDist, s::Int64) = d.cat[s]
 iterator(d::StateDist) = collect(1:length(d.cat))
 

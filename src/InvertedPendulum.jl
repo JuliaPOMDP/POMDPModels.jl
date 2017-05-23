@@ -32,15 +32,8 @@ type InvertedPendulum <: MDP{Tuple{Float64,Float64},Float64}
     end
 end
 
-
-type InvertedPendulumActions
-  actions::Vector{Float64}
-end
-InvertedPendulumActions() = InvertedPendulumActions(Float64[-50.;0.;50.])
-actions(ip::InvertedPendulum) = InvertedPendulumActions()
-actions(ip::InvertedPendulum, s::Tuple{Float64,Float64}) = actions(ip)
+actions(ip::InvertedPendulum) = [-50., 0., 50.]
 n_actions(ip::InvertedPendulum) = 3
-rand(rng::AbstractRNG, as::InvertedPendulumActions) = as.actions[rand(rng,1:length(as.actions))]
 
 function initial_state(ip::InvertedPendulum, rng::AbstractRNG)
   sp = ((rand(rng)-0.5)*0.1, (rand(rng)-0.5)*0.1, )
@@ -51,7 +44,7 @@ function reward(ip::InvertedPendulum,
               s::Tuple{Float64,Float64},
               a::Float64,
               sp::Tuple{Float64,Float64}) 
-    isterminal(ip, sp) ? (return ip.cost) : (return 0.0)
+    return isterminal(ip, sp) ? ip.cost : 0.0
 end
 
 discount(ip::InvertedPendulum) = ip.discount

@@ -8,14 +8,8 @@ type MountainCar <: MDP{Tuple{Float64,Float64},Float64}
 end
 MountainCar(;discount::Float64=0.99,cost::Float64=-1., jackpot::Float64=0.0) = MountainCar(discount,cost,jackpot)
 
-type MountainCarActions
-  actions::Vector{Float64}
-end
-MountainCarActions() = MountainCarActions(Float64[-1.,0.,1.])
-actions(::MountainCar) = MountainCarActions(Float64[-1.,0.,1.])
-actions(mc::MountainCar,::Tuple{Float64,Float64}) = actions(mc)
+actions(::MountainCar) = [-1., 0., 1.]
 n_actions(mc::MountainCar) = 3
-rand(rng::AbstractRNG,as::MountainCarActions) = as.actions[rand(rng,1:length(as.actions))]
 
 reward(mc::MountainCar,
               s::Tuple{Float64,Float64},

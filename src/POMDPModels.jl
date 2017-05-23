@@ -12,6 +12,9 @@ module POMDPModels
 using POMDPs
 using POMDPToolbox
 using Distributions
+using StaticArrays
+using AutoHashEquals
+using StatsBase
 
 import POMDPs: n_states, n_actions, n_observations # space sizes for discrete problems
 import POMDPs: state_index, action_index, obs_index
@@ -35,7 +38,6 @@ import POMDPs: initial_state, generate_s, generate_o, generate_sor
 
 # for grid world visualization
 using TikzPictures
-using AutoHashEquals
 
 include("TigerPOMDPs.jl")
 export

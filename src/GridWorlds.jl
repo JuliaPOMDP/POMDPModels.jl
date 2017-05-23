@@ -12,7 +12,7 @@
 # States and Actions
 #################################################################
 # state of the agent in grid world
-type GridWorldState # this is not immutable because of how it is used in transition(), but maybe it should be
+immutable GridWorldState # this is not immutable because of how it is used in transition(), but maybe it should be
 	x::Int64 # x position
 	y::Int64 # y position
     done::Bool # entered the terminal reward state in previous step - there is only one terminal state
@@ -68,7 +68,7 @@ function GridWorld(;sx::Int64=10, # size_x
                     tp::Float64=0.7, # tprob
                     discount_factor::Float64=0.95,
                     terminals=Set{GridWorldState}([rs[i] for i in filter(i->rv[i]>0.0, 1:length(rs))]))
-    return GridWorld(sx, sy, rs, rv, penalty, tp, terminals, discount_factor)
+    return GridWorld(sx, sy, rs, rv, penalty, tp, Set{GridWorldState}(terminals), discount_factor)
 end
 
 # convenience function
@@ -105,9 +105,9 @@ actions(mdp::GridWorld, s=nothing) = [:up, :down, :left, :right]
 # Distributions
 #################################################################
 
-type GridWorldDistribution
-    neighbors::Array{GridWorldState}
-    probs::Array{Float64} 
+immutable GridWorldDistribution
+    neighbors::SVector{5, GridWorldState}
+    probs::SVector{5, Float64}
 end
 
 
@@ -125,7 +125,7 @@ function pdf(d::GridWorldDistribution, s::GridWorldState)
     return 0.0
 end
 
-function rand(rng::AbstractRNG, d::GridWorldDistribution, s::GridWorldState=GridWorldState(0,0))
+function rand(rng::AbstractRNG, d::GridWorldDistribution)
     # assume the sum of d.probs is one
     t = rand(rng)
     n = length(d.neighbors)
@@ -136,12 +136,7 @@ function rand(rng::AbstractRNG, d::GridWorldDistribution, s::GridWorldState=Grid
         @inbounds c += d.probs[i]
     end
     new = d.neighbors[i]
-    # cat = WeightVec(d.probs)
-    # new = d.neighbors[sample(rng, cat)]
-    s.x = new.x
-    s.y = new.y
-    s.done = new.done
-    return s
+    return GridWorldState(new.x, new.y, new.done)
 end
 
 n_states(mdp::GridWorld) = mdp.size_x*mdp.size_y+1
@@ -198,21 +193,22 @@ end
 Return false if `a` is trying to go out of bounds, true otherwise.
 """
 function inbounds(mdp::GridWorld, s::GridWorldState, a::Symbol)
-    sdir = GridWorldState(s.x, s.y, s.done)
+    xdir = s.x
+    ydir = s.y
     if a == :right
-        sdir.x += 1
+        xdir += 1
     elseif a == :left
-        sdir.x -= 1
+        xdir -= 1
     elseif a == :up
-        sdir.y += 1
+        ydir += 1
     else
         # @assert a == :down
-        sdir.y -= 1
+        ydir -= 1
     end
-    return inbounds(mdp, sdir)
+    return inbounds(mdp, GridWorldState(xdir, ydir, s.done))
 end
 
-function fill_probability!(p::Vector{Float64}, val::Float64, index::Int64)
+function fill_probability!(p::AbstractVector{Float64}, val::Float64, index::Int64)
 	for i = 1:length(p)
 		if i == index
 			p[i] = val
@@ -228,33 +224,30 @@ function transition(mdp::GridWorld, state::GridWorldState, action::Symbol)
 	x = state.x
 	y = state.y 
 
-    neighbors = [
+    neighbors = MVector(
         GridWorldState(x+1, y, false), # right
         GridWorldState(x-1, y, false), # left
         GridWorldState(x, y-1, false), # down
         GridWorldState(x, y+1, false), # up
         GridWorldState(x, y, false)    # stay
-       ]
+       )
 
-    d = GridWorldDistribution(neighbors, Array(Float64, 5)) 
-    
-    probability = d.probs
+    probability = MVector{5, Float64}()
     fill!(probability, 0.0)
 
     if state.done
         fill_probability!(probability, 1.0, 5)
-        neighbors[5].done = true
-        return d
+        neighbors[5] = GridWorldState(x, y, true)
+        return GridWorldDistribution(neighbors, probability)
     end
 
-    for i = 1:5 neighbors[i].done = false end 
     reward_states = mdp.reward_states
     reward_values = mdp.reward_values
 	n = length(reward_states)
     if state in mdp.terminals
 		fill_probability!(probability, 1.0, 5)
-        neighbors[5].done = true
-        return d
+        neighbors[5] = GridWorldState(x, y, true)
+        return GridWorldDistribution(neighbors, probability)
     end
 	
     # The following match the definition of neighbors
@@ -296,7 +289,7 @@ function transition(mdp::GridWorld, state::GridWorldState, action::Symbol)
         end
 	end
 
-    return d
+    return GridWorldDistribution(neighbors, probability)
 end
 
 

@@ -108,7 +108,7 @@ function rand(rng::AbstractRNG, d::TMazeInit)
     #idx = nothing
     #rand(rng) < 0.5 ? (idx = 1) : (idx = 2)
     #copy!(s, d.states[idx])
-    cat = WeightVec(d.probs)
+    cat = Weights(d.probs)
     idx = sample(rng, cat)
     copy!(s, d.states[idx])
     return s
