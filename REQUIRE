@@ -5,3 +5,4 @@ TikzPictures
 POMDPToolbox
 AutoHashEquals
 StaticArrays
+StatsBase 0.15
