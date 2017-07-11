@@ -49,5 +49,5 @@ end
 Base.convert(::Type{Tuple{Float64,Float64}}, s::Vector{Float64}, mc::MountainCar) = (s[1], s[2])
 
 # Example policy -- works pretty well
-mutable struct Energize <: Policy{Tuple{Float64,Float64}} end
+mutable struct Energize <: Policy end
 action(::Energize,s::Tuple{Float64,Float64}) = sign(s[2])

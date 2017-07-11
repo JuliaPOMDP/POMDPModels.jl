@@ -25,7 +25,7 @@ Base.length(d::BoolDistribution) = 2
 index(d::BoolDistribution, s::Bool) = s ? 1:2
 Base.convert(t::Type{DiscreteBelief}, b::BoolDistribution) = DiscreteBelief([b.p, 1.0-b.p])
 
-mutable struct BabyBeliefUpdater <: Updater{BoolDistribution}
+mutable struct BabyBeliefUpdater <: Updater
     problem::BabyPOMDP
 end
 updater(problem::BabyPOMDP) = BabyBeliefUpdater(problem)
@@ -116,7 +116,7 @@ updater(::AlwaysFeed) = VoidUpdater()
 
 # feed when the previous observation was crying - this is nearly optimal
 mutable struct FeedWhenCrying <: Policy end
-updater(::FeedWhenCrying) = PreviousObservationUpdater{Bool}()
+updater(::FeedWhenCrying) = PreviousObservationUpdater()
 function action(::FeedWhenCrying, b::Nullable{Bool})
     if get(b, false) == false # not crying (or null)
         return false

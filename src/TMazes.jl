@@ -266,7 +266,7 @@ mutable struct MazeBelief
 end
 MazeBelief() = MazeBelief(1, :none)
 
-mutable struct MazeUpdater <: Updater{MazeBelief} end
+mutable struct MazeUpdater <: Updater end
 POMDPs.initialize_belief(bu::MazeUpdater, d::Any) = b
 
 function POMDPs.update(bu::MazeUpdater, b::MazeBelief, a, o)
@@ -284,8 +284,7 @@ end
 
 
 
-mutable struct MazeOptimal <: Policy{MazeBelief} end
-
+mutable struct MazeOptimal <: Policy
 POMDPs.updater(p::MazeOptimal) = MazeUpdater()
 
 # 4 actions: go North, East, South, West (1, 2, 3, 4)
