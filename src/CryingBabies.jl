@@ -116,7 +116,7 @@ updater(::AlwaysFeed) = VoidUpdater()
 
 # feed when the previous observation was crying - this is nearly optimal
 mutable struct FeedWhenCrying <: Policy end
-updater(::FeedWhenCrying) = PreviousObservationUpdater()
+updater(::FeedWhenCrying) = PreviousObservationUpdater{Bool}()
 function action(::FeedWhenCrying, b::Nullable{Bool})
     if get(b, false) == false # not crying (or null)
         return false
