@@ -4,7 +4,7 @@
 
 import Base: ==, +, *, -
 
-immutable LightDark1DState
+struct LightDark1DState
     status::Int64
     y::Float64
 end
@@ -29,7 +29,7 @@ Model
 
 Here G is the goal. S is the starting location
 """
-type LightDark1D <: POMDPs.POMDP{LightDark1DState,Int64,Float64}
+mutable struct LightDark1D <: POMDPs.POMDP{LightDark1DState,Int64,Float64}
     discount_factor::Float64
     correct_r::Float64
     incorrect_r::Float64
@@ -46,7 +46,7 @@ isterminal(::LightDark1D, act::Int64) = act == 0
 isterminal(::LightDark1D, s::LightDark1DState) = s.status < 0
 
 
-type LightDark1DActionSpace
+mutable struct LightDark1DActionSpace
     actions::NTuple{3,Int64}
 end
 Base.length(asp::LightDark1DActionSpace) = length(asp.actions)
@@ -58,7 +58,7 @@ n_actions(p::LightDark1D) = length(actions(p))
 
 rand(rng::AbstractRNG, asp::LightDark1DActionSpace) = asp.actions[rand(rng, 1:3)]
 
-@auto_hash_equals type LDNormalStateDist
+@auto_hash_equals mutable struct LDNormalStateDist
     mean::Float64
     std::Float64
 end
@@ -162,12 +162,12 @@ end
 =#
 
 # Define some simple policies based on particle belief
-type DummyHeuristic1DPolicy <: POMDPs.Policy
+mutable struct DummyHeuristic1DPolicy <: POMDPs.Policy
     thres::Float64
 end
 DummyHeuristic1DPolicy() = DummyHeuristic1DPolicy(0.1)
 
-type SmartHeuristic1DPolicy <: POMDPs.Policy
+mutable struct SmartHeuristic1DPolicy <: POMDPs.Policy
     thres::Float64
 end
 SmartHeuristic1DPolicy() = SmartHeuristic1DPolicy(0.1)
@@ -203,4 +203,3 @@ function action{B}(p::SmartHeuristic1DPolicy, b::B)
     end
     return a
 end
-

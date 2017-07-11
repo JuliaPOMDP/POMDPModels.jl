@@ -3,7 +3,7 @@
 # Action: feed = true; do nothing = false
 # Observation: crying = true; not crying = false
 
-type BabyPOMDP <: POMDP{Bool, Bool, Bool}
+mutable struct BabyPOMDP <: POMDP{Bool, Bool, Bool}
     r_feed::Float64
     r_hungry::Float64
     p_become_hungry::Float64
@@ -15,7 +15,7 @@ BabyPOMDP(r_feed, r_hungry) = BabyPOMDP(r_feed, r_hungry, 0.1, 0.8, 0.1, 0.9)
 BabyPOMDP() = BabyPOMDP(-5., -10.)
 
 # TODO: this should be moved to POMDPDistributions.jl
-immutable BoolDistribution
+struct BoolDistribution
     p::Float64 # probability of true
 end
 BoolDistribution() = BoolDistribution(0.0)
@@ -25,7 +25,7 @@ Base.length(d::BoolDistribution) = 2
 index(d::BoolDistribution, s::Bool) = s ? 1:2
 Base.convert(t::Type{DiscreteBelief}, b::BoolDistribution) = DiscreteBelief([b.p, 1.0-b.p])
 
-type BabyBeliefUpdater <: Updater{BoolDistribution}
+mutable struct BabyBeliefUpdater <: Updater{BoolDistribution}
     problem::BabyPOMDP
 end
 updater(problem::BabyPOMDP) = BabyBeliefUpdater(problem)
@@ -106,16 +106,16 @@ function Base.convert(::Type{Bool}, so::Vector{Float64}, prob::BabyPOMDP)
 end
 
 # some example policies
-type Starve <: Policy end
+mutable struct Starve <: Policy end
 action{B}(::Starve, ::B) = false
 updater(::Starve) = VoidUpdater()
 
-type AlwaysFeed <: Policy end
+mutable struct AlwaysFeed <: Policy end
 action{B}(::AlwaysFeed, ::B) = true
 updater(::AlwaysFeed) = VoidUpdater()
 
 # feed when the previous observation was crying - this is nearly optimal
-type FeedWhenCrying <: Policy end
+mutable struct FeedWhenCrying <: Policy end
 updater(::FeedWhenCrying) = PreviousObservationUpdater{Bool}()
 function action(::FeedWhenCrying, b::Nullable{Bool})
     if get(b, false) == false # not crying (or null)

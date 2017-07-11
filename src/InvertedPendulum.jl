@@ -1,6 +1,6 @@
 # Inverted Pendulum task for continous reinforcement learning as describe in XXX
 
-type InvertedPendulum <: MDP{Tuple{Float64,Float64},Float64}
+mutable struct InvertedPendulum <: MDP{Tuple{Float64,Float64},Float64}
     g::Float64
     m::Float64
     l::Float64
@@ -43,7 +43,7 @@ end
 function reward(ip::InvertedPendulum,
               s::Tuple{Float64,Float64},
               a::Float64,
-              sp::Tuple{Float64,Float64}) 
+              sp::Tuple{Float64,Float64})
     return isterminal(ip, sp) ? ip.cost : 0.0
 end
 
