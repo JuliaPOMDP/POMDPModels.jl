@@ -284,7 +284,7 @@ end
 
 
 
-mutable struct MazeOptimal <: Policy
+mutable struct MazeOptimal <: Policy end
 POMDPs.updater(p::MazeOptimal) = MazeUpdater()
 
 # 4 actions: go North, East, South, West (1, 2, 3, 4)
