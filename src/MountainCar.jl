@@ -1,7 +1,7 @@
 # Mountain Car problem for continuous reinforcement learning
 # As described in XXX
 
-type MountainCar <: MDP{Tuple{Float64,Float64},Float64}
+mutable struct MountainCar <: MDP{Tuple{Float64,Float64},Float64}
   discount::Float64
   cost::Float64 # reward at each state not at the goal (should be a negative number)
   jackpot::Float64 # reward at the top
@@ -49,5 +49,5 @@ end
 Base.convert(::Type{Tuple{Float64,Float64}}, s::Vector{Float64}, mc::MountainCar) = (s[1], s[2])
 
 # Example policy -- works pretty well
-type Energize <: Policy{Tuple{Float64,Float64}} end
+mutable struct Energize <: Policy end
 action(::Energize,s::Tuple{Float64,Float64}) = sign(s[2])

@@ -12,7 +12,7 @@
 # States and Actions
 #################################################################
 # state of the agent in grid world
-immutable GridWorldState # this is not immutable because of how it is used in transition(), but maybe it should be
+struct GridWorldState # this is not immutable because of how it is used in transition(), but maybe it should be
 	x::Int64 # x position
 	y::Int64 # y position
     done::Bool # entered the terminal reward state in previous step - there is only one terminal state
@@ -43,13 +43,13 @@ end
 Base.copy!(dest::GridWorldState, src::GridWorldState) = (dest.x=src.x; dest.y=src.y; dest.done=src.done; return dest)
 
 # action taken by the agent indeicates desired travel direction
-typealias GridWorldAction Symbol # deprecated - this is here so that other people's code won't break
+const GridWorldAction = Symbol # deprecated - this is here so that other people's code won't break
 
 #################################################################
 # Grid World MDP
 #################################################################
 # the grid world mdp type
-type GridWorld <: MDP{GridWorldState, Symbol}
+mutable struct GridWorld <: MDP{GridWorldState, Symbol}
 	size_x::Int64 # x size of the grid
 	size_y::Int64 # y size of the grid
 	reward_states::Vector{GridWorldState} # the states in which agent recieves reward
@@ -59,11 +59,11 @@ type GridWorld <: MDP{GridWorldState, Symbol}
     terminals::Set{GridWorldState}
     discount_factor::Float64 # disocunt factor
 end
-# we use key worded arguments so we can change any of the values we pass in 
+# we use key worded arguments so we can change any of the values we pass in
 function GridWorld(;sx::Int64=10, # size_x
                     sy::Int64=10, # size_y
                     rs::Vector{GridWorldState}=[GridWorldState(4,3), GridWorldState(4,6), GridWorldState(9,3), GridWorldState(8,8)],
-                    rv::Vector{Float64}=[-10.,-5,10,3], 
+                    rv::Vector{Float64}=[-10.,-5,10,3],
                     penalty::Float64=0.0, # penalty for trying to go out of bounds  (will be added to reward)
                     tp::Float64=0.7, # tprob
                     discount_factor::Float64=0.95,
@@ -89,7 +89,7 @@ end
 
 # returns the state space
 function states(mdp::GridWorld)
-	s = GridWorldState[] 
+	s = GridWorldState[]
 	size_x = mdp.size_x
 	size_y = mdp.size_y
     for y = 1:mdp.size_y, x = 1:mdp.size_x
@@ -105,7 +105,7 @@ actions(mdp::GridWorld, s=nothing) = [:up, :down, :left, :right]
 # Distributions
 #################################################################
 
-immutable GridWorldDistribution
+struct GridWorldDistribution
     neighbors::SVector{5, GridWorldState}
     probs::SVector{5, Float64}
 end
@@ -121,7 +121,7 @@ function pdf(d::GridWorldDistribution, s::GridWorldState)
         if s == sp
             return d.probs[i]
         end
-    end   
+    end
     return 0.0
 end
 
@@ -165,18 +165,18 @@ function static_reward(mdp::GridWorld, state::GridWorldState)
 	reward_values = mdp.reward_values
 	n = length(reward_states)
 	for i = 1:n
-		if posequal(state, reward_states[i]) 
+		if posequal(state, reward_states[i])
 			r += reward_values[i]
 		end
-	end 
+	end
     return r
 end
 
 #checking boundries- x,y --> points of current state
 function inbounds(mdp::GridWorld,x::Int64,y::Int64)
-	if 1 <= x <= mdp.size_x && 1 <= y <= mdp.size_y 
-		return true 
-	else 
+	if 1 <= x <= mdp.size_x && 1 <= y <= mdp.size_y
+		return true
+	else
 		return false
 	end
 end
@@ -220,9 +220,9 @@ end
 
 function transition(mdp::GridWorld, state::GridWorldState, action::Symbol)
 
-	a = action 
+	a = action
 	x = state.x
-	y = state.y 
+	y = state.y
 
     neighbors = MVector(
         GridWorldState(x+1, y, false), # right
@@ -249,7 +249,7 @@ function transition(mdp::GridWorld, state::GridWorldState, action::Symbol)
         neighbors[5] = GridWorldState(x, y, true)
         return GridWorldDistribution(neighbors, probability)
     end
-	
+
     # The following match the definition of neighbors
     # given above
     target_neighbor = 0
@@ -272,7 +272,7 @@ function transition(mdp::GridWorld, state::GridWorldState, action::Symbol)
 		probability[target_neighbor] = mdp.tprob
 
         oob_count = 0 # number of out of bounds neighbors
-        
+
         for i = 1:length(neighbors)
              if !inbounds(mdp, neighbors[i])
                 oob_count += 1
@@ -319,7 +319,7 @@ function s2i(mdp::GridWorld, state::GridWorldState)
     else
         return sub2ind((mdp.size_x, mdp.size_y), state.x, state.y)
     end
-end 
+end
 
 #=
 function i2s(mdp::GridWorld, i::Int)

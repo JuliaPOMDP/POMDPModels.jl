@@ -1,4 +1,4 @@
-type TigerPOMDP <: POMDP{Bool, Int64, Bool}
+mutable struct TigerPOMDP <: POMDP{Bool, Int64, Bool}
     r_listen::Float64
     r_findtiger::Float64
     r_escapetiger::Float64
@@ -20,7 +20,7 @@ const TIGER_OPEN_RIGHT = 2
 const TIGER_LEFT = true
 const TIGER_RIGHT = false
 
-type TigerDistribution
+mutable struct TigerDistribution
     p::Float64
     it::Vector{Bool}
 end
@@ -59,7 +59,7 @@ function observation(pomdp::TigerPOMDP, a::Int64, sp::Bool)
     pc = pomdp.p_listen_correctly
     if a == 0
         sp ? (d.p = pc) : (d.p = 1.0-pc)
-    else 
+    else
         d.p = 0.5
     end
     d
@@ -84,12 +84,12 @@ end
 reward(pomdp::TigerPOMDP, s::Bool, a::Int64, sp::Bool) = reward(pomdp, s, a)
 
 
-initial_state_distribution(pomdp::TigerPOMDP) = TigerDistribution(0.5, [true, false])     
+initial_state_distribution(pomdp::TigerPOMDP) = TigerDistribution(0.5, [true, false])
 
 actions(::TigerPOMDP) = [0,1,2]
 
 function upperbound(pomdp::TigerPOMDP, s::Bool)
-    return pomdp.r_escapetiger 
+    return pomdp.r_escapetiger
 end
 
 discount(pomdp::TigerPOMDP) = pomdp.discount_factor
@@ -104,10 +104,10 @@ Base.convert(::Type{Array{Float64}}, so::Bool, p::TigerPOMDP) = Float64[so]
 Base.convert(::Type{Bool}, so::Vector{Float64}, p::TigerPOMDP) = Bool(so[1])
 
 # This doesn't seem to work well
-# type TigerBeliefUpdater <: Updater{DiscreteBelief}
+# type TigerBeliefUpdater <: Updater
 #     pomdp::TigerPOMDP
 # end
-# 
+#
 # function update(bu::TigerBeliefUpdater, bold::DiscreteBelief, a::Int64, o::Bool)
 #     bl = bold[1]
 #     br = bold[2]

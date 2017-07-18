@@ -1,6 +1,6 @@
-julia 0.5
+julia 0.6
 Distributions
-POMDPs
+POMDPs 0.6
 TikzPictures
 POMDPToolbox
 AutoHashEquals

@@ -1,4 +1,4 @@
-type TMazeState
+mutable struct TMazeState
     x::Int64 # position in corridor
     g::Symbol # goal north or south
     term::Bool
@@ -6,31 +6,31 @@ end
 TMazeState() = TMazeState(1, :north, false)
 ==(s1::TMazeState, s2::TMazeState) = s1.x == s2.x && s1.g == s2.g
 hash(s::TMazeState, h::UInt64 = zero(UInt64)) = hash(s.x, hash(s.g, h))
-function Base.copy!(s1::TMazeState, s2::TMazeState) 
+function Base.copy!(s1::TMazeState, s2::TMazeState)
     s1.x = s2.x
     s1.g = s2.g
     s1.term = s2.term
     return s1
 end
 
-type TMaze <: POMDP{TMazeState, Int64, Int64}
+mutable struct TMaze <: POMDP{TMazeState, Int64, Int64}
     n::Int64 # corridor length
     discount::Float64 # discount factor
 end
-TMaze(n::Int64) = TMaze(n, 0.99) 
+TMaze(n::Int64) = TMaze(n, 0.99)
 TMaze() = TMaze(10)
 
 n_states(m::TMaze) = 2 * (m.n + 1) + 1 # 2*(corr length + 1 (junction)) + 1 (term)
 n_actions(::TMaze) = 4
 n_observations(::TMaze) = 5
 
-type TMazeStateSpace
+mutable struct TMazeStateSpace
     domain::Vector{TMazeState}
 end
 iterator(s::TMazeStateSpace) = s.domain
 rand(rng::AbstractRNG, space::TMazeStateSpace) = space.domain[rand(rng, 1:length(space.domain))]
 
-type TMazeSpace
+mutable struct TMazeSpace
     domain::Vector{Int64}
 end
 iterator(s::TMazeSpace) = s.domain
@@ -42,7 +42,7 @@ rand(rng::AbstractRNG, space::TMazeSpace) = space.domain[rand(rng, 1:length(spac
 # |S| | | | | | | | | |
 #                   | |
 # depending on where the goal is
-function states(maze::TMaze) 
+function states(maze::TMaze)
     space = TMazeState[]
     for x in 1:(maze.n + 1), g in [:north, :south]
         push!(space, TMazeState(x, g, false))
@@ -56,29 +56,29 @@ actions(maze::TMaze) = TMazeSpace(collect(1:4))
 observations(maze::TMaze) = TMazeSpace(collect(1:5))
 
 # transition distribution (actions are deterministic)
-type TMazeStateDistribution
+mutable struct TMazeStateDistribution
     current_state::TMazeState # deterministic
     reset::Bool
     reset_states::Vector{TMazeState}
     reset_probs::Vector{Float64}
 end
-function create_transition_distribution(::TMaze) 
+function create_transition_distribution(::TMaze)
     rs = [TMazeState(1,:north,false), TMazeState(1,:south,false)]
     rp = [0.5, 0.5]
     TMazeStateDistribution(TMazeState(), false, rs, rp)
 end
 iterator(d::TMazeStateDistribution) = reset ? (return [d.current_state]) : (return d.reset_states)
 
-function pdf(d::TMazeStateDistribution, s::TMazeState) 
+function pdf(d::TMazeStateDistribution, s::TMazeState)
     if d.reset
         in(s, d.reset_states) ? (return 0.5) : (return 0.0)
     else
         s == d.current_state ? (return 1.0) : (return 0.0)
     end
 end
-function rand(rng::AbstractRNG, d::TMazeStateDistribution) 
+function rand(rng::AbstractRNG, d::TMazeStateDistribution)
     s = TMazeState()
-    if d.reset 
+    if d.reset
         rand(rng) < 0.5 ? (copy!(s, d.reset_states[1])) : (copy!(s, d.reset_states[2]))
         return s
     else
@@ -86,9 +86,9 @@ function rand(rng::AbstractRNG, d::TMazeStateDistribution)
         return s
     end
 end
-#rand(rng::AbstractRNG, d::TMazeStateDistribution) 
+#rand(rng::AbstractRNG, d::TMazeStateDistribution)
 
-type TMazeInit
+mutable struct TMazeInit
     states::Vector{TMazeState}
     probs::Vector{Float64}
 end
@@ -124,7 +124,7 @@ function pdf(d::TMazeInit, s::TMazeState)
 end
 
 # observation distribution (deterministic)
-type TMazeObservationDistribution
+mutable struct TMazeObservationDistribution
     current_observation::Int64
 end
 create_observation_distribution(::TMaze) = TMazeObservationDistribution(1)
@@ -138,13 +138,13 @@ function transition(maze::TMaze, s::TMazeState, a::Int64)
     d.reset = false
     # check if terminal
     if s.term
-        # reset 
+        # reset
         d.reset = true
         #copy!(d.current_state, s) # state doesn't change
         return d
     end
     # check if move into terminal move north or south
-    if s.x == maze.n + 1 
+    if s.x == maze.n + 1
         if a == 1 || a == 3
             d.current_state = TMazeState(1,:none,true) # state now terminal
             return d
@@ -181,7 +181,7 @@ function reward(maze::TMaze, s::TMazeState, a::Int64)
         # if at junction check action
         if (s.g == :north && a == 1) || (s.g == :south && a == 3)
             return 4.0
-        elseif (s.g == :north && a == 3) || (s.g == :south && a == 1) 
+        elseif (s.g == :north && a == 3) || (s.g == :south && a == 1)
             return -0.1
         else
             return -0.1
@@ -196,14 +196,14 @@ end
 
 # observation mapping
 #    1      2        3         4         5
-# goal N  goal S  corridor  junction  terminal 
+# goal N  goal S  corridor  junction  terminal
 function observation(maze::TMaze, a::Int64, sp::TMazeState)
     d::TMazeObservationDistribution = create_observation_distribution(maze)
     sp.term ? (d.current_observation = 5; return d) : (nothing)
     x = sp.x; g = sp.g
     #if x == 1
     if x <= 2
-        g == :north ? (d.current_observation = 1) : (d.current_observation = 2) 
+        g == :north ? (d.current_observation = 1) : (d.current_observation = 2)
         return d
     end
     if 1 < x < (maze.n + 1)
@@ -239,7 +239,7 @@ function generate_o(maze::TMaze, s::TMazeState, rng::AbstractRNG)
     x = s.x; g = s.g
     #if x == 1
     if x <= 2
-        g == :north ? (return 1) : (return 2) 
+        g == :north ? (return 1) : (return 2)
     end
     if 1 < x < (maze.n + 1)
         return 3
@@ -260,13 +260,13 @@ end
 Base.convert(::Type{Array{Float64}}, o::Int64, ::TMaze) = Float64[o]
 Base.convert(::Type{Int64}, o::Vector{Float64}, ::TMaze) = Int64(o[1])
 
-type MazeBelief 
+mutable struct MazeBelief
     last_obs::Int64
     mem::Symbol # memory
 end
 MazeBelief() = MazeBelief(1, :none)
 
-type MazeUpdater <: Updater{MazeBelief} end
+mutable struct MazeUpdater <: Updater end
 POMDPs.initialize_belief(bu::MazeUpdater, d::Any) = b
 
 function POMDPs.update(bu::MazeUpdater, b::MazeBelief, a, o)
@@ -284,26 +284,23 @@ end
 
 
 
-type MazeOptimal <: Policy{MazeBelief} end
-
+mutable struct MazeOptimal <: Policy end
 POMDPs.updater(p::MazeOptimal) = MazeUpdater()
 
 # 4 actions: go North, East, South, West (1, 2, 3, 4)
 # observation mapping
 #    1      2        3         4         5
-# goal N  goal S  corridor  junction  terminal 
+# goal N  goal S  corridor  junction  terminal
 function POMDPs.action(p::MazeOptimal, b::MazeBelief)
     # if don't know the goal go back
-    if b.mem == :none 
+    if b.mem == :none
         return 4
     end
     if b.mem == :north && b.last_obs == 4
         return 1
     end
     if b.mem == :south && b.last_obs == 4
-        return 3 
+        return 3
     end
     return 2
 end
-
-

@@ -1,7 +1,7 @@
 using Distributions
 
 
-type DiscreteMDP <: MDP{Int64, Int64}
+mutable struct DiscreteMDP <: MDP{Int64, Int64}
     T::Array{Float64, 3} # SxAxS
     R::Matrix{Float64} # SxA
     ns::Int64
@@ -17,7 +17,7 @@ type DiscreteMDP <: MDP{Int64, Int64}
     end
 end
 
-type DiscretePOMDP <: POMDP{Int64, Int64, Int64}
+mutable struct DiscretePOMDP <: POMDP{Int64, Int64, Int64}
     T::Array{Float64, 3} # SxAxS
     R::Matrix{Float64} # SxA
     O::Array{Float64, 3} # OxAxS
@@ -35,11 +35,11 @@ type DiscretePOMDP <: POMDP{Int64, Int64, Int64}
     end
 end
 
-typealias DiscreteProb Union{DiscreteMDP, DiscretePOMDP}
+const DiscreteProb = Union{DiscreteMDP, DiscretePOMDP}
 
 # Distribution Type and methods
 
-type DiscreteDistribution
+mutable struct DiscreteDistribution
     D::Array{Float64, 3}
     s::Int64
     a::Int64
@@ -55,9 +55,9 @@ function rand(rng::AbstractRNG, d::DiscreteDistribution)
     return sample(rng, cat)
 end
 
-# Space Type and methods
+# Space  and methods
 
-type DiscreteSpace
+mutable struct DiscreteSpace
     it::UnitRange{Int64}
 end
 
@@ -89,7 +89,7 @@ end
 reward(prob::DiscreteProb, s::Int64, a::Int64) = prob.R[s, a]
 reward(prob::DiscreteProb, s::Int64, a::Int64, sp::Int64) = prob.R[s, a]
 
-type StateDist
+mutable struct StateDist
     cat::Vector{Float64}
 end
 initial_state_distribution(prob::DiscreteProb) = StateDist(ones(prob.ns)/prob.ns)
