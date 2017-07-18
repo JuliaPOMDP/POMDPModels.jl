@@ -251,7 +251,7 @@ function generate_o(maze::TMaze, s::TMazeState, rng::AbstractRNG)
 end
 
 function Base.convert(maze::TMaze, s::TMazeState)
-    v = Array(Float64, 2)
+    v = Array{Float64}(2)
     v[1] = s.x
     s.g == :north ? (v[2] = 0.0) : (v[2] = 1.0)
     return v

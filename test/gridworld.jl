@@ -13,7 +13,7 @@ simulate(sim, problem, policy, GridWorldState(1,1))
 
 for i in 1:length(sim.action_hist)
     td = transition(problem, sim.state_hist[i], sim.action_hist[i])
-    @test_approx_eq_eps sum(td.probs) 1.0 0.01
+    @test sum(td.probs) ≈ 1.0 atol=0.01
     for p in td.probs
         @test p >= 0.0
     end

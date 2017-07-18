@@ -16,7 +16,7 @@ sim.initial_state = true
 ib = EmptyBelief()
 policy = Starve()
 r = simulate(sim, problem, policy, updater(policy), ib)
-@test_approx_eq_eps r -100.0 0.01
+@test r ≈ -100.0 atol=0.01
 
 # when the baby is never fed the average reward for starting in the full state should be -47.37
 # should take ~5 seconds
@@ -30,20 +30,20 @@ r_sum = @parallel (+) for i in 1:n
     policy = Starve()
     simulate(sim, problem, policy, updater(policy), EmptyBelief())
 end
-@test_approx_eq_eps r_sum/n -47.37 0.5
+@test r_sum/n ≈ -47.37 atol=0.5
 
 # always feed policy
 # when the baby is always fed the reward for starting in the full state should be -50
 sim = RolloutSimulator(MersenneTwister(), false, 0.0001, nothing)
 policy = AlwaysFeed()
 r = simulate(sim, problem, policy, updater(policy), EmptyBelief())
-@test_approx_eq_eps r -50.0 0.01
+@test r ≈ -50.0 atol=0.01
 
 # when the baby is always fed the reward for starting in the hungry state should be -60
 sim = RolloutSimulator(MersenneTwister(), true, 0.0001, nothing)
 policy = AlwaysFeed()
 r = simulate(sim, problem, policy, updater(policy), EmptyBelief())
-@test_approx_eq_eps r -60.0 0.01
+@test r ≈ -60.0 atol=0.01
 
 # println("finished easy tests")
 
@@ -60,7 +60,7 @@ r_sum = @parallel (+) for i in 1:n
     simulate(sim, problem, policy, updater(policy), PreviousObservation(obs))
     # println(i)
 end
-@test_approx_eq_eps r_sum/n -17.14 0.1
+@test r_sum/n ≈ -17.14 atol=0.1
 
 # from hungry state, reward should be -32.11
 n = 100000
@@ -73,4 +73,4 @@ r_sum = @parallel (+) for i in 1:n
     policy = FeedWhenCrying()
     simulate(sim, problem, policy, updater(policy), PreviousObservation(obs))
 end
-@test_approx_eq_eps r_sum/n -32.11 0.1
+@test r_sum/n ≈ -32.11 atol=0.1
