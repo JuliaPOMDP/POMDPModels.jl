@@ -12,7 +12,7 @@ sim = RolloutSimulator(eps=0.0001, initial_state=true)
 ib = nothing
 policy = Starve()
 r = simulate(sim, problem, policy, updater(policy), ib)
-@test_approx_eq_eps r -100.0 0.01
+@test r ≈ -100.0 atol=0.01
 
 # test generate_o
 o = generate_o(problem, true, MersenneTwister(1))
@@ -30,6 +30,6 @@ bp =  update(BabyBeliefUpdater(problem),
              false,
              true)
 
-@test_approx_eq_eps bp.p 0.47058823529411764 0.0001
+@test bp.p ≈ 0.47058823529411764 atol=0.0001
 r = simulate(sim, problem, policy, BabyBeliefUpdater(problem), BoolDistribution(1.0))
-@test_approx_eq_eps r -100.0 0.01
+@test r ≈ -100.0 atol=0.01

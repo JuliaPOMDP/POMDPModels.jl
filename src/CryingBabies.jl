@@ -97,7 +97,7 @@ end
 
 # same for both state and observation
 function Base.convert(::Type{Array{Float64}}, so::Bool, prob::BabyPOMDP)
-    v = copy!(Array(Float64,1), so)
+    v = copy!(Array{Float64}(1), so)
     return v
 end
 

@@ -86,7 +86,7 @@ function generate_s( ip::InvertedPendulum,
 end
 
 function Base.convert(::Type{Array{Float64}}, s::Tuple{Float64,Float64}, ip::InvertedPendulum)
-    v = copy!(Array(Float64,2), s)
+    v = copy!(Array{Float64}(2), s)
     return v
 end
 

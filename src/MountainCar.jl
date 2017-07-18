@@ -43,7 +43,7 @@ end
 
 
 function Base.convert(::Type{Array{Float64}}, s::Tuple{Float64,Float64}, mc::MountainCar)
-    v = copy!(Array(Float64,2), s)
+    v = copy!(Array{Float64}(2), s)
     return v
 end
 Base.convert(::Type{Tuple{Float64,Float64}}, s::Vector{Float64}, mc::MountainCar) = (s[1], s[2])
