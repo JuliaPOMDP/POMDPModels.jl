@@ -42,11 +42,11 @@ function generate_s( mc::MountainCar,
 end
 
 
-function Base.convert(::Type{Array{Float64}}, s::Tuple{Float64,Float64}, mc::MountainCar)
-    v = copy!(Array{Float64}(2), s)
+function convert_s(::Type{A}, s::Tuple{Float64,Float64}, mc::MountainCar) where A<:AbstractArray
+    v = copy!(A(2), s)
     return v
 end
-Base.convert(::Type{Tuple{Float64,Float64}}, s::Vector{Float64}, mc::MountainCar) = (s[1], s[2])
+convert_s(::Type{Tuple{Float64,Float64}}, s::A, mc::MountainCar) where A<:AbstractArray = (s[1], s[2])
 
 # Example policy -- works pretty well
 mutable struct Energize <: Policy end

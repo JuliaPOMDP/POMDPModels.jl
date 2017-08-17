@@ -257,9 +257,6 @@ function Base.convert(maze::TMaze, s::TMazeState)
     return v
 end
 
-Base.convert(::Type{Array{Float64}}, o::Int64, ::TMaze) = Float64[o]
-Base.convert(::Type{Int64}, o::Vector{Float64}, ::TMaze) = Int64(o[1])
-
 mutable struct MazeBelief
     last_obs::Int64
     mem::Symbol # memory

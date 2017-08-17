@@ -85,11 +85,11 @@ function generate_s( ip::InvertedPendulum,
   return sp
 end
 
-function Base.convert(::Type{Array{Float64}}, s::Tuple{Float64,Float64}, ip::InvertedPendulum)
+function convert_s(::Type{A}, s::Tuple{Float64,Float64}, ip::InvertedPendulum) where A<:AbstractArray
     v = copy!(Array{Float64}(2), s)
     return v
 end
 
-function Base.convert(::Type{Tuple{Float64,Float64}}, s::Vector{Float64}, ip::InvertedPendulum)
+function convert_s(::Type{Tuple{Float64,Float64}}, s::A, ip::InvertedPendulum) where A<:AbstractArray
     return (s[1], s[2])
 end

@@ -16,12 +16,12 @@ obs = generate_o(p, nothing, nothing, s2, rng)
 @test abs(obs-6.0) <= 1.1
 
 
-sv = convert(Array{Float64}, s2, p)
+sv = convert_s(Array{Float64}, s2, p)
 @test sv == [0.0, 5.0]
-s = convert(LightDark1DState, sv, p)
+s = convert_s(LightDark1DState, sv, p)
 @test s == s2
 
-ov = convert(Array{Float64}, obs, p)
+ov = convert_o(Array{Float64}, obs, p)
 @test ov == [obs]
-o = convert(Float64, ov, p)
+o = convert_o(Float64, ov, p)
 @test o == obs

@@ -332,8 +332,8 @@ end
 
 discount(mdp::GridWorld) = mdp.discount_factor
 
-Base.convert(::Type{Array{Float64}}, s::GridWorldState, mdp::GridWorld) = Float64[s.x, s.y, s.done]
-Base.convert(::Type{GridWorldState}, s::Vector{Float64}, mdp::GridWorld) = GridWorldState(s[1], s[2], s[3])
+convert_s(::Type{A}, s::GridWorldState, mdp::GridWorld) where A<:AbstractArray = Float64[s.x, s.y, s.done]
+convert_s(::Type{GridWorldState}, s::AbstractArray, mdp::GridWorld) = GridWorldState(s[1], s[2], s[3])
 
 function a2int(a::Symbol, mdp::GridWorld)
     if a == :up
@@ -363,8 +363,8 @@ function int2a(a::Int, mdp::GridWorld)
     end
 end
 
-Base.convert(::Type{Array{Float64}}, a::Symbol, mdp::GridWorld) = [Float64(a2int(a, mdp))]
-Base.convert(::Type{Symbol}, a::Vector{Float64}, mdp::GridWorld) = int2a(Int(a[1]), mdp)
+convert_a(::Type{A}, a::Symbol, mdp::GridWorld) where A<:AbstractArray = [Float64(a2int(a, mdp))]
+convert_a(::Type{Symbol}, a::A, mdp::GridWorld) where A<:AbstractArray = int2a(Int(a[1]), mdp)
 
 initial_state(mdp::GridWorld, rng::AbstractRNG) = GridWorldState(rand(rng, 1:mdp.size_x), rand(rng, 1:mdp.size_y))
 

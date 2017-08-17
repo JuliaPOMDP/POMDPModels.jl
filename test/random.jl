@@ -21,7 +21,7 @@ sim = RolloutSimulator(rng=MersenneTwister(3), max_steps=100)
 simulate(sim, pomdp, policy, updater(policy), initial_state_distribution(pomdp))
 probability_check(pomdp)
 
-ov = convert(Array{Float64}, 1, pomdp)
+ov = convert_o(Array{Float64}, 1, pomdp)
 @test ov == [1.]
-o = convert(Int, ov, pomdp)
+o = convert_o(Int, ov, pomdp)
 @test o == 1

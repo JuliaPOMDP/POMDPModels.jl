@@ -23,9 +23,9 @@ test_obs(TMazeState(5, :south, false), 3) # corridor
 test_obs(TMazeState(11, :south, false), 4) # junction
 test_obs(TMazeState(11, :south, true), 5) # terminal
 
-ov = convert(Array{Float64}, 1, problem)
+ov = convert_o(Array{Float64}, 1, problem)
 @test ov == [1.]
-o = convert(Int64, ov, problem)
+o = convert_o(Int64, ov, problem)
 @test o == 1
 
 

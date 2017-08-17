@@ -95,16 +95,6 @@ function generate_o(p::BabyPOMDP, s::Bool, rng::AbstractRNG)
     return rand(rng, d)
 end
 
-# same for both state and observation
-function Base.convert(::Type{Array{Float64}}, so::Bool, prob::BabyPOMDP)
-    v = copy!(Array{Float64}(1), so)
-    return v
-end
-
-function Base.convert(::Type{Bool}, so::Vector{Float64}, prob::BabyPOMDP)
-    return Bool(so[1])
-end
-
 # some example policies
 mutable struct Starve <: Policy end
 action{B}(::Starve, ::B) = false

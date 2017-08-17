@@ -132,14 +132,8 @@ function reward(p::LightDark1D, s::LightDark1DState, a::Int)
 end
 
 
-Base.convert(::Type{Array{Float64}}, s::LightDark1DState, p::LightDark1D) = Float64[s.status, s.y]
-Base.convert(::Type{LightDark1DState}, s::Vector{Float64}, p::LightDark1D) = LightDark1DState(Int64(s[1]), s[2])
-
-Base.convert(::Type{Array{Float64}}, o::Float64, p::LightDark1D) = Float64[o]
-Base.convert(::Type{Float64}, o::Vector{Float64}, p::LightDark1D) = o[1]
-
-Base.convert(::Type{Array{Float64}}, a::Int, p::LightDark1D) = Float64[a]
-Base.convert(::Type{Int}, a::Vector{Float64}, p::LightDark1D) = Int(a[1])
+convert_s(::Type{A}, s::LightDark1DState, p::LightDark1D) where A<:AbstractArray = eltype(A)[s.status, s.y]
+convert_s(::Type{LightDark1DState}, s::A, p::LightDark1D) where A<:AbstractArray = LightDark1DState(Int64(s[1]), s[2])
 
 # XXX this is specifically for MCVI
 # it is also implemented in the MCVI tests
