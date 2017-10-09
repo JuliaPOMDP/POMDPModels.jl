@@ -60,8 +60,8 @@ mutable struct GridWorld <: MDP{GridWorldState, Symbol}
     discount_factor::Float64 # disocunt factor
 end
 # we use key worded arguments so we can change any of the values we pass in
-function GridWorld(sx::Int64=10, # size_x
-                   sy::Int64=10; # size_y
+function GridWorld(sx::Int64, # size_x
+                   sy::Int64; # size_y
                    rs::Vector{GridWorldState}=[GridWorldState(4,3), GridWorldState(4,6), GridWorldState(9,3), GridWorldState(8,8)],
                    rv::Vector{Float64}=[-10.,-5,10,3],
                    penalty::Float64=0.0, # penalty for trying to go out of bounds  (will be added to reward)
