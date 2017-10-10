@@ -19,6 +19,7 @@ struct GridWorldState # this is not immutable because of how it is used in trans
     GridWorldState(x,y,done) = new(x,y,done)
     GridWorldState() = new()
 end
+
 # simpler constructors
 GridWorldState(x::Int64, y::Int64) = GridWorldState(x,y,false)
 # for state comparison
@@ -42,7 +43,7 @@ function hash(s::GridWorldState, h::UInt64 = zero(UInt64))
 end
 Base.copy!(dest::GridWorldState, src::GridWorldState) = (dest.x=src.x; dest.y=src.y; dest.done=src.done; return dest)
 
-# action taken by the agent indeicates desired travel direction
+# action taken by the agent indicates desired travel direction
 const GridWorldAction = Symbol # deprecated - this is here so that other people's code won't break
 
 #################################################################
@@ -89,18 +90,12 @@ end
 #################################################################
 # This could probably be implemented more efficiently without vectors
 
-# returns the state space
 function states(mdp::GridWorld)
-	s = GridWorldState[]
-	size_x = mdp.size_x
-	size_y = mdp.size_y
-    for y = 1:mdp.size_y, x = 1:mdp.size_x
-        push!(s, GridWorldState(x,y,false))
-    end
+    s = vec(collect(GridWorldState(x, y, false) for x in 1:mdp.size_x, y in 1:mdp.size_y))
     push!(s, GridWorldState(0, 0, true))
     return s
 end
-# returns the action space
+
 actions(mdp::GridWorld, s=nothing) = [:up, :down, :left, :right]
 
 n_states(mdp::GridWorld) = mdp.size_x*mdp.size_y+1
@@ -110,8 +105,7 @@ function reward(mdp::GridWorld, state::GridWorldState, action::Symbol)
     if state.done
         return 0.0
     end
-	r = 0.0
-    r += static_reward(mdp, state)
+    r = static_reward(mdp, state)
     if !inbounds(mdp, state, action)
         r += mdp.bounds_penalty
     end
@@ -125,31 +119,18 @@ Return the reward for being in the state (the reward not including bumping)
 """
 function static_reward(mdp::GridWorld, state::GridWorldState)
 	r = 0.0
-	reward_states = mdp.reward_states
-	reward_values = mdp.reward_values
-	n = length(reward_states)
+	n = length(mdp.reward_states)
 	for i = 1:n
-		if posequal(state, reward_states[i])
-			r += reward_values[i]
+		if posequal(state, mdp.reward_states[i])
+			r += mdp.reward_values[i]
 		end
 	end
     return r
 end
 
 #checking boundries- x,y --> points of current state
-function inbounds(mdp::GridWorld,x::Int64,y::Int64)
-	if 1 <= x <= mdp.size_x && 1 <= y <= mdp.size_y
-		return true
-	else
-		return false
-	end
-end
-
-function inbounds(mdp::GridWorld,state::GridWorldState)
-	x = state.x #point x of state
-	y = state.y
-	return inbounds(mdp, x, y)
-end
+inbounds(mdp::GridWorld,x::Int64,y::Int64) = 1 <= x <= mdp.size_x && 1 <= y <= mdp.size_y
+inbounds(mdp::GridWorld,state::GridWorldState) = inbounds(mdp, state.x, state.y)
 
 """
     inbounds(mdp::GridWorld, s::GridWorldState, a::Symbol)
@@ -290,9 +271,7 @@ function i2s(mdp::GridWorld, i::Int)
 end
 =#
 
-function isterminal(mdp::GridWorld, s::GridWorldState)
-    return s.done
-end
+isterminal(mdp::GridWorld, s::GridWorldState) = s.done
 
 discount(mdp::GridWorld) = mdp.discount_factor
 
