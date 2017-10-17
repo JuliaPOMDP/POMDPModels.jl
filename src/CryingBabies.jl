@@ -115,3 +115,4 @@ function action(::FeedWhenCrying, b::Nullable{Bool})
     end
 end
 action(::FeedWhenCrying, b::Bool) = b
+action(p::FeedWhenCrying, b::Any) = action(p, initialize_belief(updater(p), b))
