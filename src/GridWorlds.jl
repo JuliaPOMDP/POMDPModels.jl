@@ -96,7 +96,7 @@ function states(mdp::GridWorld)
     return s
 end
 
-actions(mdp::GridWorld, s=nothing) = [:up, :down, :left, :right]
+actions(mdp::GridWorld) = [:up, :down, :left, :right]
 
 n_states(mdp::GridWorld) = mdp.size_x*mdp.size_y+1
 n_actions(mdp::GridWorld) = 4
