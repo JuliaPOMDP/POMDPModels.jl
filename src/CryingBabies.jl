@@ -25,10 +25,7 @@ Base.length(d::BoolDistribution) = 2
 index(d::BoolDistribution, s::Bool) = s ? 1:2
 Base.convert(t::Type{DiscreteBelief}, b::BoolDistribution) = DiscreteBelief([b.p, 1.0-b.p])
 
-mutable struct BabyBeliefUpdater <: Updater
-    problem::BabyPOMDP
-end
-updater(problem::BabyPOMDP) = BabyBeliefUpdater(problem)
+updater(problem::BabyPOMDP) = DiscreteUpdater(problem)
 
 initial_state_distribution(::BabyPOMDP) = BoolDistribution(0.0)
 
@@ -70,21 +67,6 @@ end
 
 rand(rng::AbstractRNG, d::BoolDistribution) = rand(rng) <= d.p
 
-function update(bu::BabyBeliefUpdater, old::BoolDistribution, a::Bool, o::Bool)
-    p = bu.problem
-    if a # feed
-        return BoolDistribution(0.0)
-    else # did not feed
-        ph = old.p + (1.0-old.p)*p.p_become_hungry # this is from the system dynamics
-        # bayes rule
-        if o # crying
-            ph = (p.p_cry_when_hungry*ph)/(p.p_cry_when_hungry*ph + p.p_cry_when_not_hungry*(1.0-ph))
-        else # not crying
-            ph = ((1.0-p.p_cry_when_hungry)*ph)/((1.0-p.p_cry_when_hungry)*ph + (1.0-p.p_cry_when_not_hungry)*(1.0-ph))
-        end
-        return BoolDistribution(ph)
-    end
-end
 
 dimensions(::BoolDistribution) = 1
 
