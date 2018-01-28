@@ -57,7 +57,6 @@ export
 include("CryingBabies.jl")
 export
     BabyPOMDP,
-    BoolDistribution,
     BabyBeliefUpdater,
     Starve,
     AlwaysFeed,

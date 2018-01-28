@@ -9,10 +9,10 @@ policy = RandomPolicy(problem)
 
 sim = HistoryRecorder(rng=MersenneTwister(1), max_steps=1000)
 
-simulate(sim, problem, policy, GridWorldState(1,1))
+hist = simulate(sim, problem, policy, GridWorldState(1,1))
 
-for i in 1:length(sim.action_hist)
-    td = transition(problem, sim.state_hist[i], sim.action_hist[i])
+for i in 1:length(hist.action_hist)
+    td = transition(problem, hist.state_hist[i], hist.action_hist[i])
     @test sum(td.probs) ≈ 1.0 atol=0.01
     for p in td.probs
         @test p >= 0.0

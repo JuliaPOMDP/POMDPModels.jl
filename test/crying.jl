@@ -25,11 +25,12 @@ o = convert_s(Bool, ov, problem)
 
 probability_check(problem)
 
-bp =  update(BabyBeliefUpdater(problem),
-             BoolDistribution(0.0),
+bu = DiscreteUpdater(problem)
+bp =  update(bu,
+             initialize_belief(bu, BoolDistribution(0.0)),
              false,
              true)
 
-@test bp.p ≈ 0.47058823529411764 atol=0.0001
-r = simulate(sim, problem, policy, BabyBeliefUpdater(problem), BoolDistribution(1.0))
+@test pdf(bp, true) ≈ 0.47058823529411764 atol=0.0001
+r = simulate(sim, problem, policy, DiscreteUpdater(problem), BoolDistribution(1.0))
 @test r ≈ -100.0 atol=0.01

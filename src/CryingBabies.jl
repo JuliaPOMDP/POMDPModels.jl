@@ -14,22 +14,10 @@ end
 BabyPOMDP(r_feed, r_hungry) = BabyPOMDP(r_feed, r_hungry, 0.1, 0.8, 0.1, 0.9)
 BabyPOMDP() = BabyPOMDP(-5., -10.)
 
-# TODO: this should be moved to POMDPDistributions.jl
-struct BoolDistribution
-    p::Float64 # probability of true
-end
-BoolDistribution() = BoolDistribution(0.0)
-pdf(d::BoolDistribution, s::Bool) = s ? d.p : 1.0-d.p
-iterator(d::BoolDistribution) = [true, false]
-Base.length(d::BoolDistribution) = 2
-index(d::BoolDistribution, s::Bool) = s ? 1:2
-Base.convert(t::Type{DiscreteBelief}, b::BoolDistribution) = DiscreteBelief([b.p, 1.0-b.p])
 
-mutable struct BabyBeliefUpdater <: Updater
-    problem::BabyPOMDP
-end
-updater(problem::BabyPOMDP) = BabyBeliefUpdater(problem)
+updater(problem::BabyPOMDP) = DiscreteUpdater(problem)
 
+# start knowing baby is not not hungry
 initial_state_distribution(::BabyPOMDP) = BoolDistribution(0.0)
 
 n_states(::BabyPOMDP) = 2
@@ -68,25 +56,6 @@ function reward(pomdp::BabyPOMDP, s::Bool, a::Bool)
     return r
 end
 
-rand(rng::AbstractRNG, d::BoolDistribution) = rand(rng) <= d.p
-
-function update(bu::BabyBeliefUpdater, old::BoolDistribution, a::Bool, o::Bool)
-    p = bu.problem
-    if a # feed
-        return BoolDistribution(0.0)
-    else # did not feed
-        ph = old.p + (1.0-old.p)*p.p_become_hungry # this is from the system dynamics
-        # bayes rule
-        if o # crying
-            ph = (p.p_cry_when_hungry*ph)/(p.p_cry_when_hungry*ph + p.p_cry_when_not_hungry*(1.0-ph))
-        else # not crying
-            ph = ((1.0-p.p_cry_when_hungry)*ph)/((1.0-p.p_cry_when_hungry)*ph + (1.0-p.p_cry_when_not_hungry)*(1.0-ph))
-        end
-        return BoolDistribution(ph)
-    end
-end
-
-dimensions(::BoolDistribution) = 1
 
 discount(p::BabyPOMDP) = p.discount
 
