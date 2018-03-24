@@ -1,4 +1,4 @@
-function RandomMDP(ns::Int64, na::Int64, discount::Float64; rng::AbstractRNG=MersenneTwister())
+function RandomMDP(ns::Int64, na::Int64, discount::Float64; rng::AbstractRNG=Base.GLOBAL_RNG)
     # random dynamics
     T = rand(rng, ns, na, ns) 
     # normalize
@@ -12,7 +12,7 @@ end
 RandomMDP() = RandomMDP(100, 5, 0.9)
 
 
-function RandomPOMDP(ns::Int64, na::Int64, no::Int64, discount::Float64; rng::AbstractRNG=MersenneTwister())
+function RandomPOMDP(ns::Int64, na::Int64, no::Int64, discount::Float64; rng::AbstractRNG=Base.GLOBAL_RNG)
     # random dynamics
     T = rand(rng, ns, na, ns) 
     # random observation model
