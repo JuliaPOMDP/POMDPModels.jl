@@ -25,3 +25,7 @@ ov = convert_o(Array{Float64}, 1, pomdp)
 @test ov == [1.]
 o = convert_o(Int, ov, pomdp)
 @test o == 1
+
+# to catch anything in the default constructors
+RandomPOMDP()
+RandomMDP()

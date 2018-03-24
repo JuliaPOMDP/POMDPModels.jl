@@ -74,16 +74,6 @@ end
 
 GridWorld(;sx::Int64=10, sy::Int64=10, kwargs...) = GridWorld(sx, sy; kwargs...)
 
-# convenience function
-function term_from_rs(rs, rv)
-    terminals = Set{GridWorldState}()
-    for (i,v) in enumerate(rv)
-        if v > 0.0
-            push!(terminals, rs[i])
-        end
-    end
-end
-
 
 #################################################################
 # State and Action Spaces
