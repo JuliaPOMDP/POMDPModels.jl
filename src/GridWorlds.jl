@@ -13,8 +13,8 @@
 #################################################################
 # state of the agent in grid world
 struct GridWorldState # this is not immutable because of how it is used in transition(), but maybe it should be
-	x::Int64 # x position
-	y::Int64 # y position
+    x::Int64 # x position
+    y::Int64 # y position
     done::Bool # entered the terminal reward state in previous step - there is only one terminal state
     GridWorldState(x,y,done) = new(x,y,done)
     GridWorldState() = new()
@@ -51,10 +51,10 @@ const GridWorldAction = Symbol # deprecated - this is here so that other people'
 #################################################################
 # the grid world mdp type
 mutable struct GridWorld <: MDP{GridWorldState, Symbol}
-	size_x::Int64 # x size of the grid
-	size_y::Int64 # y size of the grid
-	reward_states::Vector{GridWorldState} # the states in which agent recieves reward
-	reward_values::Vector{Float64} # reward values for those states
+    size_x::Int64 # x size of the grid
+    size_y::Int64 # y size of the grid
+    reward_states::Vector{GridWorldState} # the states in which agent recieves reward
+    reward_values::Vector{Float64} # reward values for those states
     bounds_penalty::Float64 # penalty for bumping the wall (will be added to reward)
     tprob::Float64 # probability of transitioning to the desired state
     terminals::Set{GridWorldState}
@@ -99,7 +99,7 @@ function reward(mdp::GridWorld, state::GridWorldState, action::Symbol)
     if !inbounds(mdp, state, action)
         r += mdp.bounds_penalty
     end
-	return r
+  return r
 end
 
 """
@@ -108,13 +108,13 @@ end
 Return the reward for being in the state (the reward not including bumping)
 """
 function static_reward(mdp::GridWorld, state::GridWorldState)
-	r = 0.0
-	n = length(mdp.reward_states)
-	for i = 1:n
-		if posequal(state, mdp.reward_states[i])
-			r += mdp.reward_values[i]
-		end
-	end
+    r = 0.0
+    n = length(mdp.reward_states)
+    for i = 1:n
+        if posequal(state, mdp.reward_states[i])
+            r += mdp.reward_values[i]
+        end
+    end
     return r
 end
 
@@ -144,20 +144,20 @@ function inbounds(mdp::GridWorld, s::GridWorldState, a::Symbol)
 end
 
 function fill_probability!(p::AbstractVector{Float64}, val::Float64, index::Int64)
-	for i = 1:length(p)
-		if i == index
-			p[i] = val
-		else
-			p[i] = 0.0
-		end
-	end
+    for i = 1:length(p)
+        if i == index
+            p[i] = val
+        else
+            p[i] = 0.0
+        end
+    end
 end
 
 function transition(mdp::GridWorld, state::GridWorldState, action::Symbol)
 
-	a = action
-	x = state.x
-	y = state.y
+    a = action
+    x = state.x
+    y = state.y
 
     neighbors = MVector(
         GridWorldState(x+1, y, false), # right
@@ -165,7 +165,7 @@ function transition(mdp::GridWorld, state::GridWorldState, action::Symbol)
         GridWorldState(x, y-1, false), # down
         GridWorldState(x, y+1, false), # up
         GridWorldState(x, y, false)    # stay
-       )
+    )
 
     probability = MVector{5, Float64}()
     fill!(probability, 0.0)
@@ -178,9 +178,9 @@ function transition(mdp::GridWorld, state::GridWorldState, action::Symbol)
 
     reward_states = mdp.reward_states
     reward_values = mdp.reward_values
-	n = length(reward_states)
+    n = length(reward_states)
     if state in mdp.terminals
-		fill_probability!(probability, 1.0, 5)
+        fill_probability!(probability, 1.0, 5)
         neighbors[5] = GridWorldState(x, y, true)
         return SparseCat(neighbors, probability)
     end
@@ -190,29 +190,29 @@ function transition(mdp::GridWorld, state::GridWorldState, action::Symbol)
     target_neighbor = 0
     if a == :right
         target_neighbor = 1
-	elseif a == :left
+    elseif a == :left
         target_neighbor = 2
-	elseif a == :down
+    elseif a == :down
         target_neighbor = 3
-	elseif a == :up
+    elseif a == :up
         target_neighbor = 4
-	end
+    end
     # @assert target_neighbor > 0
 
-	if !inbounds(mdp, neighbors[target_neighbor])
+    if !inbounds(mdp, neighbors[target_neighbor])
         # If would transition out of bounds, stay in
         # same cell with probability 1
-		fill_probability!(probability, 1.0, 5)
-	else
-		probability[target_neighbor] = mdp.tprob
+        fill_probability!(probability, 1.0, 5)
+    else
+        probability[target_neighbor] = mdp.tprob
 
         oob_count = 0 # number of out of bounds neighbors
 
         for i = 1:length(neighbors)
-             if !inbounds(mdp, neighbors[i])
+            if !inbounds(mdp, neighbors[i])
                 oob_count += 1
                 @assert probability[i] == 0.0
-             end
+            end
         end
 
         new_probability = (1.0 - mdp.tprob)/(3-oob_count)
@@ -222,7 +222,7 @@ function transition(mdp::GridWorld, state::GridWorldState, action::Symbol)
                 probability[i] = new_probability
             end
         end
-	end
+    end
 
     return SparseCat(neighbors, probability)
 end
@@ -304,16 +304,16 @@ initial_state(mdp::GridWorld, rng::AbstractRNG) = GridWorldState(rand(rng, 1:mdp
 # Visualization
 
 function colorval(val, brightness::Real = 1.0)
-  val = convert(Vector{Float64}, val)
-  x = 255 - min.(255, 255 * (abs.(val) ./ 10.0) .^ brightness)
-  r = 255 * ones(size(val))
-  g = 255 * ones(size(val))
-  b = 255 * ones(size(val))
-  r[val .>= 0] = x[val .>= 0]
-  b[val .>= 0] = x[val .>= 0]
-  g[val .< 0] = x[val .< 0]
-  b[val .< 0] = x[val .< 0]
-  (r, g, b)
+    val = convert(Vector{Float64}, val)
+    x = 255 - min.(255, 255 * (abs.(val) ./ 10.0) .^ brightness)
+    r = 255 * ones(size(val))
+    g = 255 * ones(size(val))
+    b = 255 * ones(size(val))
+    r[val .>= 0] = x[val .>= 0]
+    b[val .>= 0] = x[val .>= 0]
+    g[val .< 0] = x[val .< 0]
+    b[val .< 0] = x[val .< 0]
+    return (r, g, b)
 end
 
 function plot(g::GridWorld, f::Function)
