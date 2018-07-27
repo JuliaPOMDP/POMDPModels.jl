@@ -23,7 +23,7 @@ initial_state_distribution(::BabyPOMDP) = BoolDistribution(0.0)
 n_states(::BabyPOMDP) = 2
 state_index(::BabyPOMDP, s::Bool) = s ? 1 : 2
 action_index(::BabyPOMDP, a::Bool) = a ? 1 : 2
-observation_index(::BabyPOMDP, o::Bool) = Int64(o) + 1
+obs_index(::BabyPOMDP, o::Bool) = Int64(o) + 1
 n_actions(::BabyPOMDP) = 2
 n_observations(::BabyPOMDP) = 2
 
