@@ -103,7 +103,7 @@ export
     n_observations,
     state_index,
     action_index,
-    observation_index,
+    obs_index,
     states,
     actions,
     observations,
