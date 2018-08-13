@@ -15,13 +15,14 @@ using Distributions
 using StaticArrays
 using AutoHashEquals
 using StatsBase
+using Random
+using Printf
+using Nullables
 
-importall POMDPs
+using POMDPs
 
-import Base.rand!
-import Base.rand
-import Base.==
-import Base.hash
+import Random: rand, rand!
+import Base: ==, hash
 
 import POMDPs: initial_state, generate_s, generate_o, generate_sor
 

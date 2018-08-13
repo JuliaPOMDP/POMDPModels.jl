@@ -79,10 +79,10 @@ function observation(p::LightDark1D, s::LightDark1DState, a::Int, sp::LightDark1
     return Normal(sp.y, sigma(sp.y))
 end
 
-function generate_o(p::LightDark1D, s::Union{LightDark1DState,Void}, a::Union{Int,Void}, sp::LightDark1DState, rng::AbstractRNG)
+function generate_o(p::LightDark1D, s::Union{LightDark1DState,Nothing}, a::Union{Int,Nothing}, sp::LightDark1DState, rng::AbstractRNG)
     return sp.y + Base.randn(rng)*sigma(sp.y)
 end
-generate_o(p::LightDark1D, sp::Union{LightDark1DState,Void}, rng::AbstractRNG) = sp.y + Base.randn(rng)*sigma(sp.y)
+generate_o(p::LightDark1D, sp::Union{LightDark1DState,Nothing}, rng::AbstractRNG) = sp.y + Base.randn(rng)*sigma(sp.y)
 
 function generate_s(p::LightDark1D, s::LightDark1DState, a::Int, rng::AbstractRNG)
     if s.status < 0                  # Terminal state
@@ -166,7 +166,7 @@ mutable struct SmartHeuristic1DPolicy <: POMDPs.Policy
 end
 SmartHeuristic1DPolicy() = SmartHeuristic1DPolicy(0.1)
 
-function action{B}(p::DummyHeuristic1DPolicy, b::B)
+function action(p::DummyHeuristic1DPolicy, b::B) where {B}
     target = 0.0
     μ = mean(b)
     σ = std(b, μ)
@@ -181,7 +181,7 @@ function action{B}(p::DummyHeuristic1DPolicy, b::B)
     return a
 end
 
-function action{B}(p::SmartHeuristic1DPolicy, b::B)
+function action(p::SmartHeuristic1DPolicy, b::B) where {B}
     μ = mean(b)
     σ = std(b, μ)
     target = 0.0

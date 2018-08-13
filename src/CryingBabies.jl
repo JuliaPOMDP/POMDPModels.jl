@@ -67,11 +67,11 @@ end
 
 # some example policies
 mutable struct Starve <: Policy end
-action{B}(::Starve, ::B) = false
+action(::Starve, ::B) where {B} = false
 updater(::Starve) = VoidUpdater()
 
 mutable struct AlwaysFeed <: Policy end
-action{B}(::AlwaysFeed, ::B) = true
+action(::AlwaysFeed, ::B) where {B} = true
 updater(::AlwaysFeed) = VoidUpdater()
 
 # feed when the previous observation was crying - this is nearly optimal
