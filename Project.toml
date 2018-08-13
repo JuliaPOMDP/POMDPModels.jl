@@ -1,0 +1,6 @@
+name = "POMDPModels"
+uuid = "355abbd5-f08e-5560-ac9e-8b5f2592a0ca"
+repo = "https://github.com/JuliaPOMDP/POMDPModels.jl.git"
+
+[deps]
+Nullables = "4d1e1d77-625e-5b40-9113-a560ec7a8ecd"
