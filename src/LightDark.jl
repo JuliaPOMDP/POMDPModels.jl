@@ -69,7 +69,7 @@ function rand(rng::AbstractRNG, d::LDNormalStateDist)
     return LightDark1DState(0, d.mean + randn(rng)*d.std)
 end
 
-function initial_state_distribution(pomdp::LightDark1D)
+function initialstate_distribution(pomdp::LightDark1D)
     return LDNormalStateDist(2, 3)
 end
 

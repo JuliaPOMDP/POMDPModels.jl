@@ -17,7 +17,7 @@ BabyPOMDP() = BabyPOMDP(-5., -10.)
 updater(problem::BabyPOMDP) = DiscreteUpdater(problem)
 
 # start knowing baby is not not hungry
-initial_state_distribution(::BabyPOMDP) = BoolDistribution(0.0)
+initialstate_distribution(::BabyPOMDP) = BoolDistribution(0.0)
 
 n_states(::BabyPOMDP) = 2
 state_index(::BabyPOMDP, s::Bool) = s ? 1 : 2

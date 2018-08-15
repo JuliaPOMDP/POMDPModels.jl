@@ -15,7 +15,7 @@ reward(mc::MountainCar,
        a::Float64,
        sp::Tuple{Float64,Float64}) = isterminal(mc,sp) ? mc.jackpot : mc.cost
 
-initial_state(mc::MountainCar, ::AbstractRNG) = (-0.5,0.,)
+initialstate(mc::MountainCar, ::AbstractRNG) = (-0.5,0.,)
 
 isterminal(::MountainCar,s::Tuple{Float64,Float64}) = s[1] >= 0.5
 discount(mc::MountainCar) = mc.discount
