@@ -42,8 +42,8 @@ reward(prob::DiscreteProb, s::Int64, a::Int64) = prob.R[s, a]
 initialstate_distribution(p::DiscreteProb) = DiscreteDistribution(ones(n_states(p))./n_states(p))
 
 # POMDP only methods
-n_observations(p::DiscreteProb) = size(p.O)
+n_observations(p::DiscreteProb) = size(p.O, 1)
 
-observations(p::DiscretePOMDP) = 1:p.n_observations(p)
+observations(p::DiscretePOMDP) = 1:n_observations(p)
 
 observation(p::DiscretePOMDP, a::Int64, sp::Int64) = DiscreteDistribution(view(p.O, :, a, sp))
