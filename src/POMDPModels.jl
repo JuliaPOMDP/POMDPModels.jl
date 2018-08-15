@@ -26,7 +26,7 @@ import Base: ==, hash
 import Random: rand, rand!
 import Distributions: pdf
 
-import POMDPs: initialstate, generate_s, generate_o, generate_sor, support
+import POMDPs: initialstate, generate_s, generate_o, generate_sor, support, discount
 import POMDPs: actions, n_actions, action_index
 import POMDPs: states, n_states, state_index, transition
 import POMDPs: observations, observation, n_observations, obs_index
