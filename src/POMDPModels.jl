@@ -26,11 +26,11 @@ import Base: ==, hash
 import Random: rand, rand!
 import Distributions: pdf
 
-import POMDPs: initial_state, generate_s, generate_o, generate_sor, support
+import POMDPs: initialstate, generate_s, generate_o, generate_sor, support
 import POMDPs: actions, n_actions, action_index
 import POMDPs: states, n_states, state_index, transition
 import POMDPs: observations, observation, n_observations, obs_index
-import POMDPs: initial_state, initial_state_distribution
+import POMDPs: initialstate, initialstate_distribution
 import POMDPs: updater, update
 import POMDPs: reward
 
@@ -133,12 +133,12 @@ export
     dimensions,
     upperbound,
     getindex,
-    initial_state_distribution,
+    initialstate_distribution,
     vec,
     # generative model
     generate_s,
     generate_o,
     generate_sor,
-    initial_state
+    initialstate
 
 end # module

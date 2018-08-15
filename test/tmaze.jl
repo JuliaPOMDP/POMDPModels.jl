@@ -8,7 +8,7 @@ problem = TMaze(10)
 policy = RandomPolicy(problem, rng=MersenneTwister(2))
 sim = RolloutSimulator(rng=MersenneTwister(3), max_steps=100)
         
-simulate(sim, problem, policy, updater(policy), initial_state_distribution(problem))
+simulate(sim, problem, policy, updater(policy), initialstate_distribution(problem))
 
 probability_check(problem)
 

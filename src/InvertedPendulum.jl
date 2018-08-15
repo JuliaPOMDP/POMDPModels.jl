@@ -14,7 +14,7 @@ end
 actions(ip::InvertedPendulum) = [-50., 0., 50.]
 n_actions(ip::InvertedPendulum) = 3
 
-function initial_state(ip::InvertedPendulum, rng::AbstractRNG)
+function initialstate(ip::InvertedPendulum, rng::AbstractRNG)
   sp = ((rand(rng)-0.5)*0.1, (rand(rng)-0.5)*0.1, )
   return sp
 end

@@ -7,7 +7,7 @@ problem = InvertedPendulum()
 policy = RandomPolicy(problem)
 sim = RolloutSimulator(MersenneTwister(1))
 
-simulate(sim, problem, policy, initial_state(problem, MersenneTwister(2)))
+simulate(sim, problem, policy, initialstate(problem, MersenneTwister(2)))
 
 sv = convert_s(Array{Float64}, (0.5, 0.25), problem)
 @test sv == [0.5, 0.25]

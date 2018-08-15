@@ -19,7 +19,7 @@ pomdp2 = DiscretePOMDP(T, R, O, 0.95)
 policy = RandomPolicy(pomdp1, rng=MersenneTwister(2))
 sim = RolloutSimulator(rng=MersenneTwister(3), max_steps=100)
         
-simulate(sim, pomdp1, policy, updater(policy), initial_state_distribution(pomdp1))
+simulate(sim, pomdp1, policy, updater(policy), initialstate_distribution(pomdp1))
 
 # test generate_o
 o = generate_o(pomdp1, true, MersenneTwister(1))

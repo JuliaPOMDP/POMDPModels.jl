@@ -91,7 +91,7 @@ mutable struct TMazeInit
     probs::Vector{Float64}
 end
 iterator(d::TMazeInit) = d.states
-function initial_state_distribution(maze::TMaze)
+function initialstate_distribution(maze::TMaze)
     s = iterator(states(maze))
     ns = n_states(maze)
     p = zeros(ns) + 1.0 / (ns-1)
