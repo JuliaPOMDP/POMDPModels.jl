@@ -1,9 +1,9 @@
-mutable struct TMazeState
-    x::Int64 # position in corridor
-    g::Symbol # goal north or south
-    term::Bool
+@with_kw mutable struct TMazeState
+    x::Int64 = 1 # position in corridor
+    g::Symbol = :north# goal north or south
+    term::Bool = false
 end
-TMazeState() = TMazeState(1, :north, false)
+
 ==(s1::TMazeState, s2::TMazeState) = s1.x == s2.x && s1.g == s2.g
 hash(s::TMazeState, h::UInt64 = zero(UInt64)) = hash(s.x, hash(s.g, h))
 function Base.copy!(s1::TMazeState, s2::TMazeState)
@@ -13,12 +13,10 @@ function Base.copy!(s1::TMazeState, s2::TMazeState)
     return s1
 end
 
-mutable struct TMaze <: POMDP{TMazeState, Int64, Int64}
-    n::Int64 # corridor length
-    discount::Float64 # discount factor
+@with_kw mutable struct TMaze <: POMDP{TMazeState, Int64, Int64}
+    n::Int64 = 10 # corridor length
+    discount::Float64 = 0.99 # discount factor
 end
-TMaze(n::Int64) = TMaze(n, 0.99)
-TMaze() = TMaze(10)
 
 n_states(m::TMaze) = 2 * (m.n + 1) + 1 # 2*(corr length + 1 (junction)) + 1 (term)
 n_actions(::TMaze) = 4

@@ -14,7 +14,6 @@ end
 BabyPOMDP(r_feed, r_hungry) = BabyPOMDP(r_feed, r_hungry, 0.1, 0.8, 0.1, 0.9)
 BabyPOMDP() = BabyPOMDP(-5., -10.)
 
-
 updater(problem::BabyPOMDP) = DiscreteUpdater(problem)
 
 # start knowing baby is not not hungry
@@ -77,8 +76,8 @@ updater(::AlwaysFeed) = VoidUpdater()
 # feed when the previous observation was crying - this is nearly optimal
 mutable struct FeedWhenCrying <: Policy end
 updater(::FeedWhenCrying) = PreviousObservationUpdater{Bool}()
-function action(::FeedWhenCrying, b::Nullable{Bool})
-    if get(b, false) == false # not crying (or null)
+function action(::FeedWhenCrying, b::Union{Nothing, Bool})
+    if b == nothing || b == false # not crying (or null)
         return false
     else # is crying
         return true

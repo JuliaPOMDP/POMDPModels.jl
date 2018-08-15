@@ -1,35 +1,14 @@
 # Inverted Pendulum task for continous reinforcement learning as describe in XXX
 
-mutable struct InvertedPendulum <: MDP{Tuple{Float64,Float64},Float64}
-    g::Float64
-    m::Float64
-    l::Float64
-    M::Float64
-    alpha::Float64
-    dt::Float64
-    discount::Float64
-    cost::Float64
-    # TODO add symbol for which integrator
-    function InvertedPendulum(;
-                              g::Float64=9.81,
-                              m::Float64=2.,
-                              M::Float64=8.,
-                              l::Float64=0.5,
-                              dt::Float64=0.1,
-                              discount::Float64=0.99,
-                              cost::Float64=-1.)
-        self = new()
-        self.g = g
-        self.m = m
-        self.l = l
-        self.M = M
-        self.m = m
-        self.alpha = 1/(m+M)
-        self.dt = dt
-        self.discount = discount
-        self.cost = cost
-        return self
-    end
+@with_kw mutable struct InvertedPendulum <: MDP{Tuple{Float64,Float64},Float64}
+    g::Float64 = 9.81
+    m::Float64 = 2.
+    l::Float64 = 8.
+    M::Float64 = 0.5
+    alpha::Float64 = 1/(m + M)
+    dt::Float64 = 0.1
+    discount::Float64 = 0.99
+    cost::Float64 = -1.
 end
 
 actions(ip::InvertedPendulum) = [-50., 0., 50.]
@@ -74,7 +53,7 @@ function euler(m::InvertedPendulum,s::Tuple{Float64,Float64},a::Float64)
     return (th_,w_)
 end
 
-function generate_s( ip::InvertedPendulum,
+function generate_s(ip::InvertedPendulum,
                     s::Tuple{Float64,Float64},
                     a::Float64,
                     rng::AbstractRNG)
@@ -86,7 +65,7 @@ function generate_s( ip::InvertedPendulum,
 end
 
 function convert_s(::Type{A}, s::Tuple{Float64,Float64}, ip::InvertedPendulum) where A<:AbstractArray
-    v = copy!(Array{Float64}(2), s)
+    v = copy!(Array{Float64}(undef, 2), s)
     return v
 end
 
