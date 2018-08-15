@@ -7,14 +7,12 @@ mutable struct DiscreteMDP <: MDP{Int64, Int64}
     ns::Int64
     na::Int64
     discount::Float64
-    function DiscreteMDP(T::Array{Float64, 3}, R::Matrix{Float64}, discount::Float64)
-        mdp = new()
-        # add some checks
-        mdp.ns, mdp.na = size(R, 1), size(R, 2)
-        mdp.discount = discount
-        mdp.T, mdp.R = T, R
-        return mdp
-    end
+end
+
+function DiscreteMDP(T::Array{Float64, 3}, R::Matrix{Float64}, discount::Float64)
+    # add some checks
+    ns, na = size(R, 1), size(R, 2)
+    return DiscreteMDP(T, R, ns, na, discount)
 end
 
 mutable struct DiscretePOMDP <: POMDP{Int64, Int64, Int64}
@@ -25,14 +23,12 @@ mutable struct DiscretePOMDP <: POMDP{Int64, Int64, Int64}
     na::Int64
     no::Int64
     discount::Float64
-    function DiscretePOMDP(T::Array{Float64, 3}, R::Matrix{Float64}, O::Array{Float64, 3}, discount::Float64)
-        pomdp = new()
-        # add some checks
-        pomdp.ns, pomdp.na, pomdp.no = size(R, 1), size(R, 2), size(O, 1)
-        pomdp.discount = discount
-        pomdp.T, pomdp.R, pomdp.O = T, R, O
-        return pomdp
-    end
+end
+
+function DiscretePOMDP(T::Array{Float64, 3}, R::Matrix{Float64}, O::Array{Float64, 3}, discount::Float64)
+    # add some checks
+    ns, na, no = size(R, 1), size(R, 2), size(O, 1)
+    return DiscretePOMDP(T, R, O, ns, na, no)
 end
 
 const DiscreteProb = Union{DiscreteMDP, DiscretePOMDP}

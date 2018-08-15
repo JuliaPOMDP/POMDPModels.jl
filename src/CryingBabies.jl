@@ -14,7 +14,6 @@ end
 BabyPOMDP(r_feed, r_hungry) = BabyPOMDP(r_feed, r_hungry, 0.1, 0.8, 0.1, 0.9)
 BabyPOMDP() = BabyPOMDP(-5., -10.)
 
-
 updater(problem::BabyPOMDP) = DiscreteUpdater(problem)
 
 # start knowing baby is not not hungry
