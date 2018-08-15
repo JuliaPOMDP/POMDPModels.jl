@@ -1,5 +1,4 @@
 using POMDPModels
-using POMDPToolbox
 using Base.Test
 
 R = [-1. -100 10; -1 10 -100]

@@ -1,6 +1,5 @@
 using Base.Test
 using POMDPModels
-using POMDPToolbox
 using POMDPs
 
 problem = TMaze(10)

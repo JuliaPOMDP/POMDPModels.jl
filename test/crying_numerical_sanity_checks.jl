@@ -3,7 +3,6 @@
 using Base.Test
 
 using POMDPModels
-using POMDPToolbox
 using POMDPs
 
 problem = BabyPOMDP(-5, -10, 0.1, 0.8, 0.1, 0.9)

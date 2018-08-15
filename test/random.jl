@@ -1,6 +1,5 @@
 using Base.Test
 using POMDPModels
-using POMDPToolbox
 
 ns = 10
 na = 2

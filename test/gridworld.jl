@@ -1,5 +1,4 @@
 using POMDPModels
-using POMDPToolbox
 using Base.Test
 using NBInclude
 

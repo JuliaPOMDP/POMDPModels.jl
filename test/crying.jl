@@ -1,7 +1,6 @@
 using Test
 
 using POMDPModels
-using POMDPToolbox
 using POMDPs
 
 problem = BabyPOMDP()
