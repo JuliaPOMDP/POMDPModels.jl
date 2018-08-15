@@ -122,7 +122,7 @@ export
     length,
     index,
     #domain,
-    iterator,
+    support,
     rand,
     isterminal,
     discount,
