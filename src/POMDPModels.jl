@@ -10,7 +10,8 @@ __precompile__()
 module POMDPModels
 
 using POMDPs
-using POMDPToolbox
+using POMDPModelTools
+using BeliefUpdaters
 using Distributions
 using StaticArrays
 using AutoHashEquals
@@ -25,6 +26,11 @@ import Random: rand, rand!
 import Base: ==, hash
 
 import POMDPs: initial_state, generate_s, generate_o, generate_sor
+import POMDPs: actions, n_actions, action_index
+import POMDPs: states, n_states, state_index, transition
+import POMDPs: observations, observation, n_observations, obs_index
+import POMDPs: initial_state, initial_state_distribution
+import POMDPs: updater, update
 
 # for grid world visualization
 using TikzPictures
