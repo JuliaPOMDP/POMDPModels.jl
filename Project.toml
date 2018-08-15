@@ -4,13 +4,20 @@ repo = "https://github.com/JuliaPOMDP/POMDPModels.jl.git"
 
 [deps]
 AutoHashEquals = "15f4f7f2-30c1-5605-9d31-71845cf9641f"
+BeliefUpdaters = "449812bc-a0b5-11e8-3863-0db9323dc191"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
-Nullables = "4d1e1d77-625e-5b40-9113-a560ec7a8ecd"
 POMDPModelTools = "ddee4e65-a780-5c57-ad17-2363fca24141"
 POMDPToolbox = "0729bffe-8e6b-52fa-a3fa-893719b744f4"
 POMDPs = "a93abf59-7444-517b-a68a-c42f96afdd7d"
+Parameters = "d96e819e-fc66-5662-9728-84c9c7592b0a"
 Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 TikzPictures = "37f6aa50-8035-52d0-81c2-5a1d08754b2d"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]

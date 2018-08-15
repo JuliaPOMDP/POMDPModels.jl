@@ -18,7 +18,7 @@ using AutoHashEquals
 using StatsBase
 using Random
 using Printf
-using Nullables
+using Parameters
 
 using POMDPs
 

@@ -1,4 +1,4 @@
-Base.@kwdef mutable struct TMazeState
+@with_kw mutable struct TMazeState
     x::Int64 = 1 # position in corridor
     g::Symbol = :north# goal north or south
     term::Bool = false
@@ -13,7 +13,7 @@ function Base.copy!(s1::TMazeState, s2::TMazeState)
     return s1
 end
 
-Base.@kwdef mutable struct TMaze <: POMDP{TMazeState, Int64, Int64}
+@with_kw mutable struct TMaze <: POMDP{TMazeState, Int64, Int64}
     n::Int64 = 10 # corridor length
     discount::Float64 = 0.99 # discount factor
 end
