@@ -1,13 +1,13 @@
 name = "POMDPModels"
 uuid = "355abbd5-f08e-5560-ac9e-8b5f2592a0ca"
 repo = "https://github.com/JuliaPOMDP/POMDPModels.jl.git"
+version = "0.3.0"
 
 [deps]
 AutoHashEquals = "15f4f7f2-30c1-5605-9d31-71845cf9641f"
 BeliefUpdaters = "449812bc-a0b5-11e8-3863-0db9323dc191"
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 POMDPModelTools = "ddee4e65-a780-5c57-ad17-2363fca24141"
-POMDPToolbox = "0729bffe-8e6b-52fa-a3fa-893719b744f4"
 POMDPs = "a93abf59-7444-517b-a68a-c42f96afdd7d"
 Parameters = "d96e819e-fc66-5662-9728-84c9c7592b0a"
 Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
