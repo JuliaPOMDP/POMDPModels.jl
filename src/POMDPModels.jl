@@ -27,12 +27,13 @@ import Random: rand, rand!
 import Distributions: pdf
 
 import POMDPs: initialstate, generate_s, generate_o, generate_sor, support, discount
-import POMDPs: actions, n_actions, action_index
+import POMDPs: actions, n_actions, action_index, action
 import POMDPs: states, n_states, state_index, transition
 import POMDPs: observations, observation, n_observations, obs_index
 import POMDPs: initialstate, initialstate_distribution
 import POMDPs: updater, update
 import POMDPs: reward
+import POMDPs: convert_s, convert_a, convert_o
 
 # for grid world visualization
 using TikzPictures

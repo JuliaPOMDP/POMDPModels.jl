@@ -65,7 +65,7 @@ function generate_s(ip::InvertedPendulum,
 end
 
 function convert_s(::Type{A}, s::Tuple{Float64,Float64}, ip::InvertedPendulum) where A<:AbstractArray
-    v = copy!(Array{Float64}(undef, 2), s)
+    v = copyto!(Array{Float64}(undef, 2), s)
     return v
 end
 

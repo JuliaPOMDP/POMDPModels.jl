@@ -25,13 +25,15 @@ n_observations(::TMaze) = 5
 mutable struct TMazeStateSpace
     domain::Vector{TMazeState}
 end
-iterator(s::TMazeStateSpace) = s.domain
+iterate(s::TMazeStateSpace, state) = iterate(s.domain, state)
+iterate(s::TMazeStateSpace) = iterate(s.domain)
 rand(rng::AbstractRNG, space::TMazeStateSpace) = space.domain[rand(rng, 1:length(space.domain))]
 
 mutable struct TMazeSpace
     domain::Vector{Int64}
 end
-iterator(s::TMazeSpace) = s.domain
+iterate(s::TMazeSpace, state) = iterate(s.domain, state)
+iterate(s::TMazeSpace) = iterate(s.domain)
 rand(rng::AbstractRNG, space::TMazeSpace) = space.domain[rand(rng, 1:length(space.domain))]
 
 
@@ -65,7 +67,7 @@ function create_transition_distribution(::TMaze)
     rp = [0.5, 0.5]
     TMazeStateDistribution(TMazeState(), false, rs, rp)
 end
-iterator(d::TMazeStateDistribution) = reset ? (return [d.current_state]) : (return d.reset_states)
+support(d::TMazeStateDistribution) = d.reset ? (return [(d.current_state, 1.0)]) : (return zip(d.reset_states, d.reset_probs))
 
 function pdf(d::TMazeStateDistribution, s::TMazeState)
     if d.reset
@@ -90,11 +92,11 @@ mutable struct TMazeInit
     states::Vector{TMazeState}
     probs::Vector{Float64}
 end
-iterator(d::TMazeInit) = d.states
+support(d::TMazeInit) = zip(d.states, d.probs)
 function initialstate_distribution(maze::TMaze)
-    s = iterator(states(maze))
+    s = states(maze)
     ns = n_states(maze)
-    p = zeros(ns) + 1.0 / (ns-1)
+    p = zeros(ns) .+ 1.0 / (ns-1)
     p[end] = 0.0
     #s1 = TMazeState(1, :north, false)
     #s2 = TMazeState(1, :south, false)
@@ -147,27 +149,27 @@ function transition(maze::TMaze, s::TMazeState, a::Int64)
             d.current_state = TMazeState(1,:none,true) # state now terminal
             return d
         elseif a == 4
-            copy!(d.current_state, s)
+            copyto!(d.current_state, s)
             d.current_state.x -= 1
             return d
         else
-            copy!(d.current_state, s)
+            copyto!(d.current_state, s)
             return d
         end
     end
     # check if move along hallway
     if a == 2
-        copy!(d.current_state, s)
+        copyto!(d.current_state, s)
         d.current_state.x += 1
         return d
     end
     if a == 4
-        copy!(d.current_state, s)
+        copyto!(d.current_state, s)
         s.x > 1 ? (d.current_state.x -= 1) : (nothing)
         return d
     end
     # if none of the above just stay in place
-    copy!(d.current_state, s)
+    copyto!(d.current_state, s)
     return d
 end
 
@@ -249,7 +251,7 @@ function generate_o(maze::TMaze, s::TMazeState, rng::AbstractRNG)
 end
 
 function Base.convert(maze::TMaze, s::TMazeState)
-    v = Array{Float64}(2)
+    v = Array{Float64}(undef, 2)
     v[1] = s.x
     s.g == :north ? (v[2] = 0.0) : (v[2] = 1.0)
     return v

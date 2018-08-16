@@ -1,10 +1,10 @@
 using POMDPModels
-using Base.Test
+using Test
 
 
 problem = InvertedPendulum()
 policy = RandomPolicy(problem)
-sim = RolloutSimulator(MersenneTwister(1))
+sim = RolloutSimulator(MersenneTwister(1), 20)
 
 simulate(sim, problem, policy, initialstate(problem, MersenneTwister(2)))
 

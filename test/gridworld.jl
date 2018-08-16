@@ -1,5 +1,5 @@
 using POMDPModels
-using Base.Test
+using Test
 using NBInclude
 
 problem = GridWorld()
@@ -39,4 +39,4 @@ a = convert_a(Symbol, av, problem)
 
 trans_prob_consistency_check(problem)
 
-nbinclude(joinpath(dirname(@__FILE__), "..", "notebooks", "GridWorld Visualization.ipynb"))
+@nbinclude(joinpath(dirname(@__FILE__), "..", "notebooks", "GridWorld Visualization.ipynb"))

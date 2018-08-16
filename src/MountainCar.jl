@@ -2,7 +2,7 @@
 # As described in XXX
 
 @with_kw struct MountainCar <: MDP{Tuple{Float64,Float64},Float64}
-  discount::Float64
+  discount::Float64 = 0.99
   cost::Float64 = -1.# reward at each state not at the goal (should be a negative number)
   jackpot::Float64 = 0.0 # reward at the top
 end
@@ -39,7 +39,7 @@ end
 
 
 function convert_s(::Type{A}, s::Tuple{Float64,Float64}, mc::MountainCar) where A<:AbstractArray
-    v = copy!(A(2), s)
+    v = copyto!(A(undef, 2), s)
     return v
 end
 convert_s(::Type{Tuple{Float64,Float64}}, s::A, mc::MountainCar) where A<:AbstractArray = (s[1], s[2])
