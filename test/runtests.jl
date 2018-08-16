@@ -6,12 +6,25 @@ using POMDPPolicies
 using Random
 using Test
 
-# write your own tests here
-include("crying.jl")
-include("gridworld.jl")
-# include("tiger.jl")
-# include("random.jl")
+@testset "crying" begin
+    include("crying.jl")
+end
+@testset "gridworld" begin
+    include("gridworld.jl")
+end
+@testset "tiger" begin
+    include("tiger.jl")
+end
+@testset "random" begin
+    include("random.jl")
+end
 # # include("tmaze.jl")
-# include("inverted.jl")
-# include("car.jl")
-# include("lightdark.jl")
+@testset "inverted" begin
+    include("inverted.jl")
+end
+@testset "car" begin
+    include("car.jl")
+end
+@testset "lightdark" begin
+    include("lightdark.jl")
+end
