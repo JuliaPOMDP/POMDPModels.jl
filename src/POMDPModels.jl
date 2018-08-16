@@ -1,5 +1,3 @@
-__precompile__()
-
 #################################################################
 # This module provides implementations of MDP and POMDP problems
 # in the POMDPs.jl format. These implementations serve as
