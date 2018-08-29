@@ -1,0 +1,9 @@
+julia 0.7
+BeliefUpdaters
+Distributions
+Parameters
+POMDPModelTools
+POMDPPolicies
+POMDPSimulators
+POMDPs
+StatsBase
