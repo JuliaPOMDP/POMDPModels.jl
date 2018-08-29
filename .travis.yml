@@ -1,13 +1,21 @@
 language: julia
+
+julia:
+  - 0.7
+  - 1.0
+
 os:
   - linux
-julia:
-  - 0.6
+  - osx
+
 notifications:
   email:
-    - sunbergzach@gmail.com
+    - maxim.bouton@gmail.com
+
 script:
   - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
-  - julia --check-bounds=yes -e 'Pkg.clone(pwd()); Pkg.build("POMDPModels"); Pkg.test("POMDPModels"; coverage=true)'
+  - julia --project --check-bounds=yes -e 'import Pkg; Pkg.build(); Pkg.test("POMDPModels"; coverage=true)'
+
 after_success:
-  - julia -e 'cd(Pkg.dir("POMDPModels")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(Coveralls.process_folder())'
+#  - julia --project -e 'import Pkg; Pkg.add("Documenter"); include("docs/make.jl")'
+  - julia --project -e 'import Pkg; Pkg.add("Coverage"); using Coverage; Codecov.submit(Codecov.process_folder())'
