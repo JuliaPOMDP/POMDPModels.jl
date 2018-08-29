@@ -3,7 +3,5 @@ BeliefUpdaters
 Distributions
 Parameters
 POMDPModelTools
-POMDPPolicies
-POMDPSimulators
 POMDPs
 StatsBase
