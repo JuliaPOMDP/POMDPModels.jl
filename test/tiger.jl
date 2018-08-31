@@ -14,7 +14,7 @@ let
 
     pomdp1 = TigerPOMDP()
 
-    pomdp2 = DiscretePOMDP(T, R, O, 0.95)
+    pomdp2 = TabularPOMDP(T, R, O, 0.95)
 
     policy = RandomPolicy(pomdp1, rng=MersenneTwister(2))
     sim = RolloutSimulator(rng=MersenneTwister(3), max_steps=100)

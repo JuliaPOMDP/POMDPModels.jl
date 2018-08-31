@@ -24,7 +24,7 @@ import Base: ==, hash
 import Random: rand, rand!
 import Distributions: pdf
 
-import POMDPs: initialstate, generate_s, generate_o, generate_sor, support, discount
+import POMDPs: initialstate, generate_s, generate_o, generate_sor, support, discount, isterminal
 import POMDPs: actions, n_actions, action_index, action
 import POMDPs: states, n_states, state_index, transition
 import POMDPs: observations, observation, n_observations, obs_index
@@ -79,10 +79,10 @@ include("InvertedPendulum.jl")
 export
     InvertedPendulum
 
-include("Discrete.jl")
+include("Tabular.jl")
 export
-    DiscreteMDP,
-    DiscretePOMDP
+    TabularMDP,
+    TabularPOMDP
 
 include("Random.jl")
 export

@@ -1,5 +1,10 @@
 using Test
 using POMDPModels
+using Random
+using POMDPSimulators
+using POMDPPolicies
+using POMDPs
+using POMDPModelTools
 
 let
     ns = 10

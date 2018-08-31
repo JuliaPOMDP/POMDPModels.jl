@@ -7,7 +7,7 @@ function RandomMDP(ns::Int64, na::Int64, discount::Float64; rng::AbstractRNG=Ran
     end
     # random rewards [-0.5, 0.5]
     R = rand(rng, ns, na) .- 0.5
-    return DiscreteMDP(T, R, discount)
+    return TabularMDP(T, R, discount)
 end
 RandomMDP() = RandomMDP(100, 5, 0.9)
 
@@ -24,6 +24,6 @@ function RandomPOMDP(ns::Int64, na::Int64, no::Int64, discount::Float64; rng::Ab
     end
     # random rewards [-0.5, 0.5]
     R = rand(rng, ns, na) .- 0.5
-    return DiscretePOMDP(T, R, O, discount)
+    return TabularPOMDP(T, R, O, discount)
 end
 RandomPOMDP() = RandomPOMDP(100, 5, 20, 0.9)
