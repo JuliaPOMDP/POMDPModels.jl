@@ -302,7 +302,7 @@ convert_a(::Type{Symbol}, a::A, mdp::GridWorld) where A<:AbstractArray = int2a(I
 initialstate(mdp::GridWorld, rng::AbstractRNG) = GridWorldState(rand(rng, 1:mdp.size_x), rand(rng, 1:mdp.size_y))
 
 # Visualization
-
+#=
 function colorval(val, brightness::Real = 1.0)
     val = convert(Vector{Float64}, val)
     x = 255 .- min.(255, 255 * (abs.(val) ./ 10.0) .^ brightness)
@@ -406,3 +406,4 @@ function plot(mdp::GridWorld, V::Vector, policy::Policy, state=GridWorldState(0,
     println(o, "\\draw[black] grid(10,10);");
     TikzPicture(String(take!(o)), options="scale=1.25")
 end
+=#

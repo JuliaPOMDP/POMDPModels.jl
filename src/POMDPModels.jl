@@ -33,8 +33,8 @@ import POMDPs: updater, update
 import POMDPs: reward
 import POMDPs: convert_s, convert_a, convert_o
 
-# for grid world visualization
-using TikzPictures
+# # for grid world visualization
+# using TikzPictures
 
 include("TigerPOMDPs.jl")
 export
