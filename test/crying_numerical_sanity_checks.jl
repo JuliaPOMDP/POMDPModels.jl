@@ -1,6 +1,6 @@
 # test simple policies on the crying baby problem
 
-using Base.Test
+using Test
 
 using POMDPModels
 using POMDPs
