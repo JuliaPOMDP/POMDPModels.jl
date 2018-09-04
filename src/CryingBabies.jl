@@ -19,18 +19,11 @@ updater(problem::BabyPOMDP) = DiscreteUpdater(problem)
 # start knowing baby is not not hungry
 initialstate_distribution(::BabyPOMDP) = BoolDistribution(0.0)
 
-n_states(::BabyPOMDP) = 2
-state_index(::BabyPOMDP, s::Bool) = s ? 1 : 2
-action_index(::BabyPOMDP, a::Bool) = a ? 1 : 2
-obs_index(::BabyPOMDP, o::Bool) = Int64(o) + 1
-n_actions(::BabyPOMDP) = 2
-n_observations(::BabyPOMDP) = 2
-
 function transition(pomdp::BabyPOMDP, s::Bool, a::Bool)
-    if !a && s # did not feed when hungry
-        return BoolDistribution(1.0)
-    elseif a # fed
+    if a # fed
         return BoolDistribution(0.0)
+    elseif s # did not feed when hungry
+        return BoolDistribution(1.0)
     else # did not feed when not hungry
         return BoolDistribution(pomdp.p_become_hungry)
     end
@@ -43,7 +36,6 @@ function observation(pomdp::BabyPOMDP, a::Bool, sp::Bool)
         return BoolDistribution(pomdp.p_cry_when_not_hungry)
     end
 end
-observation(pomdp::BabyPOMDP, s::Bool, a::Bool, sp::Bool) = observation(pomdp, a, sp)
 
 function reward(pomdp::BabyPOMDP, s::Bool, a::Bool)
     r = 0.0

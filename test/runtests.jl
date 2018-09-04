@@ -1,8 +1,8 @@
 using POMDPModels
-using POMDPSimulators
+# using POMDPSimulators
 using POMDPModelTools
 using BeliefUpdaters
-using POMDPPolicies
+# using POMDPPolicies
 using Random
 using Test
 
