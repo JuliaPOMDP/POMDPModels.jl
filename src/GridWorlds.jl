@@ -167,7 +167,7 @@ function transition(mdp::GridWorld, state::GridWorldState, action::Symbol)
         GridWorldState(x, y, false)    # stay
     )
 
-    probability = MVector{5, Float64}()
+    probability = MVector{5, Float64}(undef)
     fill!(probability, 0.0)
 
     if state.done
@@ -252,7 +252,7 @@ function s2i(mdp::GridWorld, state::GridWorldState)
     if state.done
         return mdp.size_x*mdp.size_y + 1
     else
-        return sub2ind((mdp.size_x, mdp.size_y), state.x, state.y)
+        return LinearIndices((mdp.size_x, mdp.size_y))[state.x, state.y]
     end
 end
 
@@ -299,13 +299,13 @@ end
 convert_a(::Type{A}, a::Symbol, mdp::GridWorld) where A<:AbstractArray = [Float64(a2int(a, mdp))]
 convert_a(::Type{Symbol}, a::A, mdp::GridWorld) where A<:AbstractArray = int2a(Int(a[1]), mdp)
 
-initial_state(mdp::GridWorld, rng::AbstractRNG) = GridWorldState(rand(rng, 1:mdp.size_x), rand(rng, 1:mdp.size_y))
+initialstate(mdp::GridWorld, rng::AbstractRNG) = GridWorldState(rand(rng, 1:mdp.size_x), rand(rng, 1:mdp.size_y))
 
 # Visualization
-
+#=
 function colorval(val, brightness::Real = 1.0)
     val = convert(Vector{Float64}, val)
-    x = 255 - min.(255, 255 * (abs.(val) ./ 10.0) .^ brightness)
+    x = 255 .- min.(255, 255 * (abs.(val) ./ 10.0) .^ brightness)
     r = 255 * ones(size(val))
     g = 255 * ones(size(val))
     b = 255 * ones(size(val))
@@ -317,7 +317,7 @@ function colorval(val, brightness::Real = 1.0)
 end
 
 function plot(g::GridWorld, f::Function)
-    V = map(f, iterator(states(g)))
+    V = map(f, states(g))
     plot(g, V)
 end
 
@@ -326,7 +326,7 @@ function plot(mdp::GridWorld, V::Vector, state=GridWorldState(0,0,true))
     sqsize = 1.0
     twid = 0.05
     (r, g, b) = colorval(V)
-    for s in iterator(states(mdp))
+    for s in states(mdp)
         if !s.done
             (xval, yval) = (s.x, mdp.size_y-s.y+1)
             i = state_index(mdp, s)
@@ -350,7 +350,7 @@ function plot(mdp::GridWorld, state=GridWorldState(0,0,true))
 end
 
 function plot(g::GridWorld, f::Function, policy::Policy, state=GridWorldState(0,0,true))
-    V = map(f, iterator(states(g)))
+    V = map(f, states(g))
     plot(g, V, policy, state)
 end
 
@@ -359,7 +359,7 @@ function plot(mdp::GridWorld, V::Vector, policy::Policy, state=GridWorldState(0,
     sqsize = 1.0
     twid = 0.05
     (r, g, b) = colorval(V)
-    for s in iterator(states(mdp))
+    for s in states(mdp)
         if !s.done
             (xval, yval) = (s.x, mdp.size_y-s.y+1)
             i = state_index(mdp, s)
@@ -372,12 +372,12 @@ function plot(mdp::GridWorld, V::Vector, policy::Policy, state=GridWorldState(0,
         end
     end
     println(o, "\\begin{scope}[fill=gray]")
-    for s in iterator(states(mdp))
+    for s in states(mdp)
         if !s.done
             (xval, yval) = (s.x, mdp.size_y-s.y+1)
             i = state_index(mdp, s)
             yval = 10 - yval + 1
-            c = [xval, yval] * sqsize - sqsize / 2
+            c = [xval, yval] * sqsize .- sqsize / 2
             C = [c'; c'; c']'
             RightArrow = [0 0 sqsize/2; twid -twid 0]
             dir = action(policy, s)
@@ -406,3 +406,4 @@ function plot(mdp::GridWorld, V::Vector, policy::Policy, state=GridWorldState(0,
     println(o, "\\draw[black] grid(10,10);");
     TikzPicture(String(take!(o)), options="scale=1.25")
 end
+=#

@@ -3,7 +3,6 @@
 using Base.Test
 
 using POMDPModels
-using POMDPToolbox
 using POMDPs
 
 problem = BabyPOMDP(-5, -10, 0.1, 0.8, 0.1, 0.9)
@@ -12,7 +11,7 @@ problem = BabyPOMDP(-5, -10, 0.1, 0.8, 0.1, 0.9)
 # when the baby is never fed, the reward for starting in the hungry state should be -100
 sim = RolloutSimulator()
 sim.eps = 0.0001
-sim.initial_state = true
+sim.initialstate = true
 ib = EmptyBelief()
 policy = Starve()
 r = simulate(sim, problem, policy, updater(policy), ib)
@@ -55,7 +54,7 @@ r_sum = @parallel (+) for i in 1:n
     init_state = false
     od = observation(problem, init_state, false, init_state)
     obs = rand(rng, od)
-    sim = RolloutSimulator(rng=rng, initial_state=init_state, eps=0.0001)
+    sim = RolloutSimulator(rng=rng, initialstate=init_state, eps=0.0001)
     policy = FeedWhenCrying()
     simulate(sim, problem, policy, updater(policy), PreviousObservation(obs))
     # println(i)
@@ -69,7 +68,7 @@ r_sum = @parallel (+) for i in 1:n
     init_state = true
     od = observation(problem, init_state, false, init_state)
     obs = rand(rng, od)
-    sim = RolloutSimulator(rng=rng, initial_state=init_state, eps=0.0001)
+    sim = RolloutSimulator(rng=rng, initialstate=init_state, eps=0.0001)
     policy = FeedWhenCrying()
     simulate(sim, problem, policy, updater(policy), PreviousObservation(obs))
 end

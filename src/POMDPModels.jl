@@ -1,5 +1,3 @@
-__precompile__()
-
 #################################################################
 # This module provides implementations of MDP and POMDP problems
 # in the POMDPs.jl format. These implementations serve as
@@ -10,23 +8,32 @@ __precompile__()
 module POMDPModels
 
 using POMDPs
-using POMDPToolbox
+using POMDPModelTools
+using BeliefUpdaters
 using Distributions
 using StaticArrays
-using AutoHashEquals
 using StatsBase
+using Random
+using Printf
+using Parameters
 
-importall POMDPs
+using POMDPs
 
-import Base.rand!
-import Base.rand
-import Base.==
-import Base.hash
+import Base: ==, hash
+import Random: rand, rand!
+import Distributions: pdf
 
-import POMDPs: initial_state, generate_s, generate_o, generate_sor
+import POMDPs: initialstate, generate_s, generate_o, generate_sor, support, discount, isterminal
+import POMDPs: actions, n_actions, action_index, action, dimensions
+import POMDPs: states, n_states, state_index, transition
+import POMDPs: observations, observation, n_observations, obs_index
+import POMDPs: initialstate, initialstate_distribution
+import POMDPs: updater, update
+import POMDPs: reward
+import POMDPs: convert_s, convert_a, convert_o
 
-# for grid world visualization
-using TikzPictures
+# # for grid world visualization
+# using TikzPictures
 
 include("TigerPOMDPs.jl")
 export
@@ -71,10 +78,10 @@ include("InvertedPendulum.jl")
 export
     InvertedPendulum
 
-include("Discrete.jl")
+include("Tabular.jl")
 export
-    DiscreteMDP,
-    DiscretePOMDP
+    TabularMDP,
+    TabularPOMDP
 
 include("Random.jl")
 export
@@ -113,7 +120,7 @@ export
     length,
     index,
     #domain,
-    iterator,
+    support,
     rand,
     isterminal,
     discount,
@@ -124,12 +131,12 @@ export
     dimensions,
     upperbound,
     getindex,
-    initial_state_distribution,
+    initialstate_distribution,
     vec,
     # generative model
     generate_s,
     generate_o,
     generate_sor,
-    initial_state
+    initialstate
 
 end # module

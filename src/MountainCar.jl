@@ -1,25 +1,21 @@
 # Mountain Car problem for continuous reinforcement learning
 # As described in XXX
 
-mutable struct MountainCar <: MDP{Tuple{Float64,Float64},Float64}
-  discount::Float64
-  cost::Float64 # reward at each state not at the goal (should be a negative number)
-  jackpot::Float64 # reward at the top
+@with_kw struct MountainCar <: MDP{Tuple{Float64,Float64},Float64}
+  discount::Float64 = 0.99
+  cost::Float64 = -1.# reward at each state not at the goal (should be a negative number)
+  jackpot::Float64 = 0.0 # reward at the top
 end
-MountainCar(;discount::Float64=0.99,cost::Float64=-1., jackpot::Float64=0.0) = MountainCar(discount,cost,jackpot)
 
 actions(::MountainCar) = [-1., 0., 1.]
 n_actions(mc::MountainCar) = 3
 
 reward(mc::MountainCar,
-              s::Tuple{Float64,Float64},
-              a::Float64,
-              sp::Tuple{Float64,Float64}) = isterminal(mc,sp) ? mc.jackpot : mc.cost
+       s::Tuple{Float64,Float64},
+       a::Float64,
+       sp::Tuple{Float64,Float64}) = isterminal(mc,sp) ? mc.jackpot : mc.cost
 
-function initial_state(mc::MountainCar, ::AbstractRNG)
-  sp = (-0.5,0.,)
-  return sp
-end
+initialstate(mc::MountainCar, ::AbstractRNG) = (-0.5,0.,)
 
 isterminal(::MountainCar,s::Tuple{Float64,Float64}) = s[1] >= 0.5
 discount(mc::MountainCar) = mc.discount
@@ -43,7 +39,7 @@ end
 
 
 function convert_s(::Type{A}, s::Tuple{Float64,Float64}, mc::MountainCar) where A<:AbstractArray
-    v = copy!(A(2), s)
+    v = copyto!(A(undef, 2), s)
     return v
 end
 convert_s(::Type{Tuple{Float64,Float64}}, s::A, mc::MountainCar) where A<:AbstractArray = (s[1], s[2])

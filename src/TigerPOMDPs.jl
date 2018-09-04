@@ -68,7 +68,7 @@ end
 reward(pomdp::TigerPOMDP, s::Bool, a::Int64, sp::Bool) = reward(pomdp, s, a)
 
 
-initial_state_distribution(pomdp::TigerPOMDP) = BoolDistribution(0.5)
+initialstate_distribution(pomdp::TigerPOMDP) = BoolDistribution(0.5)
 
 actions(::TigerPOMDP) = [0,1,2]
 
