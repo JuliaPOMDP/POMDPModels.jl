@@ -12,7 +12,6 @@ using POMDPModelTools
 using BeliefUpdaters
 using Distributions
 using StaticArrays
-using AutoHashEquals
 using StatsBase
 using Random
 using Printf

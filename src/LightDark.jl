@@ -58,7 +58,7 @@ n_actions(p::LightDark1D) = length(actions(p))
 
 rand(rng::AbstractRNG, asp::LightDark1DActionSpace) = asp.actions[rand(rng, 1:3)]
 
-@auto_hash_equals mutable struct LDNormalStateDist
+struct LDNormalStateDist
     mean::Float64
     std::Float64
 end
