@@ -2,3 +2,5 @@ Distributions
 POMDPs
 TikzPictures
 NBInclude
+POMDPPolicies
+POMDPSimulators
