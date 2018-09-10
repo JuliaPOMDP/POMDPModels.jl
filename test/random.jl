@@ -5,6 +5,7 @@ using Random
 # using POMDPPolicies
 using POMDPs
 using POMDPModelTools
+using POMDPTesting
 
 let
     ns = 10
@@ -24,7 +25,7 @@ let
     sim = RolloutSimulator(rng=MersenneTwister(3), max_steps=100)
     
     simulate(sim, pomdp, policy, updater(policy), initialstate_distribution(pomdp))
-    # XXX uncomment when POMDPTesting is registered # probability_check(pomdp)
+    probability_check(pomdp)
 
     ov = convert_o(Array{Float64}, 1, pomdp)
     @test ov == [1.]

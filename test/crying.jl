@@ -2,6 +2,7 @@ using Test
 
 using POMDPModels
 # using POMDPSimulators
+using POMDPTesting
 using POMDPs
 using POMDPModelTools
 using BeliefUpdaters
@@ -27,7 +28,7 @@ let
     o = convert_s(Bool, ov, problem)
     @test o == true
 
-    # XXX uncomment when POMDPTesting is registered # probability_check(problem)
+    probability_check(problem)
 
     bu = DiscreteUpdater(problem)
     bp =  update(bu,

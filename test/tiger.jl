@@ -30,6 +30,6 @@ let
     o = convert_o(Bool, ov, pomdp1)
     @test o == true
 
-    # XXX uncomment when POMDPTesting is registered # probability_check(pomdp1)
-    # XXX uncomment when POMDPTesting is registered # probability_check(pomdp2)
+    probability_check(pomdp1)
+    probability_check(pomdp2)
 end
