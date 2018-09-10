@@ -1,5 +1,6 @@
 using POMDPModels
 using Test
+using POMDPTesting
 # using NBInclude
 
 let 
@@ -39,7 +40,7 @@ let
     @test GridWorldState(1,2,true) == GridWorldState(1,1,true)
     @test hash(GridWorldState(1,2,true)) == hash(GridWorldState(1,1,true))
 
-    # XXX uncomment when POMDPTesting is registered # trans_prob_consistency_check(problem)
+    trans_prob_consistency_check(problem)
 end
 
 # XXX simulation

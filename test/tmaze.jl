@@ -9,7 +9,7 @@ sim = RolloutSimulator(rng=MersenneTwister(3), max_steps=100)
         
 simulate(sim, problem, policy, updater(policy), initialstate_distribution(problem))
 
-# XXX uncomment when POMDPTesting is registered # probability_check(problem)
+probability_check(problem)
 
 function test_obs(s::TMazeState, o::Int64)
     ot = generate_o(problem, s, MersenneTwister(1))
