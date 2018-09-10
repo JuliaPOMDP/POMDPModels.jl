@@ -28,7 +28,7 @@ let
     o = convert_s(Bool, ov, problem)
     @test o == true
 
-    probability_check(problem)
+    # XXX uncomment when POMDPTesting is registered # probability_check(problem)
 
     bu = DiscreteUpdater(problem)
     bp =  update(bu,

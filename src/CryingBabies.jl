@@ -76,4 +76,6 @@ function action(::FeedWhenCrying, b::Union{Nothing, Bool})
     end
 end
 action(::FeedWhenCrying, b::Bool) = b
-action(p::FeedWhenCrying, b::Any) = action(p, initialize_belief(updater(p), b))
+action(p::FeedWhenCrying, b::Missing) = false
+# assume the second argument is a distribution
+action(::FeedWhenCrying, d::Any) = pdf(d, true) > 0.5
