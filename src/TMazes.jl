@@ -225,7 +225,7 @@ isterminal(m::TMaze, s::TMazeState) = s.term
 
 discount(m::TMaze) = m.discount
 
-function state_index(maze::TMaze, s::TMazeState)
+function stateindex(maze::TMaze, s::TMazeState)
     s.term ? (return maze.n + 1) : (nothing)
     if s.g == :north
         return s.x + (s.x - 1)

@@ -228,7 +228,7 @@ function transition(mdp::GridWorld, state::GridWorldState, action::Symbol)
 end
 
 
-function action_index(mdp::GridWorld, a::Symbol)
+function actionindex(mdp::GridWorld, a::Symbol)
     # lazy, replace with switches when they arrive
     if a == :up
         return 1
@@ -244,7 +244,7 @@ function action_index(mdp::GridWorld, a::Symbol)
 end
 
 
-function state_index(mdp::GridWorld, s::GridWorldState)
+function stateindex(mdp::GridWorld, s::GridWorldState)
     return s2i(mdp, s)
 end
 
