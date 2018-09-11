@@ -7,9 +7,9 @@ mutable struct TigerPOMDP <: POMDP{Bool, Int64, Bool}
 end
 TigerPOMDP() = TigerPOMDP(-1.0, -100.0, 10.0, 0.85, 0.95)
 
-state_index(::TigerPOMDP, s::Bool) = Int64(s) + 1
-action_index(::TigerPOMDP, a::Int) = a + 1
-obs_index(::TigerPOMDP, o::Bool) = Int64(o) + 1
+stateindex(::TigerPOMDP, s::Bool) = Int64(s) + 1
+actionindex(::TigerPOMDP, a::Int) = a + 1
+obsindex(::TigerPOMDP, o::Bool) = Int64(o) + 1
 
 initial_belief(::TigerPOMDP) = DiscreteBelief(2)
 

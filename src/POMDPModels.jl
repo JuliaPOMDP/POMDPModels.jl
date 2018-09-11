@@ -24,9 +24,9 @@ import Random: rand, rand!
 import Distributions: pdf
 
 import POMDPs: initialstate, generate_s, generate_o, generate_sor, support, discount, isterminal
-import POMDPs: actions, n_actions, action_index, action, dimensions
-import POMDPs: states, n_states, state_index, transition
-import POMDPs: observations, observation, n_observations, obs_index
+import POMDPs: actions, n_actions, actionindex, action, dimensions
+import POMDPs: states, n_states, stateindex, transition
+import POMDPs: observations, observation, n_observations, obsindex
 import POMDPs: initialstate, initialstate_distribution
 import POMDPs: updater, update
 import POMDPs: reward
@@ -108,9 +108,9 @@ export
     n_states,
     n_actions,
     n_observations,
-    state_index,
-    action_index,
-    obs_index,
+    stateindex,
+    actionindex,
+    obsindex,
     states,
     actions,
     observations,
