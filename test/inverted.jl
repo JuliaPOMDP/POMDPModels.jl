@@ -3,11 +3,10 @@ using Test
 
 let
     problem = InvertedPendulum()
-    # XXX simulation
-    # policy = RandomPolicy(problem)
-    # sim = RolloutSimulator(MersenneTwister(1), 20)
+    policy = RandomPolicy(problem)
+    sim = RolloutSimulator(MersenneTwister(1), 20)
 
-    # simulate(sim, problem, policy, initialstate(problem, MersenneTwister(2)))
+    simulate(sim, problem, policy, initialstate(problem, MersenneTwister(2)))
 
     sv = convert_s(Array{Float64}, (0.5, 0.25), problem)
     @test sv == [0.5, 0.25]

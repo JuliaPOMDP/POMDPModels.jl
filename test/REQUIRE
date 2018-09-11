@@ -3,3 +3,5 @@ POMDPs
 POMDPTesting
 TikzPictures
 NBInclude
+POMDPPolicies
+POMDPSimulators
