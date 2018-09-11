@@ -1,4 +1,5 @@
 using POMDPModels
+using POMDPTesting
 using Test
 
 let
@@ -30,6 +31,6 @@ let
     o = convert_o(Bool, ov, pomdp1)
     @test o == true
 
-    probability_check(pomdp1)
-    probability_check(pomdp2)
+    POMDPTesting.probability_check(pomdp1)
+    POMDPTesting.probability_check(pomdp2)
 end

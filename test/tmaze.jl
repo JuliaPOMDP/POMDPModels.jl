@@ -1,6 +1,7 @@
 using Test
 using POMDPModels
 using POMDPs
+using POMDPTesting
 
 problem = TMaze(n=10)
 
@@ -9,7 +10,7 @@ sim = RolloutSimulator(rng=MersenneTwister(3), max_steps=100)
         
 simulate(sim, problem, policy, updater(policy), initialstate_distribution(problem))
 
-probability_check(problem)
+POMDPTesting.probability_check(problem)
 
 function test_obs(s::TMazeState, o::Int64)
     ot = generate_o(problem, s, MersenneTwister(1))
