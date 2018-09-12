@@ -14,10 +14,10 @@ This package provides the following models for POMDPs.jl:
 
 ## Usage
 
-To use POMDPModels, simply load it and initialize a model. The model supports the basic functions required by many of
-the JuliaPOMDP solvers. For example:
+To use POMDPModels, simply load it and initialize a model. Note: to interact with the models using the POMDPs.jl interface, you must also import POMDPs. The model supports the basic functions required by many of the JuliaPOMDP solvers. For example:
 
 ```julia
+using POMDPs
 using POMDPModels
 
 pomdp = TigerPOMDP()
