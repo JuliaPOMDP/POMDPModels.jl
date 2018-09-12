@@ -108,47 +108,4 @@ export
     DummyHeuristic1DPolicy,
     SmartHeuristic1DPolicy
 
-export
-    n_states,
-    n_actions,
-    n_observations,
-    stateindex,
-    actionindex,
-    obsindex,
-    states,
-    actions,
-    observations,
-    observation,
-    reward,
-    transition,
-    length,
-    index,
-    #domain,
-    support,
-    rand,
-    isterminal,
-    discount,
-    initial_belief,
-    belief,
-    update,
-    pdf,
-    dimensions,
-    upperbound,
-    getindex,
-    initialstate_distribution,
-    vec,
-    # generative model
-    generate_s,
-    generate_o,
-    generate_sor,
-    initialstate
-
-# TEMPORARY - to help with https://github.com/JuliaLang/METADATA.jl/pull/17942
-import POMDPs: state_index, action_index, obs_index
-export
-    state_index,
-    action_index,
-    obs_index
-
-
 end # module
