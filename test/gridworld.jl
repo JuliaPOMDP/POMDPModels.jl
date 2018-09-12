@@ -4,7 +4,7 @@ using POMDPTesting
 # using NBInclude
 
 let 
-    problem = GridWorld()
+    problem = LegacyGridWorld()
 
     policy = RandomPolicy(problem)
 

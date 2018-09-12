@@ -58,8 +58,12 @@ export
     GridWorldActionSpace,
     GridWorldStateSpace,
     GridWorldDistribution,
-    static_reward,
-    plot
+    static_reward
+    # plot
+
+# Since this will soon be replaced by a new version
+LegacyGridWorld = GridWorld
+export LegacyGridWorld
 
 include("CryingBabies.jl")
 export
