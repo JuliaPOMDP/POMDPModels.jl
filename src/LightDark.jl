@@ -93,24 +93,6 @@ end
 convert_s(::Type{A}, s::LightDark1DState, p::LightDark1D) where A<:AbstractArray = eltype(A)[s.status, s.y]
 convert_s(::Type{LightDark1DState}, s::A, p::LightDark1D) where A<:AbstractArray = LightDark1DState(Int64(s[1]), s[2])
 
-# # XXX this is specifically for MCVI
-# # it is also implemented in the MCVI tests
-# function init_lower_action(p::LightDark1D)
-#     return 0 # Worst? This depends on the initial state? XXX
-# end
-
-
-#=
-gauss(s::Float64, x::Float64) = 1 / sqrt(2*pi) / s * exp(-1*x^2/(2*s^2))
-function obs_weight(p::LightDark1D, s::LightDark1DState, obs::Float64)
-    return gauss(sigma(s.y), s.y-obs)
-end
-
-# old - this should not be there
-function pdf(s::LightDark1DState, obs::Float64)
-    return gauss(sigma(s.y), s.y-obs)
-end
-=#
 
 # Define some simple policies based on particle belief
 mutable struct DummyHeuristic1DPolicy <: POMDPs.Policy
