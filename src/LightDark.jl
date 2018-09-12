@@ -4,16 +4,19 @@
 
 import Base: ==, +, *, -
 
+"""
+    LightDark1DState
+
+## Fields
+- `y`: position
+- `status`: 0 = normal, negative = terminal
+"""
 struct LightDark1DState
     status::Int64
     y::Float64
 end
 
-==(s1::LightDark1DState, s2::LightDark1DState) = (s1.status == s2.status) && (s1.y == s2.y)
 *(n::Number, s::LightDark1DState) = LightDark1DState(s.status, n*s.y)
-
-Base.hash(s::LightDark1DState, h::UInt64=zero(UInt64)) = hash(s.status, hash(s.y, h))
-copy(s::LightDark1DState) = LightDark1DState(s.status, s.y)
 
 """
     LightDark1D
@@ -29,15 +32,18 @@ Model
 
 Here G is the goal. S is the starting location
 """
-mutable struct LightDark1D <: POMDPs.POMDP{LightDark1DState,Int64,Float64}
+mutable struct LightDark1D{F<:Function} <: POMDPs.POMDP{LightDark1DState,Int,Float64}
     discount_factor::Float64
     correct_r::Float64
     incorrect_r::Float64
     step_size::Float64
     movement_cost::Float64
+    sigma::F
 end
 
-LightDark1D() = LightDark1D(0.9, 10, -10, 1, 0)
+default_sigma(x::Float64) = abs(x - 5)/sqrt(2) + 1e-2
+
+LightDark1D() = LightDark1D(0.9, 10.0, -10.0, 1.0, 0.0, default_sigma)
 
 discount(p::LightDark1D) = p.discount_factor
 
@@ -46,75 +52,27 @@ isterminal(::LightDark1D, act::Int64) = act == 0
 isterminal(::LightDark1D, s::LightDark1DState) = s.status < 0
 
 
-mutable struct LightDark1DActionSpace
-    actions::NTuple{3,Int64}
-end
-Base.length(asp::LightDark1DActionSpace) = length(asp.actions)
-actions(::LightDark1D) = LightDark1DActionSpace((-1, 0, 1)) # Left Stop Right
-actions(pomdp::LightDark1D, s::LightDark1DState) = actions(pomdp)
-iterator(space::LightDark1DActionSpace) = space.actions
-dimensions(::LightDark1DActionSpace) = 1
+actions(::LightDark1D) = -1:1
 n_actions(p::LightDark1D) = length(actions(p))
 
-rand(rng::AbstractRNG, asp::LightDark1DActionSpace) = asp.actions[rand(rng, 1:3)]
 
 struct LDNormalStateDist
     mean::Float64
     std::Float64
 end
 
-Base.eltype(::Type{LDNormalStateDist}) = LightDark1DState
+sampletype(::Type{LDNormalStateDist}) = LightDark1DState 
+rand(rng::AbstractRNG, d::LDNormalStateDist) = LightDark1DState(0, d.mean + randn(rng)*d.std) 
+initialstate_distribution(pomdp::LightDark1D) = LDNormalStateDist(2, 3)
 
-function rand(rng::AbstractRNG, d::LDNormalStateDist)
-    return LightDark1DState(0, d.mean + randn(rng)*d.std)
-end
+observation(p::LightDark1D, sp::LightDark1DState) = Normal(sp.y, p.sigma(sp.y))
 
-function initialstate_distribution(pomdp::LightDark1D)
-    return LDNormalStateDist(2, 3)
-end
-
-sigma(x::Float64) = abs(x - 5)/sqrt(2) + 1e-2
-
-function observation(p::LightDark1D, s::LightDark1DState, a::Int, sp::LightDark1DState)
-    return Normal(sp.y, sigma(sp.y))
-end
-
-function generate_o(p::LightDark1D, s::Union{LightDark1DState,Nothing}, a::Union{Int,Nothing}, sp::LightDark1DState, rng::AbstractRNG)
-    return sp.y + Base.randn(rng)*sigma(sp.y)
-end
-generate_o(p::LightDark1D, sp::Union{LightDark1DState,Nothing}, rng::AbstractRNG) = sp.y + Base.randn(rng)*sigma(sp.y)
-
-function generate_s(p::LightDark1D, s::LightDark1DState, a::Int, rng::AbstractRNG)
-    if s.status < 0                  # Terminal state
-        return s
-    end
-    if a == 0                   # Enter
-        return LightDark1DState(-1, s.y)
+function transition(p::LightDark1D, s::LightDark1DState, a::Int)
+    if a == 0
+        return Deterministic(LightDark1DState(-1, s.y+a*p.step_size))
     else
-        return LightDark1DState(s.status, s.y+a)
+        return Deterministic(LightDark1DState(s.status, s.y+a*p.step_size))
     end
-end
-
-function generate_sor(p::LightDark1D, s::LightDark1DState, a::Int, rng::AbstractRNG)
-    if s.status < 0                  # Terminal state
-        sprime = s
-        o = generate_o(p, nothing, nothing, sprime, rng)
-        r = 0.0                   # Penalty?
-        return sprime, o, r
-    end
-    if a == 0                   # Enter
-        sprime = LightDark1DState(-1, s.y)
-        if abs(s.y) < 1         # Correct loc is near 0
-            r = p.correct_r     # Correct
-        else
-            r = p.incorrect_r   # Incorrect
-        end
-    else
-        sprime = LightDark1DState(s.status, s.y+a)
-        r = 0.0
-    end
-    o = generate_o(p, s, a, sprime, rng)
-    return sprime, o, r
 end
 
 function reward(p::LightDark1D, s::LightDark1DState, a::Int)
@@ -127,7 +85,7 @@ function reward(p::LightDark1D, s::LightDark1DState, a::Int)
             return p.incorrect_r
         end
     else
-        return 0.0
+        return -p.movement_cost*a
     end
 end
 
@@ -135,13 +93,12 @@ end
 convert_s(::Type{A}, s::LightDark1DState, p::LightDark1D) where A<:AbstractArray = eltype(A)[s.status, s.y]
 convert_s(::Type{LightDark1DState}, s::A, p::LightDark1D) where A<:AbstractArray = LightDark1DState(Int64(s[1]), s[2])
 
-# XXX this is specifically for MCVI
-# it is also implemented in the MCVI tests
-function init_lower_action(p::LightDark1D)
-    return 0 # Worst? This depends on the initial state? XXX
-end
+# # XXX this is specifically for MCVI
+# # it is also implemented in the MCVI tests
+# function init_lower_action(p::LightDark1D)
+#     return 0 # Worst? This depends on the initial state? XXX
+# end
 
-observation(p::LightDark1D, sp::LightDark1DState) = Normal(sp.y, sigma(sp.y))
 
 #=
 gauss(s::Float64, x::Float64) = 1 / sqrt(2*pi) / s * exp(-1*x^2/(2*s^2))
