@@ -143,4 +143,11 @@ export
     generate_sor,
     initialstate
 
+# TEMPORARY - to help with https://github.com/JuliaLang/METADATA.jl/pull/17942
+export
+    state_index,
+    action_index,
+    obs_index
+
+
 end # module
