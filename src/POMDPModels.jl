@@ -144,6 +144,7 @@ export
     initialstate
 
 # TEMPORARY - to help with https://github.com/JuliaLang/METADATA.jl/pull/17942
+import POMDPs: state_index, action_index, obs_index
 export
     state_index,
     action_index,
