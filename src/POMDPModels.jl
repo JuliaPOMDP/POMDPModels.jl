@@ -17,6 +17,9 @@ using Random
 using Printf
 using Parameters
 
+# For SimpleGridWorld Visualization
+# using Compose
+
 using POMDPs
 
 import Base: ==, hash
@@ -32,8 +35,7 @@ import POMDPs: updater, update
 import POMDPs: reward
 import POMDPs: convert_s, convert_a, convert_o
 
-# # for grid world visualization
-# using TikzPictures
+
 
 include("TigerPOMDPs.jl")
 export
@@ -49,21 +51,10 @@ export
     TIGER_OPEN_LEFT,
     TIGER_OPEN_RIGHT
 
-
-include("GridWorlds.jl")
+include("gridworld.jl")
 export
-    GridWorld,
-    GridWorldState,
-    GridWorldAction,
-    GridWorldActionSpace,
-    GridWorldStateSpace,
-    GridWorldDistribution,
-    static_reward
-    # plot
-
-# Since this will soon be replaced by a new version
-LegacyGridWorld = GridWorld
-export LegacyGridWorld
+    GWPos,
+    SimpleGridWorld
 
 include("CryingBabies.jl")
 export
@@ -107,5 +98,22 @@ export
     LightDark1DActionSpace,
     DummyHeuristic1DPolicy,
     SmartHeuristic1DPolicy
+
+
+# Legacy
+
+include("legacy/GridWorlds.jl")
+export
+    LegacyGridWorld,
+    GridWorldState,
+    GridWorldAction,
+    GridWorldActionSpace,
+    GridWorldStateSpace,
+    GridWorldDistribution,
+    static_reward
+    # plot
+
+@deprecate GridWorld LegacyGridWorld
+export GridWorld
 
 end # module
