@@ -18,7 +18,8 @@ using Printf
 using Parameters
 
 # For SimpleGridWorld Visualization
-# using Compose
+using Compose
+using ColorSchemes
 
 using POMDPs
 
@@ -52,6 +53,7 @@ export
     TIGER_OPEN_RIGHT
 
 include("gridworld.jl")
+include("gridworld_visualization.jl")
 export
     GWPos,
     SimpleGridWorld
