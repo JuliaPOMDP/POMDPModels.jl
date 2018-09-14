@@ -128,7 +128,7 @@ mutable struct TMazeObservationDistribution
     current_observation::Int64
 end
 create_observation_distribution(::TMaze) = TMazeObservationDistribution(1)
-iterator(d::TMazeObservationDistribution) = [d.current_observation]
+support(d::TMazeObservationDistribution) = [d.current_observation]
 
 pdf(d::TMazeObservationDistribution, o::Int64) = o == d.current_observation ? (return 1.0) : (return 0.0)
 rand(rng::AbstractRNG, d::TMazeObservationDistribution) = d.current_observation
