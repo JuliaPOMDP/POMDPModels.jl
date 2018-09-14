@@ -49,10 +49,13 @@ isterminal(::LightDark1D, s::LightDark1DState) = s.status < 0
 mutable struct LightDark1DActionSpace
     actions::NTuple{3,Int64}
 end
+Base.iterate(space::LightDark1DActionSpace, state) = Base.iterate(space.actions, state)
+Base.iterate(space::LightDark1DActionSpace) = Base.iterate(space.actions)
+
+
 Base.length(asp::LightDark1DActionSpace) = length(asp.actions)
 actions(::LightDark1D) = LightDark1DActionSpace((-1, 0, 1)) # Left Stop Right
 actions(pomdp::LightDark1D, s::LightDark1DState) = actions(pomdp)
-iterator(space::LightDark1DActionSpace) = space.actions
 dimensions(::LightDark1DActionSpace) = 1
 n_actions(p::LightDark1D) = length(actions(p))
 
