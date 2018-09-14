@@ -25,15 +25,15 @@ n_observations(::TMaze) = 5
 mutable struct TMazeStateSpace
     domain::Vector{TMazeState}
 end
-iterate(s::TMazeStateSpace, state) = iterate(s.domain, state)
-iterate(s::TMazeStateSpace) = iterate(s.domain)
+Base.iterate(s::TMazeStateSpace, state) = Base.iterate(s.domain, state)
+Base.iterate(s::TMazeStateSpace) = Base.iterate(s.domain)
 rand(rng::AbstractRNG, space::TMazeStateSpace) = space.domain[rand(rng, 1:length(space.domain))]
 
 mutable struct TMazeSpace
     domain::Vector{Int64}
 end
-iterate(s::TMazeSpace, state) = iterate(s.domain, state)
-iterate(s::TMazeSpace) = iterate(s.domain)
+Base.iterate(s::TMazeSpace, state) = Base.iterate(s.domain, state)
+Base.iterate(s::TMazeSpace) = Base.iterate(s.domain)
 rand(rng::AbstractRNG, space::TMazeSpace) = space.domain[rand(rng, 1:length(space.domain))]
 
 
