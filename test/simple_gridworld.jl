@@ -1,7 +1,7 @@
 using POMDPModels
 using Test
 using POMDPTesting
-# using NBInclude
+using NBInclude
 
 let 
     problem = SimpleGridWorld()
@@ -41,7 +41,6 @@ let
     POMDPModelTools.render(problem, stp)
 end
 
-# XXX visualization
-# let
-#     @nbinclude(joinpath(dirname(@__FILE__), "..", "notebooks", "GridWorld Visualization.ipynb"))
-# end
+let
+    @nbinclude(joinpath(dirname(@__FILE__), "..", "notebooks", "GridWorld Visualization.ipynb"))
+end

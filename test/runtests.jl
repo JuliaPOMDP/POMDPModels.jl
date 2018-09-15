@@ -21,7 +21,9 @@ end
 @testset "random" begin
     include("random.jl")
 end
-# # include("tmaze.jl")
+@testset "tmaze" begin
+    include("tmaze.jl")
+end
 @testset "inverted" begin
     include("inverted.jl")
 end
