@@ -20,6 +20,7 @@ using Parameters
 # For SimpleGridWorld Visualization
 using Compose
 using ColorSchemes
+import POMDPModelTools.render
 
 using POMDPs
 

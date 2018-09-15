@@ -16,7 +16,8 @@ function render(mdp::SimpleGridWorld, step::Union{NamedTuple,Dict};
     agent_ctx = cell_ctx(step[:s], mdp.size)
     agent = compose(agent_ctx, circle(0.5, 0.5, 0.4), fill("orange"))
     
-    return compose(context(), agent, grid, outline)
+    sz = min(w,h)
+    return compose(context((w-sz)/2, (h-sz)/2, sz, sz), agent, grid, outline)
 end
 
 function cell_ctx(xy, size)

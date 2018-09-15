@@ -35,6 +35,10 @@ let
     @test a == :up
 
     POMDPTesting.trans_prob_consistency_check(problem)
+
+    pol = FunctionPolicy(x->:up)
+    stp = first(stepthrough(problem, pol, "s,a", max_steps=1))
+    POMDPModelTools.render(problem, stp)
 end
 
 # XXX visualization
