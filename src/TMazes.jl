@@ -22,21 +22,6 @@ n_states(m::TMaze) = 2 * (m.n + 1) + 1 # 2*(corr length + 1 (junction)) + 1 (ter
 n_actions(::TMaze) = 4
 n_observations(::TMaze) = 5
 
-mutable struct TMazeStateSpace
-    domain::Vector{TMazeState}
-end
-iterate(s::TMazeStateSpace, state) = iterate(s.domain, state)
-iterate(s::TMazeStateSpace) = iterate(s.domain)
-rand(rng::AbstractRNG, space::TMazeStateSpace) = space.domain[rand(rng, 1:length(space.domain))]
-
-mutable struct TMazeSpace
-    domain::Vector{Int64}
-end
-iterate(s::TMazeSpace, state) = iterate(s.domain, state)
-iterate(s::TMazeSpace) = iterate(s.domain)
-rand(rng::AbstractRNG, space::TMazeSpace) = space.domain[rand(rng, 1:length(space.domain))]
-
-
 # state space is length of corr + 3 cells at the end
 #                   |G|
 # |S| | | | | | | | | |
@@ -48,12 +33,12 @@ function states(maze::TMaze)
         push!(space, TMazeState(x, g, false))
     end
     push!(space, TMazeState(1,:none,true)) # terminal
-    return TMazeStateSpace(space)
+    return space
 end
 # 4 actions: go North, East, South, West (1, 2, 3, 4)
-actions(maze::TMaze) = TMazeSpace(collect(1:4))
+actions(maze::TMaze) = 1:4
 # 5 observations: 2 for goal (left or right) + 2 for in corridor or at intersection + 1 term
-observations(maze::TMaze) = TMazeSpace(collect(1:5))
+observations(maze::TMaze) = 1:5
 
 # transition distribution (actions are deterministic)
 mutable struct TMazeStateDistribution
