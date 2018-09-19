@@ -121,7 +121,7 @@ export
     # plot
 
 @deprecate GridWorld LegacyGridWorld
-@deprecate GridWorld(;kwargs...) LegacyGridWorld(;kwargs...)
+@deprecate GridWorld(args...; kwargs...) LegacyGridWorld(args...; kwargs...)
 export GridWorld
 
 end # module

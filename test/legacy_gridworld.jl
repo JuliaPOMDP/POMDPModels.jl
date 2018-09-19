@@ -39,4 +39,9 @@ let
     @test hash(GridWorldState(1,2,true)) == hash(GridWorldState(1,1,true))
 
     POMDPTesting.trans_prob_consistency_check(problem)
+
+    # test gridworld deprecation - these can be removed once the deprecation period is over
+    @test GridWorld() isa LegacyGridWorld
+    @test GridWorld(sx=9) isa LegacyGridWorld
+    @test GridWorld(9, 9, tp=0.8) isa LegacyGridWorld
 end

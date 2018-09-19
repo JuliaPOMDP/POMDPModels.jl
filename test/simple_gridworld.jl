@@ -41,6 +41,7 @@ let
     POMDPModelTools.render(problem, stp)
 end
 
-let
-    @nbinclude(joinpath(dirname(@__FILE__), "..", "notebooks", "GridWorld Visualization.ipynb"))
-end
+# # disabled until POMDPSimulators v0.1.2 is tagged
+# let
+#     @nbinclude(joinpath(dirname(@__FILE__), "..", "notebooks", "GridWorld Visualization.ipynb"))
+# end
