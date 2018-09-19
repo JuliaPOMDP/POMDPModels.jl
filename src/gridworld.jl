@@ -91,7 +91,7 @@ POMDPs.reward(mdp::SimpleGridWorld, s::AbstractVector{Int}, a::Symbol) = reward(
 POMDPs.discount(mdp::SimpleGridWorld) = mdp.discount
 
 # Conversion
-function POMDPs.convert_a(::Type{V}, a::Symbol, m::SimpleGridWorld) where V<:AbstractArray
+function POMDPs.convert_a(::Type{V}, a::Symbol, m::SimpleGridWorld) where {V<:AbstractArray}
     convert(V, [aind[a]])
 end
 function POMDPs.convert_a(::Type{Symbol}, vec::V, m::SimpleGridWorld) where {V<:AbstractArray}
