@@ -1,7 +1,6 @@
 using POMDPModels
 using Test
 using POMDPTesting
-# using NBInclude
 
 let 
     problem = LegacyGridWorld()
@@ -41,8 +40,3 @@ let
 
     POMDPTesting.trans_prob_consistency_check(problem)
 end
-
-# XXX visualization
-# let
-#     @nbinclude(joinpath(dirname(@__FILE__), "..", "notebooks", "GridWorld Visualization.ipynb"))
-# end

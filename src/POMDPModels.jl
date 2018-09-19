@@ -16,10 +16,10 @@ using StatsBase
 using Random
 using Printf
 using Parameters
+using Requires
 
 # For SimpleGridWorld Visualization
-using Compose
-using ColorSchemes
+
 import POMDPModelTools.render
 
 using POMDPs
@@ -54,7 +54,7 @@ export
     TIGER_OPEN_RIGHT
 
 include("gridworld.jl")
-include("gridworld_visualization.jl")
+
 export
     GWPos,
     SimpleGridWorld
@@ -102,6 +102,10 @@ export
     DummyHeuristic1DPolicy,
     SmartHeuristic1DPolicy
 
+# Integration with optional packages using Requires
+function __init__()
+    @require Compose="a81c6b42-2e10-5240-aca2-a61377ecd94b" include("gridworld_visualization.jl")
+end
 
 # Legacy
 
@@ -117,6 +121,7 @@ export
     # plot
 
 @deprecate GridWorld LegacyGridWorld
+@deprecate GridWorld(;kwargs...) LegacyGridWorld(;kwargs...)
 export GridWorld
 
 end # module
