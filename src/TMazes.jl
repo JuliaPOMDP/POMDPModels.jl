@@ -134,27 +134,27 @@ function transition(maze::TMaze, s::TMazeState, a::Int64)
             d.current_state = TMazeState(1,:none,true) # state now terminal
             return d
         elseif a == 4
-            copyto!(d.current_state, s)
+            copy!(d.current_state, s)
             d.current_state.x -= 1
             return d
         else
-            copyto!(d.current_state, s)
+            copy!(d.current_state, s)
             return d
         end
     end
     # check if move along hallway
     if a == 2
-        copyto!(d.current_state, s)
+        copy!(d.current_state, s)
         d.current_state.x += 1
         return d
     end
     if a == 4
-        copyto!(d.current_state, s)
+        copy!(d.current_state, s)
         s.x > 1 ? (d.current_state.x -= 1) : (nothing)
         return d
     end
     # if none of the above just stay in place
-    copyto!(d.current_state, s)
+    copy!(d.current_state, s)
     return d
 end
 

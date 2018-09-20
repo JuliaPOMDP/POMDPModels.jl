@@ -50,7 +50,7 @@ const GridWorldAction = Symbol # deprecated - this is here so that other people'
 # Grid World MDP
 #################################################################
 # the grid world mdp type
-mutable struct GridWorld <: MDP{GridWorldState, Symbol}
+mutable struct LegacyGridWorld <: MDP{GridWorldState, Symbol}
     size_x::Int64 # x size of the grid
     size_y::Int64 # y size of the grid
     reward_states::Vector{GridWorldState} # the states in which agent recieves reward
@@ -61,7 +61,7 @@ mutable struct GridWorld <: MDP{GridWorldState, Symbol}
     discount_factor::Float64 # disocunt factor
 end
 # we use key worded arguments so we can change any of the values we pass in
-function GridWorld(sx::Int64, # size_x
+function LegacyGridWorld(sx::Int64, # size_x
                    sy::Int64; # size_y
                    rs::Vector{GridWorldState}=[GridWorldState(4,3), GridWorldState(4,6), GridWorldState(9,3), GridWorldState(8,8)],
                    rv::Vector{Float64}=[-10.,-5,10,3],
@@ -69,10 +69,10 @@ function GridWorld(sx::Int64, # size_x
                    tp::Float64=0.7, # tprob
                    discount_factor::Float64=0.95,
                    terminals=Set{GridWorldState}([rs[i] for i in filter(i->rv[i]>0.0, 1:length(rs))]))
-    return GridWorld(sx, sy, rs, rv, penalty, tp, Set{GridWorldState}(terminals), discount_factor)
+    return LegacyGridWorld(sx, sy, rs, rv, penalty, tp, Set{GridWorldState}(terminals), discount_factor)
 end
 
-GridWorld(;sx::Int64=10, sy::Int64=10, kwargs...) = GridWorld(sx, sy; kwargs...)
+LegacyGridWorld(;sx::Int64=10, sy::Int64=10, kwargs...) = LegacyGridWorld(sx, sy; kwargs...)
 
 
 #################################################################
@@ -80,18 +80,18 @@ GridWorld(;sx::Int64=10, sy::Int64=10, kwargs...) = GridWorld(sx, sy; kwargs...)
 #################################################################
 # This could probably be implemented more efficiently without vectors
 
-function states(mdp::GridWorld)
+function states(mdp::LegacyGridWorld)
     s = vec(collect(GridWorldState(x, y, false) for x in 1:mdp.size_x, y in 1:mdp.size_y))
     push!(s, GridWorldState(0, 0, true))
     return s
 end
 
-actions(mdp::GridWorld) = [:up, :down, :left, :right]
+actions(mdp::LegacyGridWorld) = [:up, :down, :left, :right]
 
-n_states(mdp::GridWorld) = mdp.size_x*mdp.size_y+1
-n_actions(mdp::GridWorld) = 4
+n_states(mdp::LegacyGridWorld) = mdp.size_x*mdp.size_y+1
+n_actions(mdp::LegacyGridWorld) = 4
 
-function reward(mdp::GridWorld, state::GridWorldState, action::Symbol)
+function reward(mdp::LegacyGridWorld, state::GridWorldState, action::Symbol)
     if state.done
         return 0.0
     end
@@ -103,11 +103,11 @@ function reward(mdp::GridWorld, state::GridWorldState, action::Symbol)
 end
 
 """
-    static_reward(mdp::GridWorld, state::GridWorldState)
+    static_reward(mdp::LegacyGridWorld, state::GridWorldState)
 
 Return the reward for being in the state (the reward not including bumping)
 """
-function static_reward(mdp::GridWorld, state::GridWorldState)
+function static_reward(mdp::LegacyGridWorld, state::GridWorldState)
     r = 0.0
     n = length(mdp.reward_states)
     for i = 1:n
@@ -119,15 +119,15 @@ function static_reward(mdp::GridWorld, state::GridWorldState)
 end
 
 #checking boundries- x,y --> points of current state
-inbounds(mdp::GridWorld,x::Int64,y::Int64) = 1 <= x <= mdp.size_x && 1 <= y <= mdp.size_y
-inbounds(mdp::GridWorld,state::GridWorldState) = inbounds(mdp, state.x, state.y)
+inbounds(mdp::LegacyGridWorld,x::Int64,y::Int64) = 1 <= x <= mdp.size_x && 1 <= y <= mdp.size_y
+inbounds(mdp::LegacyGridWorld,state::GridWorldState) = inbounds(mdp, state.x, state.y)
 
 """
-    inbounds(mdp::GridWorld, s::GridWorldState, a::Symbol)
+    inbounds(mdp::LegacyGridWorld, s::GridWorldState, a::Symbol)
 
 Return false if `a` is trying to go out of bounds, true otherwise.
 """
-function inbounds(mdp::GridWorld, s::GridWorldState, a::Symbol)
+function inbounds(mdp::LegacyGridWorld, s::GridWorldState, a::Symbol)
     xdir = s.x
     ydir = s.y
     if a == :right
@@ -153,7 +153,7 @@ function fill_probability!(p::AbstractVector{Float64}, val::Float64, index::Int6
     end
 end
 
-function transition(mdp::GridWorld, state::GridWorldState, action::Symbol)
+function transition(mdp::LegacyGridWorld, state::GridWorldState, action::Symbol)
 
     a = action
     x = state.x
@@ -228,7 +228,7 @@ function transition(mdp::GridWorld, state::GridWorldState, action::Symbol)
 end
 
 
-function actionindex(mdp::GridWorld, a::Symbol)
+function actionindex(mdp::LegacyGridWorld, a::Symbol)
     # lazy, replace with switches when they arrive
     if a == :up
         return 1
@@ -244,11 +244,11 @@ function actionindex(mdp::GridWorld, a::Symbol)
 end
 
 
-function stateindex(mdp::GridWorld, s::GridWorldState)
+function stateindex(mdp::LegacyGridWorld, s::GridWorldState)
     return s2i(mdp, s)
 end
 
-function s2i(mdp::GridWorld, state::GridWorldState)
+function s2i(mdp::LegacyGridWorld, state::GridWorldState)
     if state.done
         return mdp.size_x*mdp.size_y + 1
     else
@@ -261,14 +261,14 @@ function i2s(mdp::GridWorld, i::Int)
 end
 =#
 
-isterminal(mdp::GridWorld, s::GridWorldState) = s.done
+isterminal(mdp::LegacyGridWorld, s::GridWorldState) = s.done
 
-discount(mdp::GridWorld) = mdp.discount_factor
+discount(mdp::LegacyGridWorld) = mdp.discount_factor
 
-convert_s(::Type{A}, s::GridWorldState, mdp::GridWorld) where A<:AbstractArray = Float64[s.x, s.y, s.done]
-convert_s(::Type{GridWorldState}, s::AbstractArray, mdp::GridWorld) = GridWorldState(s[1], s[2], s[3])
+convert_s(::Type{A}, s::GridWorldState, mdp::LegacyGridWorld) where A<:AbstractArray = Float64[s.x, s.y, s.done]
+convert_s(::Type{GridWorldState}, s::AbstractArray, mdp::LegacyGridWorld) = GridWorldState(s[1], s[2], s[3])
 
-function a2int(a::Symbol, mdp::GridWorld)
+function a2int(a::Symbol, mdp::LegacyGridWorld)
     if a == :up
         return 0
     elseif a == :down
@@ -282,7 +282,7 @@ function a2int(a::Symbol, mdp::GridWorld)
     end
 end
 
-function int2a(a::Int, mdp::GridWorld)
+function int2a(a::Int, mdp::LegacyGridWorld)
     if a == 0
         return :up
     elseif a == 1
@@ -296,10 +296,10 @@ function int2a(a::Int, mdp::GridWorld)
     end
 end
 
-convert_a(::Type{A}, a::Symbol, mdp::GridWorld) where A<:AbstractArray = [Float64(a2int(a, mdp))]
-convert_a(::Type{Symbol}, a::A, mdp::GridWorld) where A<:AbstractArray = int2a(Int(a[1]), mdp)
+convert_a(::Type{A}, a::Symbol, mdp::LegacyGridWorld) where A<:AbstractArray = [Float64(a2int(a, mdp))]
+convert_a(::Type{Symbol}, a::A, mdp::LegacyGridWorld) where A<:AbstractArray = int2a(Int(a[1]), mdp)
 
-initialstate(mdp::GridWorld, rng::AbstractRNG) = GridWorldState(rand(rng, 1:mdp.size_x), rand(rng, 1:mdp.size_y))
+initialstate(mdp::LegacyGridWorld, rng::AbstractRNG) = GridWorldState(rand(rng, 1:mdp.size_x), rand(rng, 1:mdp.size_y))
 
 # Visualization
 #=

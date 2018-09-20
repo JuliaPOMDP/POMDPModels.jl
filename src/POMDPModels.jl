@@ -16,6 +16,11 @@ using StatsBase
 using Random
 using Printf
 using Parameters
+using Requires
+
+# For SimpleGridWorld Visualization
+
+import POMDPModelTools.render
 
 using POMDPs
 
@@ -32,8 +37,7 @@ import POMDPs: updater, update
 import POMDPs: reward
 import POMDPs: convert_s, convert_a, convert_o
 
-# # for grid world visualization
-# using TikzPictures
+
 
 include("TigerPOMDPs.jl")
 export
@@ -49,21 +53,11 @@ export
     TIGER_OPEN_LEFT,
     TIGER_OPEN_RIGHT
 
+include("gridworld.jl")
 
-include("GridWorlds.jl")
 export
-    GridWorld,
-    GridWorldState,
-    GridWorldAction,
-    GridWorldActionSpace,
-    GridWorldStateSpace,
-    GridWorldDistribution,
-    static_reward
-    # plot
-
-# Since this will soon be replaced by a new version
-LegacyGridWorld = GridWorld
-export LegacyGridWorld
+    GWPos,
+    SimpleGridWorld
 
 include("CryingBabies.jl")
 export
@@ -107,5 +101,27 @@ export
     LightDark1DActionSpace,
     DummyHeuristic1DPolicy,
     SmartHeuristic1DPolicy
+
+# Integration with optional packages using Requires
+function __init__()
+    @require Compose="a81c6b42-2e10-5240-aca2-a61377ecd94b" include("gridworld_visualization.jl")
+end
+
+# Legacy
+
+include("legacy/GridWorlds.jl")
+export
+    LegacyGridWorld,
+    GridWorldState,
+    GridWorldAction,
+    GridWorldActionSpace,
+    GridWorldStateSpace,
+    GridWorldDistribution,
+    static_reward
+    # plot
+
+@deprecate GridWorld LegacyGridWorld
+@deprecate GridWorld(args...; kwargs...) LegacyGridWorld(args...; kwargs...)
+export GridWorld
 
 end # module

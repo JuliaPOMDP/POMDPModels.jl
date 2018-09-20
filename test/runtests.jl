@@ -10,7 +10,10 @@ using Test
     include("crying.jl")
 end
 @testset "gridworld" begin
-    include("gridworld.jl")
+    include("simple_gridworld.jl")
+end
+@testset "legacy_gridworld" begin
+    include("legacy_gridworld.jl")
 end
 @testset "tiger" begin
     include("tiger.jl")
@@ -18,7 +21,9 @@ end
 @testset "random" begin
     include("random.jl")
 end
-# # include("tmaze.jl")
+@testset "tmaze" begin
+    include("tmaze.jl")
+end
 @testset "inverted" begin
     include("inverted.jl")
 end
