@@ -4,7 +4,7 @@
 
 This package provides the following models for POMDPs.jl:
 
-* Grid World
+* [SimpleGridWorld](src/gridworld.jl)
 * Tiger
 * Crying Baby
 * Random 
