@@ -40,12 +40,12 @@ let
     stp = first(stepthrough(problem, pol, "s,a", max_steps=1))
     POMDPModelTools.render(problem, stp)
     POMDPModelTools.render(problem, NamedTuple())
-    POMDPModelTools.render(problem, stp, color=s->reward(m,s))
+    POMDPModelTools.render(problem, stp, color=s->reward(problem,s))
     POMDPModelTools.render(problem, stp, color=s->rand())
     POMDPModelTools.render(problem, stp, color=s->"yellow")
 end
 
-# # disabled until POMDPSimulators v0.1.2 is tagged
-# let
-#     @nbinclude(joinpath(dirname(@__FILE__), "..", "notebooks", "GridWorld Visualization.ipynb"))
-# end
+# disabled until POMDPSimulators v0.1.2 is tagged
+let
+    @nbinclude(joinpath(dirname(@__FILE__), "..", "notebooks", "GridWorld Visualization.ipynb"))
+end
