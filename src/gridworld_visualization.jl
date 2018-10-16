@@ -1,6 +1,3 @@
-using Compose
-using ColorSchemes
-
 function render(mdp::SimpleGridWorld, step::Union{NamedTuple,Dict};
                 color = s->reward(mdp, s)
                )
