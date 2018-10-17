@@ -6,4 +6,5 @@ BeliefUpdaters
 POMDPs
 StatsBase
 StaticArrays
-Requires
+Compose
+ColorSchemes
