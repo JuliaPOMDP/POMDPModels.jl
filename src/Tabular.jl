@@ -19,7 +19,7 @@ struct DiscreteDistribution{P<:AbstractVector{Float64}}
     p::P
 end
 
-support(d::DiscreteDistribution) = 1:length(p)
+support(d::DiscreteDistribution) = 1:length(d.p)
 
 pdf(d::DiscreteDistribution, sp::Int64) = d.p[sp] # T(s', a, s)
 
