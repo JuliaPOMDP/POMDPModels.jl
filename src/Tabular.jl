@@ -33,6 +33,9 @@ n_actions(prob::TabularProblem) = size(prob.T, 2)
 states(p::TabularProblem) = 1:n_states(p)
 actions(p::TabularProblem) = 1:n_actions(p)
 
+stateindex(::TabularProblem, s::Int64) = s
+actionindex(::TabularProblem, a::Int64) = a
+
 discount(p::TabularProblem) = p.discount
 
 transition(p::TabularProblem, s::Int64, a::Int64) = DiscreteDistribution(view(p.T, :, a, s))
