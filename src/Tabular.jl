@@ -50,3 +50,5 @@ n_observations(p::TabularProblem) = size(p.O, 1)
 observations(p::TabularPOMDP) = 1:n_observations(p)
 
 observation(p::TabularPOMDP, a::Int64, sp::Int64) = DiscreteDistribution(view(p.O, :, a, sp))
+
+obsindex(p::TabularPOMDP, o::Int64) = o
