@@ -19,7 +19,6 @@ let
         end
     end
 
-
     sv = convert_s(Array{Float64}, GridWorldState(1, 1, false), problem)
     @test sv == [1.0, 1.0, 0.0]
     sv = convert_s(Array{Float64}, GridWorldState(5, 3, false), problem)
