@@ -19,7 +19,7 @@ struct DiscreteDistribution{P<:AbstractVector{Float64}}
     p::P
 end
 
-support(d::DiscreteDistribution) = 1:length(p)
+support(d::DiscreteDistribution) = 1:length(d.p)
 
 pdf(d::DiscreteDistribution, sp::Int64) = d.p[sp] # T(s', a, s)
 
@@ -32,6 +32,9 @@ n_actions(prob::TabularProblem) = size(prob.T, 2)
 
 states(p::TabularProblem) = 1:n_states(p)
 actions(p::TabularProblem) = 1:n_actions(p)
+
+stateindex(::TabularProblem, s::Int64) = s
+actionindex(::TabularProblem, a::Int64) = a
 
 discount(p::TabularProblem) = p.discount
 
@@ -47,3 +50,5 @@ n_observations(p::TabularProblem) = size(p.O, 1)
 observations(p::TabularPOMDP) = 1:n_observations(p)
 
 observation(p::TabularPOMDP, a::Int64, sp::Int64) = DiscreteDistribution(view(p.O, :, a, sp))
+
+obsindex(p::TabularPOMDP, o::Int64) = o
