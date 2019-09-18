@@ -1,10 +1,10 @@
-"""
+@doc raw"""
     TabularMDP(T, R, discount)
 
 Specify a discrete MDP in tabular form.
 
-- The transition matrix is 3 dimensional of size $|\mathcal{S}|\times |\mathcal{A}| \times |\mathcal{S}|$, then `T[sj, a, si]` corresponds to the probability of ending in `sj` while taking action `a` in `si`.
-- The reward matrix is 2 dimensional of size $|\mathcal{S}|\times |\mathcal{A}|$, where `R[s, a]` is the reward obtained when taking action `a` in state `s`. 
+- The transition matrix is 3 dimensional of size ``|\mathcal{S}|\times |\mathcal{A}| \times |\mathcal{S}|``, then `T[sj, a, si]` corresponds to the probability of ending in `sj` while taking action `a` in `si`.
+- The reward matrix is 2 dimensional of size ``|\mathcal{S}|\times |\mathcal{A}|``, where `R[s, a]` is the reward obtained when taking action `a` in state `s`.
 """
 mutable struct TabularMDP <: MDP{Int64, Int64}
     T::Array{Float64, 3} # SPxAxS
@@ -12,14 +12,14 @@ mutable struct TabularMDP <: MDP{Int64, Int64}
     discount::Float64
 end
 
-"""
+@doc raw"""
     TabularPOMDP(T, R, O, discount)
 
 Specify a discrete POMDP in tabular form.
 
-- The transition matrix is 3 dimensional of size $|\mathcal{S}|\times |\mathcal{A}| \times |\mathcal{S}|$, then `T[sj, a, si]` corresponds to the probability of ending in `sj` while taking action `a` in `si`.
-- The observation matrix is also 3 dimensional of size $|\mathcal{O}| \times |\mathcal{A}| \times |\mathcal{S}|$, `O[o, a, sp]` represents the probability of observing `o` in in state `sp` and action `a`.
-- The reward matrix is 2 dimensional of size $|\mathcal{S}|\times |\mathcal{A}|$, where `R[s, a]` is the reward obtained when taking action `a` in state `s`. 
+- The transition matrix is 3 dimensional of size ``|\mathcal{S}|\times |\mathcal{A}| \times |\mathcal{S}|``, then `T[sj, a, si]` corresponds to the probability of ending in `sj` while taking action `a` in `si`.
+- The observation matrix is also 3 dimensional of size ``|\mathcal{O}| \times |\mathcal{A}| \times |\mathcal{S}|``, `O[o, a, sp]` represents the probability of observing `o` in in state `sp` and action `a`.
+- The reward matrix is 2 dimensional of size ``|\mathcal{S}|\times |\mathcal{A}|``, where `R[s, a]` is the reward obtained when taking action `a` in state `s`.
 """
 mutable struct TabularPOMDP <: POMDP{Int64, Int64, Int64}
     T::Array{Float64, 3} # SPxAxS
