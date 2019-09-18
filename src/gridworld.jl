@@ -64,12 +64,12 @@ function POMDPs.transition(mdp::SimpleGridWorld, s::AbstractVector{Int}, a::Symb
     if s in mdp.terminate_from || isterminal(mdp, s)
         return Deterministic(GWPos(-1,-1))
     end
-    
+
     destinations = MVector{n_actions(mdp)+1, GWPos}(undef)
     destinations[1] = s
 
-    # probs = MVector{n_actions(mdp)+1, Float64}() 
-    probs = @MVector(zeros(n_actions(mdp)+1)) 
+    # probs = MVector{n_actions(mdp)+1, Float64}()
+    probs = @MVector(zeros(n_actions(mdp)+1))
     for (i, act) in enumerate(actions(mdp))
         if act == a
             prob = mdp.tprob # probability of transitioning to the desired cell

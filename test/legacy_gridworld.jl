@@ -2,7 +2,7 @@ using POMDPModels
 using Test
 using POMDPTesting
 
-let 
+let
     problem = LegacyGridWorld()
 
     policy = RandomPolicy(problem)

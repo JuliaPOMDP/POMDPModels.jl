@@ -61,8 +61,8 @@ struct LDNormalStateDist
     std::Float64
 end
 
-sampletype(::Type{LDNormalStateDist}) = LightDark1DState 
-rand(rng::AbstractRNG, d::LDNormalStateDist) = LightDark1DState(0, d.mean + randn(rng)*d.std) 
+sampletype(::Type{LDNormalStateDist}) = LightDark1DState
+rand(rng::AbstractRNG, d::LDNormalStateDist) = LightDark1DState(0, d.mean + randn(rng)*d.std)
 initialstate_distribution(pomdp::LightDark1D) = LDNormalStateDist(2, 3)
 
 observation(p::LightDark1D, sp::LightDark1DState) = Normal(sp.y, p.sigma(sp.y))

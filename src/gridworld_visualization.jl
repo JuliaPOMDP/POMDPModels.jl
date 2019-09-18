@@ -19,7 +19,7 @@ function render(mdp::SimpleGridWorld, step::Union{NamedTuple,Dict};
     else
         agent = nothing
     end
-    
+
     sz = min(w,h)
     return compose(context((w-sz)/2, (h-sz)/2, sz, sz), agent, grid, outline)
 end

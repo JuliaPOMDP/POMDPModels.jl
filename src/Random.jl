@@ -1,6 +1,6 @@
 function RandomMDP(ns::Int64, na::Int64, discount::Float64; rng::AbstractRNG=Random.GLOBAL_RNG)
     # random dynamics
-    T = rand(rng, ns, na, ns) 
+    T = rand(rng, ns, na, ns)
     # normalize
     for i = 1:ns, j = 1:na
         T[:,j,i] /= sum(T[:,j,i])
@@ -14,7 +14,7 @@ RandomMDP() = RandomMDP(100, 5, 0.9)
 
 function RandomPOMDP(ns::Int64, na::Int64, no::Int64, discount::Float64; rng::AbstractRNG=Random.GLOBAL_RNG)
     # random dynamics
-    T = rand(rng, ns, na, ns) 
+    T = rand(rng, ns, na, ns)
     # random observation model
     O = rand(rng, no, na, ns)
     # normalize

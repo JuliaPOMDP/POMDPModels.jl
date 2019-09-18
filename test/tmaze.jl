@@ -7,14 +7,14 @@ problem = TMaze(n=10)
 
 policy = RandomPolicy(problem, rng=MersenneTwister(2))
 sim = RolloutSimulator(rng=MersenneTwister(3), max_steps=100)
-        
+
 simulate(sim, problem, policy, updater(policy), initialstate_distribution(problem))
 
 POMDPTesting.probability_check(problem)
 
 function test_obs(s::TMazeState, o::Int64)
     ot = generate_o(problem, s, MersenneTwister(1))
-    @test ot == o 
+    @test ot == o
 end
 
 test_obs(TMazeState(1, :north, false), 1) # north sign

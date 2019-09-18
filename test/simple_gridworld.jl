@@ -3,7 +3,7 @@ using Test
 using POMDPTesting
 using NBInclude
 
-let 
+let
     problem = SimpleGridWorld()
 
     policy = RandomPolicy(problem)
