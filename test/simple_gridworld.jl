@@ -12,8 +12,8 @@ let
 
     hist = simulate(sim, problem, policy, GWPos(1,1))
 
-    for i in 1:length(hist.action_hist)
-        td = transition(problem, hist.state_hist[i], hist.action_hist[i])
+    for (s, a) in zip(state_hist(hist), action_hist(hist))
+        td = transition(problem, s, a)
         if td isa SparseCat
             @test sum(td.probs) ≈ 1.0 atol=0.01
             for p in td.probs
