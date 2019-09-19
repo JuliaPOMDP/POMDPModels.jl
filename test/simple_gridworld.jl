@@ -43,9 +43,17 @@ let
     POMDPModelTools.render(problem, stp, color=s->reward(problem,s))
     POMDPModelTools.render(problem, stp, color=s->rand())
     POMDPModelTools.render(problem, stp, color=s->"yellow")
+
+    ss = collect(states(problem))
+    isd = initialstate_distribution(problem)
+    for s in ss
+        if !isterminal(problem, s)
+            @test s in support(isd)
+            @test pdf(isd, s) > 0.0
+        end
+    end
 end
 
-# disabled until POMDPSimulators v0.1.2 is tagged
 let
     @nbinclude(joinpath(dirname(@__FILE__), "..", "notebooks", "GridWorld Visualization.ipynb"))
 end

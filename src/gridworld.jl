@@ -40,8 +40,20 @@ function POMDPs.stateindex(mdp::SimpleGridWorld, s::AbstractVector{Int})
     end
 end
 
-POMDPs.initialstate(mdp::SimpleGridWorld, rng::AbstractRNG) = GWPos(rand(rng, 1:mdp.size[1]), rand(rng, 1:mdp.size[2]))
+struct GWUniform
+    size::Tuple{Int, Int}
+end
+Base.rand(rng::AbstractRNG, d::GWUniform) = GWPos(rand(rng, 1:d.size[1]), rand(rng, 1:d.size[2]))
+function POMDPs.pdf(d::GWUniform, s::GWPos)
+    if all(1 .<= s[1] .<= d.size)
+        return 1/prod(d.size)
+    else
+        return 0.0
+    end
+end
+POMDPs.support(d::GWUniform) = (GWPos(x, y) for x in 1:d.size[1], y in 1:d.size[2])
 
+POMDPs.initialstate_distribution(mdp::SimpleGridWorld) = GWUniform(mdp.size)
 
 # Actions
 
@@ -53,7 +65,6 @@ const dir = Dict(:up=>GWPos(0,1), :down=>GWPos(0,-1), :left=>GWPos(-1,0), :right
 const aind = Dict(:up=>1, :down=>2, :left=>3, :right=>4)
 
 POMDPs.actionindex(mdp::SimpleGridWorld, a::Symbol) = aind[a]
-
 
 
 # Transitions
