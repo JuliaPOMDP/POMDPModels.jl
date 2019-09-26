@@ -18,9 +18,6 @@ end
     discount::Float64 = 0.99 # discount factor
 end
 
-n_states(m::TMaze) = 2 * (m.n + 1) + 1 # 2*(corr length + 1 (junction)) + 1 (term)
-n_actions(::TMaze) = 4
-n_observations(::TMaze) = 5
 
 # state space is length of corr + 3 cells at the end
 #                   |G|
@@ -80,7 +77,7 @@ end
 support(d::TMazeInit) = zip(d.states, d.probs)
 function initialstate_distribution(maze::TMaze)
     s = states(maze)
-    ns = n_states(maze)
+    ns = length(s)
     p = zeros(ns) .+ 1.0 / (ns-1)
     p[end] = 0.0
     #s1 = TMazeState(1, :north, false)
@@ -219,7 +216,7 @@ function stateindex(maze::TMaze, s::TMazeState)
     end
 end
 
-function generate_o(maze::TMaze, s::TMazeState, rng::AbstractRNG)
+function gen(::DDNNode{:o}, maze::TMaze, s::TMazeState, rng::AbstractRNG)
     s.term ? (return 5) : (nothing)
     x = s.x; g = s.g
     #if x == 1

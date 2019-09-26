@@ -28,10 +28,10 @@ import Base: ==, hash
 import Random: rand, rand!
 import Distributions: pdf
 
-import POMDPs: initialstate, generate_s, generate_o, generate_sor, support, discount, isterminal
-import POMDPs: actions, n_actions, actionindex, action, dimensions
-import POMDPs: states, n_states, stateindex, transition
-import POMDPs: observations, observation, n_observations, obsindex
+import POMDPs: gen, support, discount, isterminal
+import POMDPs: actions, actionindex, action, dimensions
+import POMDPs: states, stateindex, transition
+import POMDPs: observations, observation, obsindex
 import POMDPs: initialstate, initialstate_distribution
 import POMDPs: updater, update
 import POMDPs: reward
