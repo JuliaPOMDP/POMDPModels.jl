@@ -20,7 +20,7 @@ let
     @test r ≈ -100.0 atol=0.01
 
     # test gen(::o,...)
-    o = gen(DDNNode(:o), problem, true, MersenneTwister(1))
+    o = gen(DDNOut(:o), problem, true, MersenneTwister(1))
     @test o == 1
     # test vec
     ov = convert_s(Array{Float64}, true, problem)

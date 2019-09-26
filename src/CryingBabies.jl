@@ -59,7 +59,7 @@ end
 
 discount(p::BabyPOMDP) = p.discount
 
-function gen(::DDNNode{:o}, p::BabyPOMDP, s::Bool, rng::AbstractRNG)
+function gen(::DDNOut{:o}, p::BabyPOMDP, s::Bool, rng::AbstractRNG)
     d = observation(p, true, s) # obs distrubtion not action dependant
     return rand(rng, d)
 end

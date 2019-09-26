@@ -216,7 +216,7 @@ function stateindex(maze::TMaze, s::TMazeState)
     end
 end
 
-function gen(::DDNNode{:o}, maze::TMaze, s::TMazeState, rng::AbstractRNG)
+function gen(::DDNOut{:o}, maze::TMaze, s::TMazeState, rng::AbstractRNG)
     s.term ? (return 5) : (nothing)
     x = s.x; g = s.g
     #if x == 1
