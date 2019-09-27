@@ -37,7 +37,7 @@ function transition(pomdp::BabyPOMDP, s::Bool, a::Bool)
     end
 end
 
-function observation(pomdp::BabyPOMDP, a::Bool, sp::Bool)
+function observation(pomdp::BabyPOMDP, sp::Bool)
     if sp # hungry
         return BoolDistribution(pomdp.p_cry_when_hungry)
     else
@@ -59,8 +59,8 @@ end
 
 discount(p::BabyPOMDP) = p.discount
 
-function gen(::DDNOut{:o}, p::BabyPOMDP, s::Bool, rng::AbstractRNG)
-    d = observation(p, true, s) # obs distrubtion not action dependant
+function gen(::DDNNode{:o}, p::BabyPOMDP, s::Bool, rng::AbstractRNG)
+    d = observation(p, s) # obs distrubtion not action dependant
     return rand(rng, d)
 end
 
