@@ -8,9 +8,6 @@ os:
   - linux
   - osx
 
-notifications:
-  email:
-    - maxim.bouton@gmail.com
 
 # script:
 #   - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
