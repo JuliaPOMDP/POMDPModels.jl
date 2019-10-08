@@ -179,7 +179,7 @@ end
 # observation mapping
 #    1      2        3         4         5
 # goal N  goal S  corridor  junction  terminal
-function observation(maze::TMaze, a::Int64, sp::TMazeState)
+function observation(maze::TMaze, sp::TMazeState)
     d::TMazeObservationDistribution = create_observation_distribution(maze)
     sp.term ? (d.current_observation = 5; return d) : (nothing)
     x = sp.x; g = sp.g
@@ -199,9 +199,6 @@ function observation(maze::TMaze, a::Int64, sp::TMazeState)
     d.current_observation = 5
     return d
 end
-function observation(maze::TMaze, s::TMazeState, a::Int64, sp::TMazeState)
-    return observation(maze, a, sp)
-end
 
 isterminal(m::TMaze, s::TMazeState) = s.term
 
@@ -214,22 +211,6 @@ function stateindex(maze::TMaze, s::TMazeState)
     else
         return s.x + (s.x)
     end
-end
-
-function gen(::DDNOut{:o}, maze::TMaze, s::TMazeState, rng::AbstractRNG)
-    s.term ? (return 5) : (nothing)
-    x = s.x; g = s.g
-    #if x == 1
-    if x <= 2
-        g == :north ? (return 1) : (return 2)
-    end
-    if 1 < x < (maze.n + 1)
-        return 3
-    end
-    if x == maze.n + 1
-        return 4
-    end
-    return 5
 end
 
 function Base.convert(maze::TMaze, s::TMazeState)
