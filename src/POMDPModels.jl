@@ -113,11 +113,5 @@ export
     GridWorldStateSpace,
     GridWorldDistribution,
     static_reward
-    # plot
-
-@deprecate GridWorld LegacyGridWorld
-@deprecate GridWorld(sx::Int64, sy::Int64; kwargs...) LegacyGridWorld(sx, sy; kwargs...)
-@deprecate GridWorld(; kwargs...) LegacyGridWorld(; kwargs...)
-export GridWorld
 
 end # module
