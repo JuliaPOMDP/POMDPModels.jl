@@ -59,22 +59,17 @@ end
 
 discount(p::BabyPOMDP) = p.discount
 
-function gen(::DDNNode{:o}, p::BabyPOMDP, s::Bool, rng::AbstractRNG)
-    d = observation(p, s) # obs distrubtion not action dependant
-    return rand(rng, d)
-end
-
 # some example policies
-mutable struct Starve <: Policy end
+struct Starve <: Policy end
 action(::Starve, ::B) where {B} = false
 updater(::Starve) = NothingUpdater()
 
-mutable struct AlwaysFeed <: Policy end
+struct AlwaysFeed <: Policy end
 action(::AlwaysFeed, ::B) where {B} = true
 updater(::AlwaysFeed) = NothingUpdater()
 
 # feed when the previous observation was crying - this is nearly optimal
-mutable struct FeedWhenCrying <: Policy end
+struct FeedWhenCrying <: Policy end
 updater(::FeedWhenCrying) = PreviousObservationUpdater()
 function action(::FeedWhenCrying, b::Union{Nothing, Bool})
     if b == nothing || b == false # not crying (or null)
