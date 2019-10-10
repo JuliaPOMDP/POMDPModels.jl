@@ -23,7 +23,7 @@ let
     simulate(sim, pomdp1, policy, updater(policy), initialstate_distribution(pomdp1))
 
     # test gen(:o, ...)
-    o = gen(DDNNode(:o), pomdp1, true, MersenneTwister(1))
+    o = initialobs(pomdp1, true, MersenneTwister(1))
     @test o == 1
     # test vec
     ov = convert_o(Array{Float64}, true, pomdp1)
