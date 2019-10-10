@@ -77,7 +77,7 @@ end
 
 discount(pomdp::TigerPOMDP) = pomdp.discount_factor
 
-function gen(::DDNNode{:o}, p::TigerPOMDP, s::Bool, rng::AbstractRNG)
-    d = observation(p, 0, s) # obs distribution not action dependent
+function initialobs(p::TigerPOMDP, s::Bool, rng::AbstractRNG)
+    d = observation(p, 0, s) # listen 
     return rand(rng, d)
 end
