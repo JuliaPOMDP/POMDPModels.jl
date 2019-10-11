@@ -53,7 +53,6 @@ isterminal(::LightDark1D, s::LightDark1DState) = s.status < 0
 
 
 actions(::LightDark1D) = -1:1
-n_actions(p::LightDark1D) = length(actions(p))
 
 
 struct LDNormalStateDist

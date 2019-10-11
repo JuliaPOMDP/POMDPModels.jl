@@ -88,8 +88,6 @@ end
 
 actions(mdp::LegacyGridWorld) = [:up, :down, :left, :right]
 
-n_states(mdp::LegacyGridWorld) = mdp.size_x*mdp.size_y+1
-n_actions(mdp::LegacyGridWorld) = 4
 
 function reward(mdp::LegacyGridWorld, state::GridWorldState, action::Symbol)
     if state.done

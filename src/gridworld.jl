@@ -31,12 +31,12 @@ function POMDPs.states(mdp::SimpleGridWorld)
     push!(ss, GWPos(-1,-1))
     return ss
 end
-POMDPs.n_states(mdp::SimpleGridWorld) = prod(mdp.size) + 1
+
 function POMDPs.stateindex(mdp::SimpleGridWorld, s::AbstractVector{Int})
     if all(s.>0)
         return LinearIndices(mdp.size)[s...]
     else
-        return n_states(mdp)
+        return prod(mdp.size) + 1 # TODO: Change
     end
 end
 
@@ -59,7 +59,7 @@ POMDPs.initialstate_distribution(mdp::SimpleGridWorld) = GWUniform(mdp.size)
 
 POMDPs.actions(mdp::SimpleGridWorld) = (:up, :down, :left, :right)
 Base.rand(rng::AbstractRNG, t::NTuple{L,Symbol}) where L = t[rand(rng, 1:length(t))] # don't know why this doesn't work out of the box
-POMDPs.n_actions(mdp::SimpleGridWorld) = 4
+
 
 const dir = Dict(:up=>GWPos(0,1), :down=>GWPos(0,-1), :left=>GWPos(-1,0), :right=>GWPos(1,0))
 const aind = Dict(:up=>1, :down=>2, :left=>3, :right=>4)
@@ -76,16 +76,15 @@ function POMDPs.transition(mdp::SimpleGridWorld, s::AbstractVector{Int}, a::Symb
         return Deterministic(GWPos(-1,-1))
     end
 
-    destinations = MVector{n_actions(mdp)+1, GWPos}(undef)
+    destinations = MVector{length(actions(mdp))+1, GWPos}(undef)
     destinations[1] = s
 
-    # probs = MVector{n_actions(mdp)+1, Float64}()
-    probs = @MVector(zeros(n_actions(mdp)+1))
+    probs = @MVector(zeros(length(actions(mdp))+1))
     for (i, act) in enumerate(actions(mdp))
         if act == a
             prob = mdp.tprob # probability of transitioning to the desired cell
         else
-            prob = (1.0 - mdp.tprob)/(n_actions(mdp) - 1) # probability of transitioning to another cell
+            prob = (1.0 - mdp.tprob)/(length(actions(mdp)) - 1) # probability of transitioning to another cell
         end
 
         dest = s + dir[act]

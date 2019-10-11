@@ -24,10 +24,6 @@ const TIGER_LEFT = true
 const TIGER_RIGHT = false
 
 
-n_states(::TigerPOMDP) = 2
-n_actions(::TigerPOMDP) = 3
-n_observations(::TigerPOMDP) = 2
-
 # Resets the problem after opening door; does nothing after listening
 function transition(pomdp::TigerPOMDP, s::Bool, a::Int64)
     p = 1.0
@@ -81,7 +77,7 @@ end
 
 discount(pomdp::TigerPOMDP) = pomdp.discount_factor
 
-function generate_o(p::TigerPOMDP, s::Bool, rng::AbstractRNG)
-    d = observation(p, 0, s) # obs distrubtion not action dependant
+function initialobs(p::TigerPOMDP, s::Bool, rng::AbstractRNG)
+    d = observation(p, 0, s) # listen 
     return rand(rng, d)
 end

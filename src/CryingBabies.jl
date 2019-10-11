@@ -18,13 +18,11 @@ updater(problem::BabyPOMDP) = DiscreteUpdater(problem)
 
 actions(::BabyPOMDP) = (true, false)
 actionindex(::BabyPOMDP, a::Bool) = a + 1
-n_actions(::BabyPOMDP) = 2
 states(::BabyPOMDP) = (true, false)
 stateindex(::BabyPOMDP, s::Bool) = s + 1
-n_states(::BabyPOMDP) = 2
 observations(::BabyPOMDP) = (true, false)
 obsindex(::BabyPOMDP, o::Bool) = o + 1
-n_observations(::BabyPOMDP) = 2
+
 
 # start knowing baby is not not hungry
 initialstate_distribution(::BabyPOMDP) = BoolDistribution(0.0)
@@ -39,7 +37,7 @@ function transition(pomdp::BabyPOMDP, s::Bool, a::Bool)
     end
 end
 
-function observation(pomdp::BabyPOMDP, a::Bool, sp::Bool)
+function observation(pomdp::BabyPOMDP, sp::Bool)
     if sp # hungry
         return BoolDistribution(pomdp.p_cry_when_hungry)
     else
@@ -61,22 +59,17 @@ end
 
 discount(p::BabyPOMDP) = p.discount
 
-function generate_o(p::BabyPOMDP, s::Bool, rng::AbstractRNG)
-    d = observation(p, true, s) # obs distrubtion not action dependant
-    return rand(rng, d)
-end
-
 # some example policies
-mutable struct Starve <: Policy end
+struct Starve <: Policy end
 action(::Starve, ::B) where {B} = false
 updater(::Starve) = NothingUpdater()
 
-mutable struct AlwaysFeed <: Policy end
+struct AlwaysFeed <: Policy end
 action(::AlwaysFeed, ::B) where {B} = true
 updater(::AlwaysFeed) = NothingUpdater()
 
 # feed when the previous observation was crying - this is nearly optimal
-mutable struct FeedWhenCrying <: Policy end
+struct FeedWhenCrying <: Policy end
 updater(::FeedWhenCrying) = PreviousObservationUpdater()
 function action(::FeedWhenCrying, b::Union{Nothing, Bool})
     if b == nothing || b == false # not crying (or null)

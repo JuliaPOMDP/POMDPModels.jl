@@ -8,7 +8,6 @@
 end
 
 actions(::MountainCar) = [-1., 0., 1.]
-n_actions(mc::MountainCar) = 3
 
 reward(mc::MountainCar,
        s::Tuple{Float64,Float64},
@@ -20,10 +19,11 @@ initialstate(mc::MountainCar, ::AbstractRNG) = (-0.5,0.,)
 isterminal(::MountainCar,s::Tuple{Float64,Float64}) = s[1] >= 0.5
 discount(mc::MountainCar) = mc.discount
 
-function generate_s( mc::MountainCar,
-                     s::Tuple{Float64,Float64},
-                     a::Float64,
-                     ::AbstractRNG)
+function gen(::DDNNode{:sp},
+             mc::MountainCar,
+             s::Tuple{Float64,Float64},
+             a::Float64,
+             ::AbstractRNG)
   x,v = s
   v_ = v + a*0.001+cos(3*x)*-0.0025
   v_ = max(min(0.07,v_),-0.07)

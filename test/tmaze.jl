@@ -13,7 +13,7 @@ simulate(sim, problem, policy, updater(policy), initialstate_distribution(proble
 POMDPTesting.probability_check(problem)
 
 function test_obs(s::TMazeState, o::Int64)
-    ot = generate_o(problem, s, MersenneTwister(1))
+    ot = gen(DDNNode{:o}(), problem, s, MersenneTwister(1))
     @test ot == o
 end
 
@@ -27,5 +27,3 @@ ov = convert_o(Array{Float64}, 1, problem)
 @test ov == [1.]
 o = convert_o(Int64, ov, problem)
 @test o == 1
-
-

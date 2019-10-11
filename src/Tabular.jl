@@ -43,12 +43,8 @@ pdf(d::DiscreteDistribution, sp::Int64) = d.p[sp] # T(s', a, s)
 rand(rng::AbstractRNG, d::DiscreteDistribution) = sample(rng, Weights(d.p))
 
 # MDP and POMDP common methods
-
-n_states(prob::TabularProblem) = size(prob.T, 1)
-n_actions(prob::TabularProblem) = size(prob.T, 2)
-
-states(p::TabularProblem) = 1:n_states(p)
-actions(p::TabularProblem) = 1:n_actions(p)
+states(p::TabularProblem) = 1:size(p.T, 1)
+actions(p::TabularProblem) = 1:size(p.T, 2)
 
 stateindex(::TabularProblem, s::Int64) = s
 actionindex(::TabularProblem, a::Int64) = a
@@ -59,7 +55,7 @@ transition(p::TabularProblem, s::Int64, a::Int64) = DiscreteDistribution(view(p.
 
 reward(prob::TabularProblem, s::Int64, a::Int64) = prob.R[s, a]
 
-initialstate_distribution(p::TabularProblem) = DiscreteDistribution(ones(n_states(p))./n_states(p))
+initialstate_distribution(p::TabularProblem) = DiscreteDistribution(ones(length(states(p)))./length(states(p)))
 
 # POMDP only methods
 n_observations(p::TabularProblem) = size(p.O, 1)

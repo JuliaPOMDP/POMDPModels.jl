@@ -1,7 +1,7 @@
 name = "POMDPModels"
 uuid = "355abbd5-f08e-5560-ac9e-8b5f2592a0ca"
 repo = "https://github.com/JuliaPOMDP/POMDPModels.jl"
-version = "0.3.5"
+version = "0.4.0"
 
 [deps]
 BeliefUpdaters = "8bb6e9a1-7d73-552c-a44a-e5dc5634aac4"
@@ -18,7 +18,8 @@ StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 
 [compat]
-POMDPSimulators = "< 0.3.0"
+POMDPSimulators = "0.3"
+POMDPs = "0.8.1"
 julia = "1"
 
 [extras]
@@ -27,7 +28,6 @@ POMDPPolicies = "182e52fb-cfd0-5e46-8c26-fd0667c990f4"
 POMDPSimulators = "e0d0a172-29c6-5d4e-96d0-f262df5d01fd"
 POMDPTesting = "92e6a534-49c2-5324-9027-86e3c861ab81"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
-TikzPictures = "37f6aa50-8035-52d0-81c2-5a1d08754b2d"
 
 [targets]
-test = ["NBInclude", "POMDPPolicies", "POMDPSimulators", "POMDPTesting", "Test", "TikzPictures"]
+test = ["NBInclude", "POMDPPolicies", "POMDPSimulators", "POMDPTesting", "Test"]

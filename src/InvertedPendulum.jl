@@ -12,7 +12,6 @@
 end
 
 actions(ip::InvertedPendulum) = [-50., 0., 50.]
-n_actions(ip::InvertedPendulum) = 3
 
 function initialstate(ip::InvertedPendulum, rng::AbstractRNG)
   sp = ((rand(rng)-0.5)*0.1, (rand(rng)-0.5)*0.1, )
@@ -53,10 +52,11 @@ function euler(m::InvertedPendulum,s::Tuple{Float64,Float64},a::Float64)
     return (th_,w_)
 end
 
-function generate_s(ip::InvertedPendulum,
-                    s::Tuple{Float64,Float64},
-                    a::Float64,
-                    rng::AbstractRNG)
+function gen(::DDNNode{:sp},
+             ip::InvertedPendulum,
+             s::Tuple{Float64,Float64},
+             a::Float64,
+             rng::AbstractRNG)
   a_offset = 20*(rand(rng)-0.5)
   a_ = a + a_offset
 

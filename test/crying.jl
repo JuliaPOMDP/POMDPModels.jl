@@ -19,8 +19,8 @@ let
     r = simulate(sim, problem, policy, updater(policy), ib, true)
     @test r ≈ -100.0 atol=0.01
 
-    # test generate_o
-    o = generate_o(problem, true, MersenneTwister(1))
+    # test gen(::o,...)
+    o = gen(DDNNode(:o), problem, true, MersenneTwister(1))
     @test o == 1
     # test vec
     ov = convert_s(Array{Float64}, true, problem)
