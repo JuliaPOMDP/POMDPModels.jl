@@ -34,8 +34,10 @@ function states(maze::TMaze)
 end
 # 4 actions: go North, East, South, West (1, 2, 3, 4)
 actions(maze::TMaze) = 1:4
+actionindex(maze::TMaze, i::Int) = i
 # 5 observations: 2 for goal (left or right) + 2 for in corridor or at intersection + 1 term
 observations(maze::TMaze) = 1:5
+obsindex(maze::TMaze, i::Int) = i
 
 # transition distribution (actions are deterministic)
 mutable struct TMazeStateDistribution
@@ -112,7 +114,8 @@ end
 create_observation_distribution(::TMaze) = TMazeObservationDistribution(1)
 iterator(d::TMazeObservationDistribution) = [d.current_observation]
 
-pdf(d::TMazeObservationDistribution, o::Int64) = o == d.current_observation ? (return 1.0) : (return 0.0)
+pdf(d::TMazeObservationDistribution, o::Int64) = Float64(o == d.current_observation)
+support(d::TMazeObservationDistribution) = d.current_observation
 rand(rng::AbstractRNG, d::TMazeObservationDistribution) = d.current_observation
 
 function transition(maze::TMaze, s::TMazeState, a::Int64)
@@ -204,14 +207,7 @@ isterminal(m::TMaze, s::TMazeState) = s.term
 
 discount(m::TMaze) = m.discount
 
-function stateindex(maze::TMaze, s::TMazeState)
-    s.term ? (return maze.n + 1) : (nothing)
-    if s.g == :north
-        return s.x + (s.x - 1)
-    else
-        return s.x + (s.x)
-    end
-end
+stateindex(maze::TMaze, s::TMazeState) = s.term ? (2*(maze.n+1) + 1) : (2*s.x - (s.g==:north))
 
 function Base.convert(maze::TMaze, s::TMazeState)
     v = Array{Float64}(undef, 2)
@@ -263,4 +259,13 @@ function POMDPs.action(p::MazeOptimal, b::MazeBelief)
         return 3
     end
     return 2
+end
+
+function pdf(d::TMazeStateDistribution, st::Tuple{TMazeState, Float64})
+    @warn "pdf: Get rid of this function, just a temporary helper to make sparse_tabular.jl tests pass"
+    return pdf(d, st[1])
+end
+function stateindex(m::TMaze, st::Tuple{TMazeState, Float64})
+    @warn "stateindex: Get rid of this function, just a temporary helper to make sparse_tabular.jl tests pass"
+    return stateindex(m, st[1])
 end
