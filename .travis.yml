@@ -2,13 +2,12 @@ language: julia
 
 julia:
   - 1.0
-  - 1.2
+  - 1
 
 os:
   - linux
   - osx
   - windows
-
 
 # script:
 #   - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi

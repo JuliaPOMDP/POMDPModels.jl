@@ -20,6 +20,14 @@ StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 [compat]
 POMDPSimulators = "0.3"
 POMDPs = "0.8.1"
+BeliefUpdaters = "0.1"
+ColorSchemes = "3"
+Compose = "0.7"
+Distributions = "0.21"
+POMDPModelTools = "0.2"
+Parameters = "0"
+StaticArrays = "0"
+StatsBase = "0"
 julia = "1"
 
 [extras]
