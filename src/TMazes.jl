@@ -51,7 +51,7 @@ function create_transition_distribution(::TMaze)
     rp = [0.5, 0.5]
     TMazeStateDistribution(TMazeState(), false, rs, rp)
 end
-support(d::TMazeStateDistribution) = d.reset ? (return [(d.current_state, 1.0)]) : (return zip(d.reset_states, d.reset_probs))
+support(d::TMazeStateDistribution) = d.reset ? (return [d.current_state]) : (return zip(d.reset_states, d.reset_probs))
 
 function pdf(d::TMazeStateDistribution, s::TMazeState)
     if d.reset
@@ -259,13 +259,4 @@ function POMDPs.action(p::MazeOptimal, b::MazeBelief)
         return 3
     end
     return 2
-end
-
-function pdf(d::TMazeStateDistribution, st::Tuple{TMazeState, Float64})
-    @warn "pdf: Get rid of this function, just a temporary helper to make sparse_tabular.jl tests pass"
-    return pdf(d, st[1])
-end
-function stateindex(m::TMaze, st::Tuple{TMazeState, Float64})
-    @warn "stateindex: Get rid of this function, just a temporary helper to make sparse_tabular.jl tests pass"
-    return stateindex(m, st[1])
 end
