@@ -13,7 +13,7 @@ function Base.copy!(s1::TMazeState, s2::TMazeState)
     return s1
 end
 
-@with_kw mutable struct TMaze <: POMDP{TMazeState, Int64, Int64}
+@with_kw struct TMaze <: POMDP{TMazeState, Int64, Int64}
     n::Int64 = 10 # corridor length
     discount::Float64 = 0.99 # discount factor
 end
@@ -34,8 +34,10 @@ function states(maze::TMaze)
 end
 # 4 actions: go North, East, South, West (1, 2, 3, 4)
 actions(maze::TMaze) = 1:4
+actionindex(maze::TMaze, i::Int) = i
 # 5 observations: 2 for goal (left or right) + 2 for in corridor or at intersection + 1 term
 observations(maze::TMaze) = 1:5
+obsindex(maze::TMaze, i::Int) = i
 
 # transition distribution (actions are deterministic)
 mutable struct TMazeStateDistribution
@@ -49,7 +51,7 @@ function create_transition_distribution(::TMaze)
     rp = [0.5, 0.5]
     TMazeStateDistribution(TMazeState(), false, rs, rp)
 end
-support(d::TMazeStateDistribution) = d.reset ? (return [(d.current_state, 1.0)]) : (return zip(d.reset_states, d.reset_probs))
+support(d::TMazeStateDistribution) = d.reset ? (return [d.current_state]) : (return zip(d.reset_states, d.reset_probs))
 
 function pdf(d::TMazeStateDistribution, s::TMazeState)
     if d.reset
@@ -70,11 +72,11 @@ function rand(rng::AbstractRNG, d::TMazeStateDistribution)
 end
 #rand(rng::AbstractRNG, d::TMazeStateDistribution)
 
-mutable struct TMazeInit
+struct TMazeInit
     states::Vector{TMazeState}
     probs::Vector{Float64}
 end
-support(d::TMazeInit) = zip(d.states, d.probs)
+support(d::TMazeInit) = d.states
 function initialstate_distribution(maze::TMaze)
     s = states(maze)
     ns = length(s)
@@ -86,14 +88,9 @@ function initialstate_distribution(maze::TMaze)
     return TMazeInit(s, p)
 end
 function rand(rng::AbstractRNG, d::TMazeInit)
-    s = TMazeState()
-    #idx = nothing
-    #rand(rng) < 0.5 ? (idx = 1) : (idx = 2)
-    #copy!(s, d.states[idx])
     cat = Weights(d.probs)
     idx = sample(rng, cat)
-    copy!(s, d.states[idx])
-    return s
+    return d.states[idx]
 end
 function pdf(d::TMazeInit, s::TMazeState)
     for i = 1:length(d.states)
@@ -102,7 +99,6 @@ function pdf(d::TMazeInit, s::TMazeState)
         end
     end
     return 0.0
-    #in(s, d.states) ? (return 0.5) : (return 0.0)
 end
 
 # observation distribution (deterministic)
@@ -112,7 +108,8 @@ end
 create_observation_distribution(::TMaze) = TMazeObservationDistribution(1)
 iterator(d::TMazeObservationDistribution) = [d.current_observation]
 
-pdf(d::TMazeObservationDistribution, o::Int64) = o == d.current_observation ? (return 1.0) : (return 0.0)
+pdf(d::TMazeObservationDistribution, o::Int64) = Float64(o == d.current_observation)
+support(d::TMazeObservationDistribution) = d.current_observation
 rand(rng::AbstractRNG, d::TMazeObservationDistribution) = d.current_observation
 
 function transition(maze::TMaze, s::TMazeState, a::Int64)
@@ -204,14 +201,7 @@ isterminal(m::TMaze, s::TMazeState) = s.term
 
 discount(m::TMaze) = m.discount
 
-function stateindex(maze::TMaze, s::TMazeState)
-    s.term ? (return maze.n + 1) : (nothing)
-    if s.g == :north
-        return s.x + (s.x - 1)
-    else
-        return s.x + (s.x)
-    end
-end
+stateindex(maze::TMaze, s::TMazeState) = s.term ? (2*(maze.n+1) + 1) : (2*s.x - (s.g==:north))
 
 function Base.convert(maze::TMaze, s::TMazeState)
     v = Array{Float64}(undef, 2)
@@ -220,26 +210,24 @@ function Base.convert(maze::TMaze, s::TMazeState)
     return v
 end
 
-mutable struct MazeBelief
+struct MazeBelief
     last_obs::Int64
     mem::Symbol # memory
 end
 MazeBelief() = MazeBelief(1, :none)
 
-mutable struct MazeUpdater <: Updater end
-POMDPs.initialize_belief(bu::MazeUpdater, d::Any) = b
+struct MazeUpdater <: Updater end
+POMDPs.initialize_belief(bu::MazeUpdater, d::Any) = d
 
 function POMDPs.update(bu::MazeUpdater, b::MazeBelief, a, o)
-    bp::MazeBelief=create_belief(bu)
-    bp.last_obs = o
-    bp.mem = b.mem
+    mem = b.mem
     if o == 1
-        bp.mem = :north
+        mem = :north
     end
     if o == 2
-        bp.mem = :south
+        mem = :south
     end
-    return bp
+    return MazeBelief(o, mem)
 end
 
 
