@@ -1,4 +1,4 @@
-@with_kw mutable struct TMazeState
+@with_kw struct TMazeState
     x::Int64 = 1 # position in corridor
     g::Symbol = :north# goal north or south
     term::Bool = false
@@ -13,7 +13,7 @@ function Base.copy!(s1::TMazeState, s2::TMazeState)
     return s1
 end
 
-@with_kw mutable struct TMaze <: POMDP{TMazeState, Int64, Int64}
+@with_kw struct TMaze <: POMDP{TMazeState, Int64, Int64}
     n::Int64 = 10 # corridor length
     discount::Float64 = 0.99 # discount factor
 end
@@ -72,11 +72,11 @@ function rand(rng::AbstractRNG, d::TMazeStateDistribution)
 end
 #rand(rng::AbstractRNG, d::TMazeStateDistribution)
 
-mutable struct TMazeInit
+struct TMazeInit
     states::Vector{TMazeState}
     probs::Vector{Float64}
 end
-support(d::TMazeInit) = zip(d.states, d.probs)
+support(d::TMazeInit) = d.states
 function initialstate_distribution(maze::TMaze)
     s = states(maze)
     ns = length(s)
@@ -88,14 +88,9 @@ function initialstate_distribution(maze::TMaze)
     return TMazeInit(s, p)
 end
 function rand(rng::AbstractRNG, d::TMazeInit)
-    s = TMazeState()
-    #idx = nothing
-    #rand(rng) < 0.5 ? (idx = 1) : (idx = 2)
-    #copy!(s, d.states[idx])
     cat = Weights(d.probs)
     idx = sample(rng, cat)
-    copy!(s, d.states[idx])
-    return s
+    return d.states[idx])
 end
 function pdf(d::TMazeInit, s::TMazeState)
     for i = 1:length(d.states)
@@ -104,7 +99,6 @@ function pdf(d::TMazeInit, s::TMazeState)
         end
     end
     return 0.0
-    #in(s, d.states) ? (return 0.5) : (return 0.0)
 end
 
 # observation distribution (deterministic)
@@ -216,26 +210,24 @@ function Base.convert(maze::TMaze, s::TMazeState)
     return v
 end
 
-mutable struct MazeBelief
+struct MazeBelief
     last_obs::Int64
     mem::Symbol # memory
 end
 MazeBelief() = MazeBelief(1, :none)
 
-mutable struct MazeUpdater <: Updater end
-POMDPs.initialize_belief(bu::MazeUpdater, d::Any) = b
+struct MazeUpdater <: Updater end
+POMDPs.initialize_belief(bu::MazeUpdater, d::Any) = d
 
 function POMDPs.update(bu::MazeUpdater, b::MazeBelief, a, o)
-    bp::MazeBelief=create_belief(bu)
-    bp.last_obs = o
-    bp.mem = b.mem
+    mem = b.mem
     if o == 1
-        bp.mem = :north
+        mem = :north
     end
     if o == 2
-        bp.mem = :south
+        mem = :south
     end
-    return bp
+    return MazeBelief(o, mem)
 end
 
 
