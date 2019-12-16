@@ -1,4 +1,4 @@
-@with_kw struct TMazeState
+@with_kw mutable struct TMazeState
     x::Int64 = 1 # position in corridor
     g::Symbol = :north# goal north or south
     term::Bool = false
@@ -90,7 +90,7 @@ end
 function rand(rng::AbstractRNG, d::TMazeInit)
     cat = Weights(d.probs)
     idx = sample(rng, cat)
-    return d.states[idx])
+    return d.states[idx]
 end
 function pdf(d::TMazeInit, s::TMazeState)
     for i = 1:length(d.states)
