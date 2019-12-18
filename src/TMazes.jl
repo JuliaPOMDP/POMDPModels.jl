@@ -51,7 +51,7 @@ function create_transition_distribution(::TMaze)
     rp = [0.5, 0.5]
     TMazeStateDistribution(TMazeState(), false, rs, rp)
 end
-support(d::TMazeStateDistribution) = d.reset ? (return [d.current_state]) : (return zip(d.reset_states, d.reset_probs))
+support(d::TMazeStateDistribution) = d.reset ? [d.current_state] : d.reset_states
 
 function pdf(d::TMazeStateDistribution, s::TMazeState)
     if d.reset
