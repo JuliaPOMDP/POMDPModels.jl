@@ -1,19 +1,9 @@
 @with_kw struct TMazeState
     x::Int64 = 1 # position in corridor
     g::Symbol = :north# goal north or south
-    term::Bool = false
 end
 
-==(s1::TMazeState, s2::TMazeState) = s1.x == s2.x && s1.g == s2.g
-hash(s::TMazeState, h::UInt64 = zero(UInt64)) = hash(s.x, hash(s.g, h))
-function Base.copy!(s1::TMazeState, s2::TMazeState)
-    s1.x = s2.x
-    s1.g = s2.g
-    s1.term = s2.term
-    return s1
-end
-
-@with_kw struct TMaze <: POMDP{TMazeState, Int64, Int64}
+struct TMaze <: POMDP{Union{TMazeState,TerminalState}, Int64, Int64}
     n::Int64 = 10 # corridor length
     discount::Float64 = 0.99 # discount factor
 end
@@ -25,11 +15,11 @@ end
 #                   | |
 # depending on where the goal is
 function states(maze::TMaze)
-    space = TMazeState[]
+    space = statetype(maze)[]
     for x in 1:(maze.n + 1), g in [:north, :south]
         push!(space, TMazeState(x, g, false))
     end
-    push!(space, TMazeState(1,:none,true)) # terminal
+    push!(space, ) # terminal
     return space
 end
 # 4 actions: go North, East, South, West (1, 2, 3, 4)
@@ -90,7 +80,7 @@ end
 function rand(rng::AbstractRNG, d::TMazeInit)
     cat = Weights(d.probs)
     idx = sample(rng, cat)
-    return d.states[idx])
+    return d.states[idx]
 end
 function pdf(d::TMazeInit, s::TMazeState)
     for i = 1:length(d.states)
