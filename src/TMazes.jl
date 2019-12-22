@@ -3,202 +3,119 @@
     g::Symbol = :north# goal north or south
 end
 
-struct TMaze <: POMDP{Union{TMazeState,TerminalState}, Int64, Int64}
+@with_kw struct TMaze <: POMDP{Union{TMazeState,TerminalState}, Int64, Int64}
     n::Int64 = 10 # corridor length
     discount::Float64 = 0.99 # discount factor
 end
 
 
-# state space is length of corr + 3 cells at the end
+# state space is (length of corr)*(north, south) + terminal
 #                   |G|
-# |S| | | | | | | | | |
+# | | |x| | | | | | | |
 #                   | |
-# depending on where the goal is
 function states(maze::TMaze)
     space = statetype(maze)[]
     for x in 1:(maze.n + 1), g in [:north, :south]
-        push!(space, TMazeState(x, g, false))
+        push!(space, TMazeState(x, g))
     end
-    push!(space, ) # terminal
+    push!(space, terminalstate) # terminal
     return space
 end
+stateindex(m::TMaze, s::TMazeState) = 2*s.x - (s.g==:north)
+stateindex(m::TMaze, s::TerminalState) = 2*(m.n+1) + 1
+
 # 4 actions: go North, East, South, West (1, 2, 3, 4)
 actions(maze::TMaze) = 1:4
 actionindex(maze::TMaze, i::Int) = i
+
 # 5 observations: 2 for goal (left or right) + 2 for in corridor or at intersection + 1 term
 observations(maze::TMaze) = 1:5
 obsindex(maze::TMaze, i::Int) = i
 
-# transition distribution (actions are deterministic)
-mutable struct TMazeStateDistribution
-    current_state::TMazeState # deterministic
-    reset::Bool
-    reset_states::Vector{TMazeState}
-    reset_probs::Vector{Float64}
-end
-function create_transition_distribution(::TMaze)
-    rs = [TMazeState(1,:north,false), TMazeState(1,:south,false)]
-    rp = [0.5, 0.5]
-    TMazeStateDistribution(TMazeState(), false, rs, rp)
-end
-support(d::TMazeStateDistribution) = d.reset ? (return [d.current_state]) : (return zip(d.reset_states, d.reset_probs))
-
-function pdf(d::TMazeStateDistribution, s::TMazeState)
-    if d.reset
-        in(s, d.reset_states) ? (return 0.5) : (return 0.0)
-    else
-        s == d.current_state ? (return 1.0) : (return 0.0)
-    end
-end
-function rand(rng::AbstractRNG, d::TMazeStateDistribution)
-    s = TMazeState()
-    if d.reset
-        rand(rng) < 0.5 ? (copy!(s, d.reset_states[1])) : (copy!(s, d.reset_states[2]))
-        return s
-    else
-        copy!(s, d.current_state)
-        return s
-    end
-end
-#rand(rng::AbstractRNG, d::TMazeStateDistribution)
-
-struct TMazeInit
-    states::Vector{TMazeState}
-    probs::Vector{Float64}
-end
-support(d::TMazeInit) = d.states
 function initialstate_distribution(maze::TMaze)
     s = states(maze)
     ns = length(s)
     p = zeros(ns) .+ 1.0 / (ns-1)
     p[end] = 0.0
-    #s1 = TMazeState(1, :north, false)
-    #s2 = TMazeState(1, :south, false)
-    #d = TMazeInit([s1, s2])
-    return TMazeInit(s, p)
-end
-function rand(rng::AbstractRNG, d::TMazeInit)
-    cat = Weights(d.probs)
-    idx = sample(rng, cat)
-    return d.states[idx]
-end
-function pdf(d::TMazeInit, s::TMazeState)
-    for i = 1:length(d.states)
-        if d.states[i] == s
-            return d.probs[i]
-        end
-    end
-    return 0.0
+    return SparseCat(s, p)
 end
 
-# observation distribution (deterministic)
-mutable struct TMazeObservationDistribution
-    current_observation::Int64
-end
-create_observation_distribution(::TMaze) = TMazeObservationDistribution(1)
-iterator(d::TMazeObservationDistribution) = [d.current_observation]
-
-pdf(d::TMazeObservationDistribution, o::Int64) = Float64(o == d.current_observation)
-support(d::TMazeObservationDistribution) = d.current_observation
-rand(rng::AbstractRNG, d::TMazeObservationDistribution) = d.current_observation
-
-function transition(maze::TMaze, s::TMazeState, a::Int64)
-    d=create_transition_distribution(maze)
-    d.reset = false
-    # check if terminal
-    if s.term
-        # reset
-        d.reset = true
-        #copy!(d.current_state, s) # state doesn't change
-        return d
-    end
-    # check if move into terminal move north or south
-    if s.x == maze.n + 1
-        if a == 1 || a == 3
-            d.current_state = TMazeState(1,:none,true) # state now terminal
-            return d
-        elseif a == 4
-            copy!(d.current_state, s)
-            d.current_state.x -= 1
-            return d
+function transition(m::TMaze, s::TMazeState, a::Int64)
+    if a == 1 || a == 3
+        if s.x == m.n + 1
+            Deterministic(terminalstate)
         else
-            copy!(d.current_state, s)
-            return d
+            Deterministic(s)
         end
+    elseif a == 2
+        xp = min(s.x + 1, m.n + 1)
+        return Deterministic(TMazeState(xp, s.g))
+    elseif a == 4
+        xp = max(s.x - 1, 1)
+        return Deterministic(TMazeState(xp, s.g))
     end
-    # check if move along hallway
-    if a == 2
-        copy!(d.current_state, s)
-        d.current_state.x += 1
-        return d
-    end
-    if a == 4
-        copy!(d.current_state, s)
-        s.x > 1 ? (d.current_state.x -= 1) : (nothing)
-        return d
-    end
-    # if none of the above just stay in place
-    copy!(d.current_state, s)
-    return d
 end
 
-function reward(maze::TMaze, s::TMazeState, a::Int64)
-    # check terminal
-    s.term ? (return 0.0) : (nothing)
-    # check if at junction
-    if s.x == maze.n + 1
+transition(m::TMaze, s::TerminalState, a::Int64) = Deterministic(s)
+
+function reward(m::TMaze, s::TMazeState, a::Int64)
+    if s.x == m.n + 1
         # if at junction check action
         if (s.g == :north && a == 1) || (s.g == :south && a == 3)
             return 4.0
-        elseif (s.g == :north && a == 3) || (s.g == :south && a == 1)
-            return -0.1
         else
             return -0.1
         end
-    end
-    # if bump against wall
-    if s.x < maze.n + 1 && (a == 1 || a == 3)
+    elseif a == 1 || a == 3
+        # bump against wall
         return -0.1
+    else
+        return 0.0
     end
-    return 0.0
 end
 
 # observation mapping
 #    1      2        3         4         5
 # goal N  goal S  corridor  junction  terminal
-function observation(maze::TMaze, sp::TMazeState)
-    d::TMazeObservationDistribution = create_observation_distribution(maze)
-    sp.term ? (d.current_observation = 5; return d) : (nothing)
-    x = sp.x; g = sp.g
-    #if x == 1
-    if x <= 2
-        g == :north ? (d.current_observation = 1) : (d.current_observation = 2)
-        return d
+function observation(m::TMaze, sp::TMazeState)
+    if sp.x <= 2
+        if sp.g == :north
+            return Deterministic(1)
+        else
+            return Deterministic(2)
+        end
+    elseif sp.x == m.n+1
+        return Deterministic(4)
+    else
+        return Deterministic(3)
     end
-    if 1 < x < (maze.n + 1)
-        d.current_observation = 3
-        return d
-    end
-    if x == maze.n + 1
-        d.current_observation = 4
-        return d
-    end
-    d.current_observation = 5
-    return d
 end
 
-isterminal(m::TMaze, s::TMazeState) = s.term
+observation(m::TMaze, sp::TerminalState) = Deterministic(5)
 
 discount(m::TMaze) = m.discount
 
-stateindex(maze::TMaze, s::TMazeState) = s.term ? (2*(maze.n+1) + 1) : (2*s.x - (s.g==:north))
-
-function Base.convert(maze::TMaze, s::TMazeState)
-    v = Array{Float64}(undef, 2)
-    v[1] = s.x
-    s.g == :north ? (v[2] = 0.0) : (v[2] = 1.0)
-    return v
+function POMDPs.convert_s(::Type{A}, s::Union{TMazeState,TerminalState}, m::TMaze) where A <: AbstractArray
+    return convert(A, [stateindex(m, s)])
 end
+
+# inverse of stateindex(m::TMaze, s::TMazeState) = 2*s.x - (s.g==:north)
+function POMDPs.convert_s(::Type{S}, v::AbstractVector, m::TMaze) where S <: Union{TMazeState,TerminalState}
+    i = first(v)
+    if i == 2*(m.n + 1) + 1
+        return terminalstate
+    end
+
+    if i%2 == 0
+        g = :south
+    else
+        g = :north
+    end
+    x = div(i-1, 2) + 1
+    @assert x <= m.n + 1
+    return TMazeState(x, g)
+end
+
 
 struct MazeBelief
     last_obs::Int64
@@ -219,8 +136,6 @@ function POMDPs.update(bu::MazeUpdater, b::MazeBelief, a, o)
     end
     return MazeBelief(o, mem)
 end
-
-
 
 mutable struct MazeOptimal <: Policy end
 POMDPs.updater(p::MazeOptimal) = MazeUpdater()
