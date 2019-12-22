@@ -12,18 +12,24 @@ simulate(sim, problem, policy, updater(policy), initialstate_distribution(proble
 
 POMDPTesting.probability_check(problem)
 
-function test_obs(s::TMazeState, o::Int64)
+function test_obs(s, o)
     ot = gen(DDNNode{:o}(), problem, s, MersenneTwister(1))
     @test ot == o
 end
 
-test_obs(TMazeState(1, :north, false), 1) # north sign
-test_obs(TMazeState(1, :south, false), 2) # south sign
-test_obs(TMazeState(5, :south, false), 3) # corridor
-test_obs(TMazeState(11, :south, false), 4) # junction
-test_obs(TMazeState(11, :south, true), 5) # terminal
+test_obs(TMazeState(1, :north), 1) # north sign
+test_obs(TMazeState(1, :south), 2) # south sign
+test_obs(TMazeState(5, :south), 3) # corridor
+test_obs(TMazeState(11, :south), 4) # junction
+test_obs(terminalstate, 5) # terminal
 
 ov = convert_o(Array{Float64}, 1, problem)
 @test ov == [1.]
 o = convert_o(Int64, ov, problem)
 @test o == 1
+
+for s in states(problem)
+    v = convert_s(Vector{Float64}, s, problem)
+    s2 = convert_s(Union{TerminalState,TMazeState}, v, problem)
+    @test s2 == s
+end
