@@ -1,17 +1,23 @@
 function render(mdp::SimpleGridWorld, step::Union{NamedTuple,Dict};
-                color = s->reward(mdp, s)
+                color = s->reward(mdp, s),
+                policy::Union{Policy,Nothing} = nothing
                )
 
     nx, ny = mdp.size
     cells = []
     for x in 1:nx, y in 1:ny
+        cell = cell_ctx((x,y), mdp.size)
+        if policy !== nothing
+            a = action(policy, GWPos(x,y))
+            txt = compose(context(), text(0.5, 0.5, aarrow[a], hcenter, vcenter), stroke("black"))
+            compose!(cell, txt)
+        end
         clr = tocolor(color(GWPos(x,y)))
-        ctx = cell_ctx((x,y), mdp.size)
-        cell = compose(ctx, rectangle(), fill(clr))
+        compose!(cell, rectangle(), fill(clr), stroke("gray"))
         push!(cells, cell)
     end
-    grid = compose(context(), linewidth(0.5mm), stroke("gray"), cells...)
-    outline = compose(context(), linewidth(1mm), rectangle())
+    grid = compose(context(), linewidth(0.5mm), cells...)
+    outline = compose(context(), linewidth(1mm), rectangle(), stroke("gray"))
 
     if haskey(step, :s)
         agent_ctx = cell_ctx(step[:s], mdp.size)
@@ -37,3 +43,5 @@ function tocolor(r::Float64)
     frac = (r-minr)/(maxr-minr)
     return get(ColorSchemes.redgreensplit, frac)
 end
+
+const aarrow = Dict(:up=>'↑', :left=>'←', :down=>'↓', :right=>'⇨')

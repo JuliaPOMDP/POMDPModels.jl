@@ -92,6 +92,7 @@ function POMDPs.transition(mdp::SimpleGridWorld, s::AbstractVector{Int}, a::Symb
 
         if !inbounds(mdp, dest) # hit an edge and come back
             probs[1] += prob
+            destinations[i+1] = GWPos(-1, -1) # dest was out of bounds - this will have probability zero, but it should be a valid state
         else
             probs[i+1] += prob
         end
@@ -120,9 +121,4 @@ function POMDPs.convert_a(::Type{V}, a::Symbol, m::SimpleGridWorld) where {V<:Ab
 end
 function POMDPs.convert_a(::Type{Symbol}, vec::V, m::SimpleGridWorld) where {V<:AbstractArray}
     actions(m)[convert(Int, first(vec))]
-end
-
-# Fallback Render
-function POMDPModelTools.render(m::SimpleGridWorld, step; kwargs...)
-    return "$step\n\nPlease import Compose to enable SimpleGridWorld visualization."
 end
