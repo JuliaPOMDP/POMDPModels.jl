@@ -14,3 +14,6 @@ draw(SVG(tempname()*".svg", 10cm, 10cm), c)
 
 c = POMDPModels.render(m, stage, color=s->"yellow")
 draw(SVG(tempname()*".svg", 10cm, 10cm), c)
+
+c = POMDPModels.render(m, stage, color=s->"yellow", policy=p)
+draw(SVG(tempname()*".svg", 10cm, 10cm), c)
