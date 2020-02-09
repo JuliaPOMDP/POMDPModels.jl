@@ -1,7 +1,6 @@
 using POMDPModels
 using Test
 using POMDPTesting
-using NBInclude
 
 let
     problem = SimpleGridWorld()
@@ -55,5 +54,6 @@ let
 end
 
 let
-    @nbinclude(joinpath(dirname(@__FILE__), "..", "notebooks", "GridWorld Visualization.ipynb"))
+    @warn("NBInclude tests skipped")
+    # @nbinclude(joinpath(dirname(@__FILE__), "..", "notebooks", "GridWorld Visualization.ipynb"))
 end
