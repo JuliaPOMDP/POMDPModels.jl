@@ -44,4 +44,4 @@ function tocolor(r::Float64)
     return get(ColorSchemes.redgreensplit, frac)
 end
 
-const aarrow = Dict(:up=>'↑', :left=>'←', :down=>'↓', :right=>'⇨')
+const aarrow = Dict(:up=>'↑', :left=>'←', :down=>'↓', :right=>'→')
