@@ -122,3 +122,6 @@ end
 function POMDPs.convert_a(::Type{Symbol}, vec::V, m::SimpleGridWorld) where {V<:AbstractArray}
     actions(m)[convert(Int, first(vec))]
 end
+
+# deprecated in POMDPs v0.9
+POMDPs.initialstate_distribution(mdp::SimpleGridWorld) = GWUniform(mdp.size)

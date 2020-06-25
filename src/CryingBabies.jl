@@ -83,3 +83,6 @@ action(::FeedWhenCrying, b::Bool) = b
 action(p::FeedWhenCrying, b::Missing) = false
 # assume the second argument is a distribution
 action(::FeedWhenCrying, d::Any) = pdf(d, true) > 0.5
+
+# deprecated in POMDPs 0.9
+POMDPs.initialstate_distribution(::BabyPOMDP) = BoolDistribution(0.0)
