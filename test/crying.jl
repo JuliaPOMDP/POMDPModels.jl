@@ -1,13 +1,3 @@
-using Test
-
-using POMDPModels
-# using POMDPSimulators
-using POMDPTesting
-using POMDPs
-using POMDPModelTools
-using BeliefUpdaters
-using Random
-
 let
     problem = BabyPOMDP()
 
@@ -28,7 +18,7 @@ let
     o = convert_s(Bool, ov, problem)
     @test o == true
 
-    POMDPTesting.probability_check(problem)
+    @test has_consistent_distributions(problem)
 
     bu = DiscreteUpdater(problem)
     bp =  update(bu,

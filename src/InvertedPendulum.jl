@@ -13,10 +13,7 @@ end
 
 actions(ip::InvertedPendulum) = [-50., 0., 50.]
 
-function initialstate(ip::InvertedPendulum, rng::AbstractRNG)
-  sp = ((rand(rng)-0.5)*0.1, (rand(rng)-0.5)*0.1, )
-  return sp
-end
+initialstate(ip::InvertedPendulum) = ImplicitDistribution(rng -> ((rand(rng)-0.5)*0.1, (rand(rng)-0.5)*0.1, ))
 
 function reward(ip::InvertedPendulum,
               s::Tuple{Float64,Float64},
@@ -35,10 +32,10 @@ function dwdt(m::InvertedPendulum,th::Float64,w::Float64,u::Float64)
 end
 
 # TODO
-function rk45(m::InvertedPendulum,s::Tuple{Float64,Float64},a::Float64)
-    k1 = dwdt(m,s[1],s[2],a)
-    #something...
-end
+# function rk45(m::InvertedPendulum,s::Tuple{Float64,Float64},a::Float64)
+#     k1 = dwdt(m,s[1],s[2],a)
+#     #something...
+# end
 
 function euler(m::InvertedPendulum,s::Tuple{Float64,Float64},a::Float64)
     alph = dwdt(m,s[1],s[2],a)
@@ -52,16 +49,12 @@ function euler(m::InvertedPendulum,s::Tuple{Float64,Float64},a::Float64)
     return (th_,w_)
 end
 
-function gen(::DDNNode{:sp},
-             ip::InvertedPendulum,
-             s::Tuple{Float64,Float64},
-             a::Float64,
-             rng::AbstractRNG)
-  a_offset = 20*(rand(rng)-0.5)
-  a_ = a + a_offset
-
-  sp = euler(ip, s, a_)
-  return sp
+function transition(ip::InvertedPendulum, s::Tuple{Float64,Float64}, a::Float64)
+    ImplicitDistribution(s, a) do s, a, rng
+        a_offset = 20*(rand(rng)-0.5)
+        a_ = a + a_offset
+        return euler(ip, s, a_)
+    end
 end
 
 function convert_s(::Type{A}, s::Tuple{Float64,Float64}, ip::InvertedPendulum) where A<:AbstractArray

@@ -31,6 +31,6 @@ let
     o = convert_o(Bool, ov, pomdp1)
     @test o == true
 
-    POMDPTesting.probability_check(pomdp1)
-    POMDPTesting.probability_check(pomdp2)
+    @test has_consistent_distributions(pomdp1)
+    @test has_consistent_distributions(pomdp2)
 end

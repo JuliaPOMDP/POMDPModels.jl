@@ -53,7 +53,7 @@ function POMDPs.pdf(d::GWUniform, s::GWPos)
 end
 POMDPs.support(d::GWUniform) = (GWPos(x, y) for x in 1:d.size[1], y in 1:d.size[2])
 
-POMDPs.initialstate_distribution(mdp::SimpleGridWorld) = GWUniform(mdp.size)
+POMDPs.initialstate(mdp::SimpleGridWorld) = GWUniform(mdp.size)
 
 # Actions
 

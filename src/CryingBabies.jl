@@ -25,7 +25,8 @@ obsindex(::BabyPOMDP, o::Bool) = o + 1
 
 
 # start knowing baby is not not hungry
-initialstate_distribution(::BabyPOMDP) = BoolDistribution(0.0)
+initialstate(::BabyPOMDP) = BoolDistribution(0.0)
+initialobs(m::BabyPOMDP, s) = observation(m, s)
 
 function transition(pomdp::BabyPOMDP, s::Bool, a::Bool)
     if a # fed

@@ -37,6 +37,6 @@ let
     @test GridWorldState(1,2,true) == GridWorldState(1,1,true)
     @test hash(GridWorldState(1,2,true)) == hash(GridWorldState(1,1,true))
 
-    POMDPTesting.trans_prob_consistency_check(problem)
+    @test has_consistent_transition_distributions(problem)
 
 end
