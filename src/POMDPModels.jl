@@ -32,7 +32,7 @@ import POMDPs: gen, support, discount, isterminal
 import POMDPs: actions, actionindex, action, dimensions
 import POMDPs: states, stateindex, transition
 import POMDPs: observations, observation, obsindex
-import POMDPs: initialstate, initialstate_distribution, initialobs
+import POMDPs: initialstate, initialobs
 import POMDPs: updater, update
 import POMDPs: reward
 import POMDPs: convert_s, convert_a, convert_o

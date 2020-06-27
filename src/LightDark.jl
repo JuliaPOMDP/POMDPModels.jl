@@ -62,7 +62,8 @@ end
 
 sampletype(::Type{LDNormalStateDist}) = LightDark1DState
 rand(rng::AbstractRNG, d::LDNormalStateDist) = LightDark1DState(0, d.mean + randn(rng)*d.std)
-initialstate_distribution(pomdp::LightDark1D) = LDNormalStateDist(2, 3)
+initialstate(pomdp::LightDark1D) = LDNormalStateDist(2, 3)
+initialobs(m::LightDark1D, s) = observation(m, s)
 
 observation(p::LightDark1D, sp::LightDark1DState) = Normal(sp.y, p.sigma(sp.y))
 
@@ -135,3 +136,6 @@ function action(p::SmartHeuristic1DPolicy, b::B) where {B}
     end
     return a
 end
+
+# deprecated in POMDPs v0.9
+POMDPs.initialstate_distribution(pomdp::LightDark1D) = LDNormalStateDist(2, 3)

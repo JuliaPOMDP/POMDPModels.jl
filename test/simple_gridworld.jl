@@ -33,7 +33,7 @@ let
     a = convert_a(Symbol, av, problem)
     @test a == :up
 
-    POMDPTesting.trans_prob_consistency_check(problem)
+    @test has_consistent_transition_distributions(problem)
 
     pol = FunctionPolicy(x->:up)
     stp = first(stepthrough(problem, pol, "s,a", max_steps=1))

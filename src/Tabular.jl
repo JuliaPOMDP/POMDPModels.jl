@@ -55,7 +55,7 @@ transition(p::TabularProblem, s::Int64, a::Int64) = DiscreteDistribution(view(p.
 
 reward(prob::TabularProblem, s::Int64, a::Int64) = prob.R[s, a]
 
-initialstate_distribution(p::TabularProblem) = DiscreteDistribution(ones(length(states(p)))./length(states(p)))
+initialstate(p::TabularProblem) = DiscreteDistribution(ones(length(states(p)))./length(states(p)))
 
 # POMDP only methods
 n_observations(p::TabularProblem) = size(p.O, 1)
@@ -65,3 +65,6 @@ observations(p::TabularPOMDP) = 1:n_observations(p)
 observation(p::TabularPOMDP, a::Int64, sp::Int64) = DiscreteDistribution(view(p.O, :, a, sp))
 
 obsindex(p::TabularPOMDP, o::Int64) = o
+
+# deprecated in POMDPs v0.9
+POMDPs.initialstate_distribution(p::TabularProblem) = DiscreteDistribution(ones(length(states(p)))./length(states(p)))

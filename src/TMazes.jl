@@ -32,7 +32,7 @@ actionindex(maze::TMaze, i::Int) = i
 observations(maze::TMaze) = 1:5
 obsindex(maze::TMaze, i::Int) = i
 
-function initialstate_distribution(maze::TMaze)
+function initialstate(maze::TMaze)
     s = states(maze)
     ns = length(s)
     p = zeros(ns) .+ 1.0 / (ns-1)
@@ -92,6 +92,8 @@ function observation(m::TMaze, sp::TMazeState)
 end
 
 observation(m::TMaze, sp::TerminalState) = Deterministic(5)
+
+initialobs(m::TMaze, s) = observation(m, s)
 
 discount(m::TMaze) = m.discount
 
@@ -157,3 +159,6 @@ function POMDPs.action(p::MazeOptimal, b::MazeBelief)
     end
     return 2
 end
+
+# deprecated in POMDPs v0.9
+POMDPs.initialstate_distribution(m::TMaze) = initialstate(m)

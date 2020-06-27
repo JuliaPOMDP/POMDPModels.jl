@@ -10,7 +10,7 @@ sim = RolloutSimulator(rng=MersenneTwister(3), max_steps=100)
 
 simulate(sim, problem, policy, updater(policy), initialstate_distribution(problem))
 
-POMDPTesting.probability_check(problem)
+@test has_consistent_distributions(problem)
 
 function test_obs(s, o)
     ot = gen(DDNNode{:o}(), problem, s, MersenneTwister(1))
