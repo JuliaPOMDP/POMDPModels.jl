@@ -1,13 +1,13 @@
 [deps]
-POMDPPolicies = "182e52fb-cfd0-5e46-8c26-fd0667c990f4"
-POMDPSimulators = "e0d0a172-29c6-5d4e-96d0-f262df5d01fd"
-POMDPTesting = "92e6a534-49c2-5324-9027-86e3c861ab81"
-Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 BeliefUpdaters = "8bb6e9a1-7d73-552c-a44a-e5dc5634aac4"
 Compose = "a81c6b42-2e10-5240-aca2-a61377ecd94b"
 POMDPModelTools = "08074719-1b2a-587c-a292-00f91cc44415"
-Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+POMDPPolicies = "182e52fb-cfd0-5e46-8c26-fd0667c990f4"
+POMDPSimulators = "e0d0a172-29c6-5d4e-96d0-f262df5d01fd"
+POMDPTesting = "92e6a534-49c2-5324-9027-86e3c861ab81"
 POMDPs = "a93abf59-7444-517b-a68a-c42f96afdd7d"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [compat]
 POMDPTesting = "0.2"

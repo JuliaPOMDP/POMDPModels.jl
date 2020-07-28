@@ -13,7 +13,7 @@ let
     @test s1.status != 0
     @test r == -10.0
     s2 = LightDark1DState(0, 5)
-    obs = gen(DDNNode(:o), p, nothing, nothing, s2, rng)
+    obs = rand(rng, observation(p, nothing, nothing, s2))
     @test abs(obs-6.0) <= 1.1
 
 
