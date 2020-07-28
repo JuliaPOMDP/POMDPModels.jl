@@ -39,4 +39,5 @@ let
 
     @test has_consistent_transition_distributions(problem)
 
+    @test rand(MersenneTwister(3), initialstate(problem)) isa GridWorldState
 end

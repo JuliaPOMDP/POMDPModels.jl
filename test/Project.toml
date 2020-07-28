@@ -8,3 +8,6 @@ Compose = "a81c6b42-2e10-5240-aca2-a61377ecd94b"
 POMDPModelTools = "08074719-1b2a-587c-a292-00f91cc44415"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 POMDPs = "a93abf59-7444-517b-a68a-c42f96afdd7d"
+
+[compat]
+POMDPTesting = "0.2"

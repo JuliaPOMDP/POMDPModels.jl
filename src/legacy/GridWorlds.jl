@@ -299,6 +299,10 @@ convert_a(::Type{Symbol}, a::A, mdp::LegacyGridWorld) where A<:AbstractArray = i
 
 initialstate(mdp::LegacyGridWorld, rng::AbstractRNG) = GridWorldState(rand(rng, 1:mdp.size_x), rand(rng, 1:mdp.size_y))
 
+initialstate(mdp::LegacyGridWorld) = ImplicitDistribution(mdp) do m, rng
+    GridWorldState(rand(rng, 1:m.size_x), rand(rng, 1:m.size_y))
+end
+
 # Visualization
 #=
 function colorval(val, brightness::Real = 1.0)
