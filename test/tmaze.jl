@@ -8,7 +8,7 @@ problem = TMaze(n=10)
 policy = RandomPolicy(problem, rng=MersenneTwister(2))
 sim = RolloutSimulator(rng=MersenneTwister(3), max_steps=100)
 
-simulate(sim, problem, policy, updater(policy), initialstate_distribution(problem))
+simulate(sim, problem, policy, updater(policy), initialstate(problem))
 
 @test has_consistent_distributions(problem)
 

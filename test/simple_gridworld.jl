@@ -44,7 +44,7 @@ let
     POMDPModelTools.render(problem, stp, color=s->"yellow")
 
     ss = collect(states(problem))
-    isd = initialstate_distribution(problem)
+    isd = initialstate(problem)
     for s in ss
         if !isterminal(problem, s)
             @test s in support(isd)

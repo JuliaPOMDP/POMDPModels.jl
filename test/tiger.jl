@@ -20,7 +20,7 @@ let
     policy = RandomPolicy(pomdp1, rng=MersenneTwister(2))
     sim = RolloutSimulator(rng=MersenneTwister(3), max_steps=100)
 
-    simulate(sim, pomdp1, policy, updater(policy), initialstate_distribution(pomdp1))
+    simulate(sim, pomdp1, policy, updater(policy), initialstate(pomdp1))
 
     o = initialobs(pomdp1, true, MersenneTwister(1))
     @test o == 1

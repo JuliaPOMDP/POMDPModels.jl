@@ -24,7 +24,7 @@ let
     policy = RandomPolicy(pomdp, rng=MersenneTwister(2))
     sim = RolloutSimulator(rng=MersenneTwister(3), max_steps=100)
 
-    simulate(sim, pomdp, policy, updater(policy), initialstate_distribution(pomdp))
+    simulate(sim, pomdp, policy, updater(policy), initialstate(pomdp))
     @test has_consistent_distributions(pomdp)
 
     ov = convert_o(Array{Float64}, 1, pomdp)
