@@ -42,6 +42,7 @@ let
     POMDPModelTools.render(problem, stp, color=s->reward(problem,s))
     POMDPModelTools.render(problem, stp, color=s->rand())
     POMDPModelTools.render(problem, stp, color=s->"yellow")
+    POMDPModelTools.render(problem, stp, color=s->reward(problem,s), minr=-1.0, maxr=1.0)
 
     ss = collect(states(problem))
     isd = initialstate(problem)
