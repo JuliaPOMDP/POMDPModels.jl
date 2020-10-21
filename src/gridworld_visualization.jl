@@ -1,7 +1,7 @@
 function render(mdp::SimpleGridWorld, step::Union{NamedTuple,Dict};
                 color = s->reward(mdp, s),
                 policy::Union{Policy,Nothing} = nothing,
-                minr::Float64 = -10.0, maxr::Float64 = 10.0
+                colormin::Float64 = -10.0, colormax::Float64 = 10.0
                )
 
     nx, ny = mdp.size
@@ -13,7 +13,7 @@ function render(mdp::SimpleGridWorld, step::Union{NamedTuple,Dict};
             txt = compose(context(), text(0.5, 0.5, aarrow[a], hcenter, vcenter), stroke("black"))
             compose!(cell, txt)
         end
-        clr = tocolor(color(GWPos(x,y)), minr, maxr)
+        clr = tocolor(color(GWPos(x,y)), colormin, colormax)
         compose!(cell, rectangle(), fill(clr), stroke("gray"))
         push!(cells, cell)
     end
@@ -37,9 +37,9 @@ function cell_ctx(xy, size)
     return context((x-1)/nx, (ny-y)/ny, 1/nx, 1/ny)
 end
 
-tocolor(x, minr, maxr) = x
-function tocolor(r::Float64, minr::Float64, maxr::Float64)
-    frac = (r-minr)/(maxr-minr)
+tocolor(x, colormin, colormax) = x
+function tocolor(r::Float64, colormin::Float64, colormax::Float64)
+    frac = (r-colormin)/(colormax-colormin)
     return get(ColorSchemes.redgreensplit, frac)
 end
 
