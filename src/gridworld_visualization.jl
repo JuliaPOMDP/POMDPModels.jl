@@ -1,4 +1,4 @@
-function render(mdp::SimpleGridWorld, step::Union{NamedTuple,Dict};
+function render(mdp::SimpleGridWorld, step::Union{NamedTuple,Dict}=(;);
                 color = s->reward(mdp, s),
                 policy::Union{Policy,Nothing} = nothing
                )
