@@ -3,6 +3,8 @@ function render(mdp::SimpleGridWorld, step::Union{NamedTuple,Dict}=(;);
                 policy::Union{Policy,Nothing} = nothing
                )
 
+    color = tofunc(mdp, color)
+
     nx, ny = mdp.size
     cells = []
     for x in 1:nx, y in 1:ny
@@ -43,5 +45,9 @@ function tocolor(r::Float64)
     frac = (r-minr)/(maxr-minr)
     return get(ColorSchemes.redgreensplit, frac)
 end
+
+tofunc(m::SimpleGridWorld, f) = f
+tofunc(m::SimpleGridWorld, mat::AbstractMatrix) = s->mat[s...]
+tofunc(m::SimpleGridWorld, v::AbstractVector) = s->v[stateindex(m, s)]
 
 const aarrow = Dict(:up=>'↑', :left=>'←', :down=>'↓', :right=>'→')

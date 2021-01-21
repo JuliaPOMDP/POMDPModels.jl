@@ -12,6 +12,12 @@ draw(SVG(tempname()*".svg", 10cm, 10cm), c)
 c = POMDPModels.render(m, stage, color=s->rand())
 draw(SVG(tempname()*".svg", 10cm, 10cm), c)
 
+c = POMDPModels.render(m, stage, color=rand(10,10))
+draw(SVG(tempname()*".svg", 10cm, 10cm), c)
+
+c = POMDPModels.render(m, stage, color=rand(100))
+draw(SVG(tempname()*".svg", 10cm, 10cm), c)
+
 c = POMDPModels.render(m, stage, color=s->"yellow")
 draw(SVG(tempname()*".svg", 10cm, 10cm), c)
 
