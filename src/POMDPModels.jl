@@ -114,4 +114,9 @@ export
     GridWorldDistribution,
     static_reward
 
+include("MiniHallway.jl")
+export
+    MiniHallway,
+    Observation
+
 end # module
