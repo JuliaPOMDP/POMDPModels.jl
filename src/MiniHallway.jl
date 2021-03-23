@@ -10,10 +10,6 @@
 # The rest is available at link
 
 
-using POMDPs
-using POMDPModelTools
-using POMDPLinter
-
 struct Observation
     no::Int
 end
@@ -21,8 +17,7 @@ end
 struct MiniHallway <: POMDP{Int, Int, Observation}
     T::Array{SparseCat, 2}
     R::Array{Float64}
-    O::Array{Float64, 2}
-    O_prob::Array{SparseCat{Array{Observation, 1}, Array{Float64, 1}}}
+    O::Array{SparseCat{Array{Observation, 1}, Array{Float64, 1}}}
     discount::Float64
 end
 
@@ -48,16 +43,14 @@ function MiniHallway()
     R = zeros(13)
     R[13] = 1.
 
-    # 13 x 9 matrix, access through O[:, O_no]
-    O = Array(sparse(collect(1:13), [1, 2, 3, 4, 5, 6, 7, 8, 7, 8, 5, 6, 9], [1., 1., 1., 1., 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.]))
-    O_prob = Array{SparseCat}(undef, 13)
-    O_prob[1] = SparseCat([Observation(1)], [1.]); O_prob[2] = SparseCat([Observation(2)], [1.]); O_prob[3] = SparseCat([Observation(3)], [1.]);
-    O_prob[4] = SparseCat([Observation(4)], [1.]); O_prob[5] = SparseCat([Observation(5)], [1.]); O_prob[6] = SparseCat([Observation(6)], [1.]);
-    O_prob[7] = SparseCat([Observation(7)], [1.]); O_prob[8] = SparseCat([Observation(8)], [1.]); O_prob[9] = SparseCat([Observation(7)], [1.]);
-    O_prob[10] = SparseCat([Observation(8)], [1.]); O_prob[11] = SparseCat([Observation(5)], [1.]); O_prob[12] = SparseCat([Observation(6)], [1.]);
-    O_prob[13] = SparseCat([Observation(9)], [1.]);
+    O = Array{SparseCat}(undef, 13)
+    O[1] = SparseCat([Observation(1)], [1.]); O[2] = SparseCat([Observation(2)], [1.]); O[3] = SparseCat([Observation(3)], [1.]);
+    O[4] = SparseCat([Observation(4)], [1.]); O[5] = SparseCat([Observation(5)], [1.]); O[6] = SparseCat([Observation(6)], [1.]);
+    O[7] = SparseCat([Observation(7)], [1.]); O[8] = SparseCat([Observation(8)], [1.]); O[9] = SparseCat([Observation(7)], [1.]);
+    O[10] = SparseCat([Observation(8)], [1.]); O[11] = SparseCat([Observation(5)], [1.]); O[12] = SparseCat([Observation(6)], [1.]);
+    O[13] = SparseCat([Observation(9)], [1.]);
 
-    return MiniHallway(T, R, O, O_prob, discount)
+    return MiniHallway(T, R, O, discount)
 end
 
 ##################
@@ -70,10 +63,10 @@ end
 POMDPs.stateindex(m::MiniHallway, ss::Int) = ss
 POMDPs.isterminal(m::MiniHallway, ss::Int) = ss == 13
 
-_findall(testf::Function, A) = (first(p) for p in pairs(A) if testf)
 function POMDPs.transition(m::MiniHallway, ss::Int, a::Int)
     return m.T[ss, a]
 end
+POMDPs.transition(m::MiniHallway, ss::Int, a::Int, sp::Int) = transition(m, ss, a)
 
 POMDPs.actions(m::MiniHallway)::Array{Int, 1} = 1:3
 POMDPs.actionindex(m::MiniHallway, a::Int)::Int = a
@@ -90,5 +83,6 @@ POMDPs.obsindex(m::MiniHallway, o::Observation)::Int = o.no
 POMDPs.obsindex(m::MiniHallway, o::Int)::Int = o
 
 function POMDPs.observation(m::MiniHallway, a::Int, sp::Int)::SparseCat
-    return m.O_prob[sp]
+    return m.O[sp]
 end
+POMDPs.observation(m::MiniHallway, s::Int, a::Int, sp::Int)::SparseCat = observation(m, a, sp)
