@@ -73,3 +73,5 @@ function POMDPs.observation(m::MiniHallway, a::Int, sp::Int)::Deterministic
 end
 POMDPs.observation(m::MiniHallway, s::Int, a::Int, sp::Int)::Deterministic = observation(m, a, sp)
 POMDPs.obsindex(m::MiniHallway, o::Int)::Int = o
+
+Base.broadcastable(m::MiniHallway) = Ref(m)
