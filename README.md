@@ -7,10 +7,11 @@ This package provides the following models for POMDPs.jl:
 * [SimpleGridWorld](src/gridworld.jl)
 * Tiger
 * Crying Baby
-* Random 
+* Random
 * Mountain Car
 * Inverted Pendulum
 * T-Maze
+* [MiniHallway](src/MiniHallway.jl)
 
 ## Usage
 

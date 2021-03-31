@@ -39,3 +39,6 @@ end
 @testset "lightdark" begin
     include("lightdark.jl")
 end
+@testset "minihallway" begin
+    include("minihallway.jl")
+end
