@@ -50,6 +50,7 @@ POMDPs.actions(m::MiniHallway) = 1:3
 POMDPs.actionindex(m::MiniHallway, a::Int)::Int = a
 
 POMDPs.reward(m::MiniHallway, ss::Int, a::Int, sp::Int) = float(ss != sp && sp == 13)
+POMDPs.reward(m::MiniHallway, ss::Int, a::Int) = mean_reward(m, ss, a)
 POMDPs.discount(m::MiniHallway)::Float64 = 0.95
 
 ####################
