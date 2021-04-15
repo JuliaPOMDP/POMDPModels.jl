@@ -20,7 +20,7 @@ using Parameters
 # for visualization
 using Compose
 using ColorSchemes
-import POMDPModelTools.render
+import POMDPModelTools: render, mean_reward
 
 using POMDPs
 
