@@ -116,7 +116,6 @@ export
 
 include("MiniHallway.jl")
 export
-    MiniHallway,
-    Observation
+    MiniHallway
 
 end # module
