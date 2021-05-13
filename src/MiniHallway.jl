@@ -22,7 +22,7 @@ function MiniHallway()
     T[4] = Deterministic(4); T[5] = Deterministic(1); T[6] = Deterministic(10);
     T[8] = Deterministic(8); T[7] = Deterministic(1); T[9] = Deterministic(9);
     T[10] = Deterministic(10); T[11] = Deterministic(13); T[12] = Deterministic(8);
-    T[13] = DiscreteUniform(1, 12)
+    T[13] = Deterministic(13)
 
     return MiniHallway(T)
 end
@@ -49,13 +49,14 @@ end
 POMDPs.actions(m::MiniHallway) = 1:3
 POMDPs.actionindex(m::MiniHallway, a::Int)::Int = a
 
-POMDPs.reward(m::MiniHallway, ss::Int, a::Int, sp::Int) = float(sp==13)
+POMDPs.reward(m::MiniHallway, ss::Int, a::Int, sp::Int) = float(ss != sp && sp == 13)
+POMDPs.reward(m::MiniHallway, ss::Int, a::Int) = mean_reward(m, ss, a)
 POMDPs.discount(m::MiniHallway)::Float64 = 0.95
 
 ####################
 # pomdps interface #
 ####################
-POMDPs.initialstate(m::MiniHallway) = m.T[13]
+POMDPs.initialstate(m::MiniHallway) = DiscreteUniform(1, 12)
 POMDPs.observations(m::MiniHallway) = (i for i in 1:9)
 
 function POMDPs.observation(m::MiniHallway, a::Int, sp::Int)::Deterministic
@@ -73,3 +74,5 @@ function POMDPs.observation(m::MiniHallway, a::Int, sp::Int)::Deterministic
 end
 POMDPs.observation(m::MiniHallway, s::Int, a::Int, sp::Int)::Deterministic = observation(m, a, sp)
 POMDPs.obsindex(m::MiniHallway, o::Int)::Int = o
+
+Base.broadcastable(m::MiniHallway) = Ref(m)
