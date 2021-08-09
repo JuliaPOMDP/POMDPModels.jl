@@ -11,11 +11,11 @@
 
 
 struct MiniHallway <: POMDP{Int, Int, Int}
-    T::Array{Union{Deterministic, DiscreteUniform}, 1}
+    T::Array{Deterministic, 1}
 end
 
 function MiniHallway()
-    T = Array{Union{Deterministic, DiscreteUniform}, 1}(undef, 13)
+    T = Array{Deterministic, 1}(undef, 13)
 
     # Transitions for action 1 (and all actions in state 13) as I did not find a function for it
     T[1] = Deterministic(1); T[2] = Deterministic(2); T[3] = Deterministic(7);
@@ -56,8 +56,8 @@ POMDPs.discount(m::MiniHallway)::Float64 = 0.95
 ####################
 # pomdps interface #
 ####################
-POMDPs.initialstate(m::MiniHallway) = DiscreteUniform(1, 12)
-POMDPs.observations(m::MiniHallway) = (i for i in 1:9)
+POMDPs.initialstate(m::MiniHallway) = SparseCat(1:13, append!(fill(1/12, 12), 0.))
+POMDPs.observations(m::MiniHallway) = 1:9
 
 function POMDPs.observation(m::MiniHallway, a::Int, sp::Int)::Deterministic
     if sp <= 8
