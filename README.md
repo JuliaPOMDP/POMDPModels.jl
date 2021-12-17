@@ -9,7 +9,7 @@ This package provides the following models for POMDPs.jl:
 * [Crying Baby](src/CryingBabies.jl)
 * [Random](src/Random.jl)
 * [Mountain Car](src/MountainCar.jl)
-* [Inverted Pendulum](src/MountainCar.jl)
+* [Inverted Pendulum](src/InvertedPendulum.jl)
 * [T-Maze](src/TMazes.jl)
 * [MiniHallway](src/MiniHallway.jl)
 * [LightDark](src/LightDark.jl)
