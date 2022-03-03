@@ -12,7 +12,7 @@ function render(mdp::SimpleGridWorld, step::Union{NamedTuple,Dict}=(;);
         cell = cell_ctx((x,y), mdp.size)
         if policy !== nothing
             a = action(policy, GWPos(x,y))
-            txt = compose(context(), text(0.5, 0.5, aarrow[a], hcenter, vcenter), stroke("black"))
+            txt = compose(context(), text(0.5, 0.5, aarrow[a], hcenter, vcenter), stroke("black"), fill("black"))
             compose!(cell, txt)
         end
         clr = tocolor(color(GWPos(x,y)), colormin, colormax)
@@ -23,14 +23,25 @@ function render(mdp::SimpleGridWorld, step::Union{NamedTuple,Dict}=(;);
     outline = compose(context(), linewidth(1mm), rectangle(), stroke("gray"))
 
     if haskey(step, :s)
-        agent_ctx = cell_ctx(step[:s], mdp.size)
-        agent = compose(agent_ctx, circle(0.5, 0.5, 0.4), fill("orange"))
+        agent = cell_ctx(step[:s], mdp.size)
+        if haskey(step, :a)
+            act = compose(context(), text(0.5, 0.5, aarrow[step[:a]], hcenter, vcenter), stroke("black"), fill("black"))
+            compose!(agent, act)
+        end
+        compose!(agent, circle(0.5, 0.5, 0.4), fill("orange"))
     else
         agent = nothing
     end
 
+    if haskey(step, :sp) && !isterminal(mdp, step[:sp])
+        next_agent = cell_ctx(step[:sp], mdp.size)
+        compose!(next_agent, circle(0.5, 0.5, 0.4), fill("lightblue"))
+    else
+        next_agent = nothing
+    end
+
     sz = min(w,h)
-    return compose(context((w-sz)/2, (h-sz)/2, sz, sz), agent, grid, outline)
+    return compose(context((w-sz)/2, (h-sz)/2, sz, sz), agent, next_agent, grid, outline)
 end
 
 function cell_ctx(xy, size)
