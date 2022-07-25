@@ -1,6 +1,6 @@
 using POMDPModels
+using POMDPTools
 using Test
-using POMDPTesting
 
 let
     problem = LegacyGridWorld()

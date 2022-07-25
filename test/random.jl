@@ -1,11 +1,8 @@
 using Test
 using POMDPModels
 using Random
-# using POMDPSimulators
-# using POMDPPolicies
 using POMDPs
-using POMDPModelTools
-using POMDPTesting
+using POMDPTools
 
 let
     ns = 10

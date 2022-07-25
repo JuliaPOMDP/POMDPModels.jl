@@ -1,7 +1,7 @@
 using Test
 using POMDPModels
+using POMDPTools
 using POMDPs
-using POMDPTesting
 
 problem = TMaze(n=10)
 

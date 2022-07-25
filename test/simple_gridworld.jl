@@ -1,6 +1,6 @@
 using POMDPModels
+using POMDPTools
 using Test
-using POMDPTesting
 
 let
     problem = SimpleGridWorld()
@@ -37,12 +37,12 @@ let
 
     pol = FunctionPolicy(x->:up)
     stp = first(stepthrough(problem, pol, "s,a", max_steps=1))
-    POMDPModelTools.render(problem, stp)
-    POMDPModelTools.render(problem, NamedTuple())
-    POMDPModelTools.render(problem, stp, color=s->reward(problem,s))
-    POMDPModelTools.render(problem, stp, color=s->rand())
-    POMDPModelTools.render(problem, stp, color=s->"yellow")
-    POMDPModelTools.render(problem, stp, color=s->reward(problem,s), colormin=-1.0, colormax=1.0)
+    POMDPTools.render(problem, stp)
+    POMDPTools.render(problem, NamedTuple())
+    POMDPTools.render(problem, stp, color=s->reward(problem,s))
+    POMDPTools.render(problem, stp, color=s->rand())
+    POMDPTools.render(problem, stp, color=s->"yellow")
+    POMDPTools.render(problem, stp, color=s->reward(problem,s), colormin=-1.0, colormax=1.0)
 
     ss = collect(states(problem))
     isd = initialstate(problem)

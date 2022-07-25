@@ -1,10 +1,6 @@
 using POMDPModels
 using POMDPs
-using POMDPSimulators
-using POMDPModelTools
-using BeliefUpdaters
-using POMDPPolicies
-using POMDPTesting
+using POMDPTools
 using Random
 using Test
 using Compose
