@@ -1,5 +1,5 @@
 using POMDPModels
-using POMDPTesting
+using POMDPTools
 using Test
 
 let

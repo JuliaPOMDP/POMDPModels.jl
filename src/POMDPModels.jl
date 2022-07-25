@@ -8,8 +8,7 @@
 module POMDPModels
 
 using POMDPs
-using POMDPModelTools
-using BeliefUpdaters
+using POMDPTools
 using Distributions
 using StaticArrays
 using StatsBase
@@ -20,7 +19,7 @@ using Parameters
 # for visualization
 using Compose
 using ColorSchemes
-import POMDPModelTools: render, mean_reward
+import POMDPTools: render, mean_reward
 
 using POMDPs
 
