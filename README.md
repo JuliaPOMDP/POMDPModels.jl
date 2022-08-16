@@ -1,6 +1,6 @@
 # POMDPModels
-[![Build Status](https://travis-ci.org/JuliaPOMDP/POMDPModels.jl.svg?branch=master)](https://travis-ci.org/JuliaPOMDP/POMDPModels.jl)
-[![Coverage Status](https://coveralls.io/repos/github/JuliaPOMDP/POMDPModels.jl/badge.svg)](https://coveralls.io/github/JuliaPOMDP/POMDPModels.jl)
+[![CI](https://github.com/JuliaPOMDP/POMDPModels.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/JuliaPOMDP/POMDPModels.jl/actions/workflows/CI.yml)
+[![codecov](https://codecov.io/gh/JuliaPOMDP/POMDPModels.jl/branch/master/graph/badge.svg?token=xPLiTP3IVt)](https://codecov.io/gh/JuliaPOMDP/POMDPModels.jl)
 
 This package provides the following models for POMDPs.jl:
 
