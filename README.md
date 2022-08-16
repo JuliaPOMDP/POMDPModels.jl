@@ -1,5 +1,5 @@
 # POMDPModels
-[![CI](https://github.com/dylan-asmar/POMDPModels.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/dylan-asmar/POMDPModels.jl/actions/workflows/CI.yml)
+[![CI](https://github.com/JuliaPOMDP/POMDPModels.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/JuliaPOMDP/POMDPModels.jl/actions/workflows/CI.yml)
 [![codecov](https://codecov.io/gh/JuliaPOMDP/POMDPModels.jl/branch/master/graph/badge.svg?token=xPLiTP3IVt)](https://codecov.io/gh/JuliaPOMDP/POMDPModels.jl)
 
 This package provides the following models for POMDPs.jl:
