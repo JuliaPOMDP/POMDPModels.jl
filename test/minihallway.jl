@@ -12,4 +12,5 @@ pomdp = MiniHallway()
 @test actionindex(pomdp, 1) == 1
 @test obsindex(pomdp, 1) == 1
 
+@test reward(pomdp, 11, 1) == 1
 @test reward(pomdp, 11, 1, 13) == 1
