@@ -159,6 +159,3 @@ function POMDPs.action(p::MazeOptimal, b::MazeBelief)
     end
     return 2
 end
-
-# deprecated in POMDPs v0.9
-POMDPs.initialstate_distribution(m::TMaze) = initialstate(m)

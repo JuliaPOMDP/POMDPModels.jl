@@ -136,6 +136,3 @@ function action(p::SmartHeuristic1DPolicy, b::B) where {B}
     end
     return a
 end
-
-# deprecated in POMDPs v0.9
-POMDPs.initialstate_distribution(pomdp::LightDark1D) = LDNormalStateDist(2, 3)

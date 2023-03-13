@@ -43,5 +43,3 @@ convert_s(::Type{Tuple{Float64,Float64}}, s::A, mc::MountainCar) where A<:Abstra
 struct Energize <: Policy end
 action(::Energize,s::Tuple{Float64,Float64}) = sign(s[2])
 
-# deprecated in POMDPs v0.9
-POMDPs.initialstate_distribution(mc::MountainCar) = Deterministic((-0.5,0.,))
