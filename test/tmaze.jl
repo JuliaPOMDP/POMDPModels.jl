@@ -13,7 +13,7 @@ simulate(sim, problem, policy, updater(policy), initialstate(problem))
 @test has_consistent_distributions(problem)
 
 function test_obs(s, o)
-    ot = rand(MersenneTwister(1), initialobs(problem, s))
+    ot = rand(observation(TMaze(n=10), s))
     @test ot == o
 end
 

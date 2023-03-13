@@ -62,18 +62,18 @@ discount(p::BabyPOMDP) = p.discount
 
 # some example policies
 struct Starve <: Policy end
-action(::Starve, ::B) where {B} = false
+action(::Starve, ::Any) = false
 updater(::Starve) = NothingUpdater()
 
 struct AlwaysFeed <: Policy end
-action(::AlwaysFeed, ::B) where {B} = true
+action(::AlwaysFeed, ::Any) = true
 updater(::AlwaysFeed) = NothingUpdater()
 
 # feed when the previous observation was crying - this is nearly optimal
 struct FeedWhenCrying <: Policy end
 updater(::FeedWhenCrying) = PreviousObservationUpdater()
 function action(::FeedWhenCrying, b::Union{Nothing, Bool})
-    if b == nothing || b == false # not crying (or null)
+    if isnothing(b) || b == false # not crying (or null)
         return false
     else # is crying
         return true
@@ -83,6 +83,3 @@ action(::FeedWhenCrying, b::Bool) = b
 action(p::FeedWhenCrying, b::Missing) = false
 # assume the second argument is a distribution
 action(::FeedWhenCrying, d::Any) = pdf(d, true) > 0.5
-
-# deprecated in POMDPs 0.9
-POMDPs.initialstate_distribution(::BabyPOMDP) = BoolDistribution(0.0)

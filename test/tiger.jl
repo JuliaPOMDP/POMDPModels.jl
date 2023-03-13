@@ -22,7 +22,7 @@ let
 
     simulate(sim, pomdp1, policy, updater(policy), initialstate(pomdp1))
 
-    o = initialobs(pomdp1, true, MersenneTwister(1))
+    o = first(observations(pomdp1))
     @test o == 1
     # test vec
     ov = convert_o(Array{Float64}, true, pomdp1)

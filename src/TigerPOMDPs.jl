@@ -78,7 +78,3 @@ end
 discount(pomdp::TigerPOMDP) = pomdp.discount_factor
 
 initialobs(p::TigerPOMDP, s::Bool) = observation(p, 0, s) # listen 
-
-# deprecated in POMDPs v0.9
-POMDPs.initialstate_distribution(pomdp::TigerPOMDP) = BoolDistribution(0.5)
-POMDPs.initialobs(m::TigerPOMDP, s, rng) = rand(rng, initialobs(m, s))
