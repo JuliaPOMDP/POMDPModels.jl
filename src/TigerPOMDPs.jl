@@ -7,8 +7,8 @@ mutable struct TigerPOMDP <: POMDP{Bool, Int64, Bool}
 end
 TigerPOMDP() = TigerPOMDP(-1.0, -100.0, 10.0, 0.85, 0.95)
 
-states(::TigerPOMDP) = (true, false)
-observations(::TigerPOMDP) = (true, false)
+states(::TigerPOMDP) = (false, true)
+observations(::TigerPOMDP) = (false, true)
 
 stateindex(::TigerPOMDP, s::Bool) = Int64(s) + 1
 actionindex(::TigerPOMDP, a::Int) = a + 1
@@ -20,14 +20,13 @@ const TIGER_LISTEN = 0
 const TIGER_OPEN_LEFT = 1
 const TIGER_OPEN_RIGHT = 2
 
-const TIGER_LEFT = true
-const TIGER_RIGHT = false
+const TIGER_LEFT = false
+const TIGER_RIGHT = true
 
 
 # Resets the problem after opening door; does nothing after listening
 function transition(pomdp::TigerPOMDP, s::Bool, a::Int64)
-    p = 1.0
-    if a == 1 || a == 2
+    if a == TIGER_OPEN_LEFT || a == TIGER_OPEN_RIGHT
         p = 0.5
     elseif s
         p = 1.0
@@ -40,7 +39,7 @@ end
 function observation(pomdp::TigerPOMDP, a::Int64, sp::Bool)
     pc = pomdp.p_listen_correctly
     p = 1.0
-    if a == 0
+    if a == TIGER_LISTEN
         sp ? (p = pc) : (p = 1.0-pc)
     else
         p = 0.5
@@ -55,12 +54,12 @@ end
 
 function reward(pomdp::TigerPOMDP, s::Bool, a::Int64)
     r = 0.0
-    a == 0 ? (r+=pomdp.r_listen) : (nothing)
-    if a == 1
-        s ? (r += pomdp.r_findtiger) : (r += pomdp.r_escapetiger)
+    a == TIGER_LISTEN ? (r+=pomdp.r_listen) : (nothing)
+    if a == TIGER_OPEN_LEFT
+        s == TIGER_LEFT ? (r += pomdp.r_findtiger) : (r += pomdp.r_escapetiger)
     end
-    if a == 2
-        s ? (r += pomdp.r_escapetiger) : (r += pomdp.r_findtiger)
+    if a == TIGER_OPEN_RIGHT
+        s == TIGER_RIGHT ? (r += pomdp.r_findtiger) : (r += pomdp.r_escapetiger)
     end
     return r
 end
