@@ -32,4 +32,24 @@ let
 
     @test has_consistent_distributions(pomdp1)
     @test has_consistent_distributions(pomdp2)
+
+    @test reward(pomdp1, TIGER_LEFT, TIGER_OPEN_LEFT) == pomdp1.r_findtiger
+    @test reward(pomdp1, TIGER_LEFT, TIGER_OPEN_RIGHT) == pomdp1.r_escapetiger
+    @test reward(pomdp1, TIGER_RIGHT, TIGER_OPEN_RIGHT) == pomdp1.r_findtiger
+    @test reward(pomdp1, TIGER_RIGHT, TIGER_OPEN_LEFT) == pomdp1.r_escapetiger
+    @test reward(pomdp1, TIGER_RIGHT, TIGER_LISTEN) == pomdp1.r_listen
+
+    for s in states(pomdp1)
+        @test pdf(transition(pomdp1, s, TIGER_LISTEN), s) == 1.0
+        @test pdf(transition(pomdp1, s, TIGER_OPEN_LEFT), s) == 0.5
+        @test pdf(transition(pomdp1, s, TIGER_OPEN_RIGHT), s) == 0.5
+    end
+
+    for s in states(pomdp1)
+        @test pdf(observation(pomdp1, TIGER_LISTEN, s), s) == pomdp1.p_listen_correctly
+        @test pdf(observation(pomdp1, TIGER_OPEN_LEFT, s), s) == 0.5
+        @test pdf(observation(pomdp1, TIGER_OPEN_RIGHT, s), s) == 0.5
+    end
+
+
 end
