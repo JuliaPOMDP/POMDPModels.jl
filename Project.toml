@@ -1,7 +1,7 @@
 name = "POMDPModels"
 uuid = "355abbd5-f08e-5560-ac9e-8b5f2592a0ca"
 repo = "https://github.com/JuliaPOMDP/POMDPModels.jl"
-version = "0.4.17"
+version = "0.4.18"
 
 [deps]
 ColorSchemes = "35d6a980-a343-548e-a6ea-1d62b119f2f4"
