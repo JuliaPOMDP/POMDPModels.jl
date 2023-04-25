@@ -1,6 +1,8 @@
 let
     problem = BabyPOMDP()
 
+    @test rand(initialobs(problem, true)) isa Bool
+
     # starve policy
     # when the baby is never fed, the reward for starting in the hungry state should be -100
     sim = RolloutSimulator(eps=0.0001)
