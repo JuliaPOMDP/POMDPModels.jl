@@ -1,9 +1,9 @@
-@with_kw struct TMazeState
+Base.@kwdef struct TMazeState
     x::Int64 = 1 # position in corridor
     g::Symbol = :north# goal north or south
 end
 
-@with_kw struct TMaze <: POMDP{Union{TMazeState,TerminalState}, Int64, Int64}
+Base.@kwdef struct TMaze <: POMDP{Union{TMazeState,TerminalState}, Int64, Int64}
     n::Int64 = 10 # corridor length
     discount::Float64 = 0.99 # discount factor
 end
