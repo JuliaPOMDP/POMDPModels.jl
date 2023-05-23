@@ -79,8 +79,7 @@ function POMDPs.transition(mdp::SimpleGridWorld, s::AbstractVector{Int}, a::Symb
     destinations = MVector{length(actions(mdp))+1, GWPos}(undef)
     destinations[1] = s
 
-    probs = MVector{length(actions(mdp))+1, Float64}(undef)
-    fill!(probs, 0.0)
+    probs = @MVector(zeros(length(actions(mdp))+1))
     for (i, act) in enumerate(actions(mdp))
         if act == a
             prob = mdp.tprob # probability of transitioning to the desired cell
@@ -100,6 +99,7 @@ function POMDPs.transition(mdp::SimpleGridWorld, s::AbstractVector{Int}, a::Symb
     end
 
     return SparseCat(convert(SVector, destinations), convert(SVector, probs))
+    # return SparseCat(destinations, probs)
 end
 
 function inbounds(m::SimpleGridWorld, s::AbstractVector{Int})
