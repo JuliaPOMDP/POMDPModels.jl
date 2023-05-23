@@ -71,33 +71,49 @@ POMDPs.actionindex(mdp::SimpleGridWorld, a::Symbol) = aind[a]
 
 POMDPs.isterminal(m::SimpleGridWorld, s::AbstractVector{Int}) = any(s.<0)
 
+struct GWTransitionDataIterator
+    mdp::SimpleGridWorld
+    s::GWPos
+    a::Symbol
+    prob::Float64
+end
+
+GWTransitionDataIterator(mdp,s,a) = GWTransitionDataIterator(
+    mdp, s, a,
+    (1.0 - mdp.tprob)/(length(actions(mdp)) - 1)
+)
+
+function Base.iterate(iter::GWTransitionDataIterator, state=(1,0.0))
+    (i, s1_prob) = state
+    i === 6 && return nothing
+    A = actions(iter.mdp)
+    if i < 5
+        a = A[i]
+        dest = iter.s + dir[a]
+        p = a === iter.a ? iter.mdp.tprob : iter.prob
+        if !inbounds(iter.mdp, dest) # hit an edge and come back
+            dest = GWPos(-1,-1) # dest was out of bounds - this will have probability zero, but it should be a valid state
+            s1_prob += p
+            p = 0.0
+        end
+        return (dest, p), (i+1, s1_prob)
+    else
+        return (iter.s, s1_prob), (i+1, s1_prob)
+    end
+end
+
 function POMDPs.transition(mdp::SimpleGridWorld, s::AbstractVector{Int}, a::Symbol)
     if s in mdp.terminate_from || isterminal(mdp, s)
         return Deterministic(GWPos(-1,-1))
     end
+    n_a = length(actions(mdp))
 
-    destinations = MVector{length(actions(mdp))+1, GWPos}(undef)
-    destinations[1] = s
-
-    probs = @MVector(zeros(length(actions(mdp))+1))
-    for (i, act) in enumerate(actions(mdp))
-        if act == a
-            prob = mdp.tprob # probability of transitioning to the desired cell
-        else
-            prob = (1.0 - mdp.tprob)/(length(actions(mdp)) - 1) # probability of transitioning to another cell
-        end
-
-        dest = s + dir[act]
-        destinations[i+1] = dest
-
-        if !inbounds(mdp, dest) # hit an edge and come back
-            probs[1] += prob
-            destinations[i+1] = GWPos(-1, -1) # dest was out of bounds - this will have probability zero, but it should be a valid state
-        else
-            probs[i+1] += prob
-        end
-    end
-
+    data = StaticArrays.sacollect(
+        SVector{n_a+1, Tuple{GWPos, Float64}}, 
+        GWTransitionDataIterator(mdp, s, a)
+    )
+    destinations = first.(data)
+    probs = last.(data)
     return SparseCat(destinations, probs)
 end
 
