@@ -4,6 +4,7 @@ using POMDPTools
 using Random
 using Test
 using Compose
+using StaticArrays
 
 @testset "crying" begin
     include("crying.jl")

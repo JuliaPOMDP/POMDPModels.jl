@@ -2,6 +2,36 @@ using POMDPModels
 using POMDPTools
 using Test
 
+function gw_slow_transition(mdp::SimpleGridWorld, s::AbstractVector{Int}, a::Symbol)
+    if s in mdp.terminate_from || isterminal(mdp, s)
+        return Deterministic(GWPos(-1,-1))
+    end
+
+    destinations = MVector{length(actions(mdp))+1, GWPos}(undef)
+    destinations[1] = s
+
+    probs = @MVector(zeros(length(actions(mdp))+1))
+    for (i, act) in enumerate(actions(mdp))
+        if act == a
+            prob = mdp.tprob # probability of transitioning to the desired cell
+        else
+            prob = (1.0 - mdp.tprob)/(length(actions(mdp)) - 1) # probability of transitioning to another cell
+        end
+
+        dest = s + POMDPModels.dir[act]
+        destinations[i+1] = dest
+
+        if !POMDPModels.inbounds(mdp, dest) # hit an edge and come back
+            probs[1] += prob
+            destinations[i+1] = GWPos(-1, -1) # dest was out of bounds - this will have probability zero, but it should be a valid state
+        else
+            probs[i+1] += prob
+        end
+    end
+
+    return SparseCat(destinations, probs)
+end
+
 let
     problem = SimpleGridWorld()
 
@@ -50,6 +80,18 @@ let
         if !isterminal(problem, s)
             @test s in support(isd)
             @test pdf(isd, s) > 0.0
+        end
+    end
+
+    @testset "fast transition consistency" begin
+        for s ∈ states(problem)
+            for a ∈ actions(problem)
+                t1 = transition(problem, s, a)
+                t2 = gw_slow_transition(problem, s, a)
+                for sp ∈ states(problem)
+                    @test pdf(t1, sp) ≈ pdf(t2, sp)
+                end
+            end
         end
     end
 end
