@@ -14,7 +14,6 @@ using StaticArrays
 using StatsBase
 using Random
 using Printf
-using Parameters
 
 # for visualization
 using Compose

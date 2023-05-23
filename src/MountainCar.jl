@@ -1,7 +1,7 @@
 # Mountain Car problem for continuous reinforcement learning
 # As described in XXX
 
-@with_kw struct MountainCar <: MDP{Tuple{Float64,Float64},Float64}
+Base.@kwdef struct MountainCar <: MDP{Tuple{Float64,Float64},Float64}
   discount::Float64 = 0.99
   cost::Float64 = -1.# reward at each state not at the goal (should be a negative number)
   jackpot::Float64 = 0.0 # reward at the top

@@ -1,6 +1,6 @@
 # Inverted Pendulum task for continous reinforcement learning as describe in XXX
 
-@with_kw mutable struct InvertedPendulum <: MDP{Tuple{Float64,Float64},Float64}
+Base.@kwdef mutable struct InvertedPendulum <: MDP{Tuple{Float64,Float64},Float64}
     g::Float64 = 9.81
     m::Float64 = 2.
     l::Float64 = 8.

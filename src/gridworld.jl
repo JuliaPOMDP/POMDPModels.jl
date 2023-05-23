@@ -15,7 +15,7 @@ The states are represented by 2-element static vectors of integers. Typically an
 - `tprob::Float64`: Probability of a successful transition in the direction specified by the action. The remaining probability is divided between the other neighbors. [default: `0.7`]
 - `discount::Float64`: Discount factor [default: `0.95`]
 """
-@with_kw struct SimpleGridWorld <: MDP{GWPos, Symbol}
+Base.@kwdef struct SimpleGridWorld <: MDP{GWPos, Symbol}
     size::Tuple{Int, Int}           = (10,10)
     rewards::Dict{GWPos, Float64}   = Dict(GWPos(4,3)=>-10.0, GWPos(4,6)=>-5.0, GWPos(9,3)=>10.0, GWPos(8,8)=>3.0)
     terminate_from::Set{GWPos}      = Set(keys(rewards))
