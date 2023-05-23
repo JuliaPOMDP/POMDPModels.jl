@@ -11,7 +11,7 @@
     cost::Float64 = -1.
 end
 
-actions(ip::InvertedPendulum) = [-50., 0., 50.]
+actions(ip::InvertedPendulum) = SA[-50., 0., 50.]
 
 initialstate(ip::InvertedPendulum) = ImplicitDistribution(rng -> ((rand(rng)-0.5)*0.1, (rand(rng)-0.5)*0.1, ))
 

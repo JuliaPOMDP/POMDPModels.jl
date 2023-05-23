@@ -7,7 +7,7 @@
   jackpot::Float64 = 0.0 # reward at the top
 end
 
-actions(::MountainCar) = [-1., 0., 1.]
+actions(::MountainCar) = SA[-1., 0., 1.]
 
 reward(mc::MountainCar,
        s::Tuple{Float64,Float64},

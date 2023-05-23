@@ -54,7 +54,7 @@ end
 
 function reward(pomdp::TigerPOMDP, s::Bool, a::Int64)
     r = 0.0
-    a == TIGER_LISTEN ? (r+=pomdp.r_listen) : (nothing)
+    a == TIGER_LISTEN && (r+=pomdp.r_listen)
     if a == TIGER_OPEN_LEFT
         s == TIGER_LEFT ? (r += pomdp.r_findtiger) : (r += pomdp.r_escapetiger)
     end
@@ -68,7 +68,7 @@ reward(pomdp::TigerPOMDP, s::Bool, a::Int64, sp::Bool) = reward(pomdp, s, a)
 
 initialstate(pomdp::TigerPOMDP) = BoolDistribution(0.5)
 
-actions(::TigerPOMDP) = [0,1,2]
+actions(::TigerPOMDP) = 0:2
 
 function upperbound(pomdp::TigerPOMDP, s::Bool)
     return pomdp.r_escapetiger
