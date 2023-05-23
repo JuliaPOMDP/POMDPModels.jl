@@ -99,7 +99,6 @@ function POMDPs.transition(mdp::SimpleGridWorld, s::AbstractVector{Int}, a::Symb
     end
 
     return SparseCat(convert(SVector, destinations), convert(SVector, probs))
-    # return SparseCat(destinations, probs)
 end
 
 function inbounds(m::SimpleGridWorld, s::AbstractVector{Int})
