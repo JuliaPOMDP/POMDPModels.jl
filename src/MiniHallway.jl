@@ -11,11 +11,11 @@
 
 
 struct MiniHallway <: POMDP{Int, Int, Int}
-    T::Array{Deterministic, 1}
+    T::Array{Deterministic{Int}, 1}
 end
 
 function MiniHallway()
-    T = Array{Deterministic, 1}(undef, 13)
+    T = Array{Deterministic{Int}, 1}(undef, 13)
 
     # Transitions for action 1 (and all actions in state 13) as I did not find a function for it
     T[1] = Deterministic(1); T[2] = Deterministic(2); T[3] = Deterministic(7);
@@ -37,12 +37,10 @@ POMDPs.isterminal(m::MiniHallway, ss::Int)::Bool = ss == 13
 function POMDPs.transition(m::MiniHallway, ss::Int, a::Int)
     if a == 1 || ss == 13
         return m.T[ss]
-    else
-        if a == 2
-            return ss % 4 == 0 ? Deterministic(ss - 3) : Deterministic(ss + 1)
-        elseif a == 3
-            return (ss - 1) % 4 == 0 ? Deterministic(ss + 3) : Deterministic(ss - 1)
-        end
+    elseif a == 2
+        return ss % 4 == 0 ? Deterministic(ss - 3) : Deterministic(ss + 1)
+    else #a == 3
+        return (ss - 1) % 4 == 0 ? Deterministic(ss + 3) : Deterministic(ss - 1)
     end
 end
 
