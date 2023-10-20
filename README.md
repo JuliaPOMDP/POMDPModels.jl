@@ -38,6 +38,6 @@ pomdp = TigerPOMDP()
 pomdp = BabyPOMDP()
 pomdp = RandomPOMDP()
 
-mdp = GridWorld()
+mdp = SimpleGridWorld()
 mdp = RandomMDP()
 ```
