@@ -34,7 +34,7 @@ function ==(s1::GridWorldState,s2::GridWorldState)
 end
 # for hashing states in dictionaries in Monte Carlo Tree Search
 posequal(s1::GridWorldState, s2::GridWorldState) = s1.x == s2.x && s1.y == s2.y
-function hash(s::GridWorldState, h::UInt64 = zero(UInt64))
+function hash(s::GridWorldState, h::UInt)
     if s.done
         return hash(s.done, h)
     else
